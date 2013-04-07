@@ -41,5 +41,8 @@
     <ClInclude Include="parser_rain.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="rain_stats_holder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

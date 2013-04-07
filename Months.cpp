@@ -3,29 +3,8 @@
 namespace ALMANAC
   {
   using namespace std;
-  std::string getMonthName(const int& MONTH)
-    {
-    //std::string output;
-    if (MONTH <= 0 || MONTH > 13)
-      return string("Month error");
-    else
-      switch(MONTH)
-      {
-      case JANUARY: return string("January"); break;
-      case FEBRUARY: return string("February"); break;
-      case MARCH: return string("March"); break;
-      case APRIL: return string("April"); break;
-      case MAY: return string("May"); break;
-      case JUNE: return string("June"); break;
-      case JULY: return string("July"); break;
-      case AUGUST: return string("August"); break;
-      case SEPTEMBER: return string("September"); break;
-      case OCTOBER: return string("October"); break;
-      case NOVEMBER: return string("November"); break;
-      case DECEMBER: return string("December"); break;
-      default: return string("Switch error"); break;
-      }
-    }
+  //std::string getMonthName(const int MONTH)
+    
 
   Month::Month()
     :MONTH(JANUARY), date(1)
@@ -50,6 +29,12 @@ namespace ALMANAC
       else
         date = day;
       }
+    }
+
+  ostream& operator<< (ostream& os, const Month& month)
+    {
+    os << getMonthName(month.getMonth()) << " " << month.getDate();
+    return os;
     }
 
   void Month::advanceDay(const int& numDays)
@@ -99,17 +84,17 @@ namespace ALMANAC
       MONTH = NEWMONTH;
     }
   
-  int Month::getMonth()
+  int Month::getMonth() const
     {
     return MONTH;
     }
 
-  int Month::getDate()
+  int Month::getDate() const
     {
     return date;
     }
 
-  int Month::getNumberOfDaysInMonth()
+  int Month::getNumberOfDaysInMonth() const
     {
     if (MONTH == FEBRUARY)
       return 28;
