@@ -19,6 +19,7 @@ namespace ALMANAC
     bool rain();
     double getRainAmount();
 
+
     Month getMonth();
     void changeDate(const int month, const int date);
 
