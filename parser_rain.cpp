@@ -58,10 +58,10 @@ namespace Parse
       }
     }
 
-  vector<float> Parser::process(string& input)
+  vector<double> Parser::process(string& input)
     {
     string buffer;
-    vector<float> output;
+    vector<double> output;
     for (auto it = input.begin(); it < input.end(); it++)
       {
       if (*it != ' ' && *it != 9) // If not a delimiter.
@@ -82,16 +82,18 @@ namespace Parse
     if (output.size() != 0)
       output.pop_back();
 
-    // Next, discard the first.
+    
+    /*// Next, discard the first.
     if (output.size() != 0)
-      output.erase(output.begin());
+      output.erase(output.begin());*/
+    ///// Edited to not discard the first, as to provide padding.
 
     return output;
     }
 
-  vector<vector<float>> Parser::parse()
+  vector<vector<double>> Parser::parse()
     {
-    vector<vector<float>> output;
+    vector<vector<double>> output;
 
     for (auto it = rawbuffer.begin()+1; it < rawbuffer.end(); it++) // Skip the first Korean line.
       output.push_back(process(*it));
@@ -116,10 +118,10 @@ namespace Parse
   *
   */
 
-  vector<float> Parser_RainyDays::process(string &input)
+  vector<double> Parser_RainyDays::process(string &input)
     {
     string buffer;
-    vector<float> output;
+    vector<double> output;
 
     for (auto it = input.begin(); it < input.end(); it++)
       {
@@ -152,20 +154,20 @@ namespace Parse
   /// Rain stats parser
   /////
 
-  void RainStatisticsParser::loadData(const vector<float> & input)
+  void RainStatisticsParser::loadData(const vector<double> & input)
     {
     consolidated = input;
     mean = findMean();
     variance = findVariance();
+    standardDeviation = sqrt(variance);
     skew = findSkew();
     median = findMedian();
-    standardDeviation = sqrt(variance);
     }
 
   double RainStatisticsParser::findMean()
     {
     double sum = 0;
-    for (auto it = consolidated.begin(); it < consolidated.end(); it++)
+    for (auto it = consolidated.begin() + 1; it < consolidated.end(); it++)
       {
       sum += *it;
       }
@@ -173,41 +175,66 @@ namespace Parse
     if (consolidated.size() == 0)
       return 0;
     else
-      return sum / consolidated.size();
+      return sum / ((consolidated.size() - 1)==1?1:(consolidated.size()-1));
     }
 
   double RainStatisticsParser::findVariance()
     {
     double sum = 0;
-    for (auto it = consolidated.begin(); it < consolidated.end(); it++)
+    int counter = 0;
+    for (auto it = consolidated.begin() + 1; it < consolidated.end(); it++)
       {
       sum += pow(*it - mean, 2);
+      counter++;
       }
-    sum /= consolidated.size();
+    sum = sum / (counter - 1);
     return sum;
     }
 
   double RainStatisticsParser::findMedian()
     {
-    std::sort(consolidated.begin(), consolidated.end());
+    vector<double> temp = consolidated;
+    std::sort(temp.begin(), temp.end());
     int position;
-    if (consolidated.size() % 2 == 0) // if even
+    if (temp.size() % 2 == 0) // if even
       {
-      position = consolidated.size() / 2 - 1;
-      double result = consolidated[position-1] + consolidated[position];
+      position = temp.size() / 2 - 1;
+      double result = temp[position-1] + temp[position];
       return result/2;
       }
     else // if odd
       {
-      position = consolidated.size() / 2; // eg, if 31 numbers, returns [7].
-      return consolidated[position];
+      position = temp.size() / 2; // eg, if 31 numbers, returns [7].
+      return temp[position];
       }
 
     }
 
   double RainStatisticsParser::findSkew()
     {
-    return 3.0f * (mean - median) / getSTDEV();
+    vector<long double> devFromMean;
+    vector<double> copyOfConsol;
+    for (auto it = consolidated.begin()+1; it < consolidated.end(); it++) // Skip the first.
+      copyOfConsol.push_back(*it);
+    std::sort(copyOfConsol.begin(), copyOfConsol.end());
+
+    for (auto it = copyOfConsol.begin(); it < copyOfConsol.end(); it++)
+      devFromMean.push_back(*it - mean);
+    for (auto it = devFromMean.begin(); it < devFromMean.end(); it++)
+      {
+      *it /= standardDeviation;
+      *it = pow(*it, 3); // it ^3
+      }
+    long double output = 0;
+    std::sort(devFromMean.begin(), devFromMean.end());
+    for (auto it = devFromMean.begin(); it < devFromMean.end(); it++)
+      output += *it;
+
+//    output /= pow(devFromMean.size() - 1, 3.0f);
+    long double coef = devFromMean.size();
+    coef = coef / (coef - 1) / (coef - 2);
+    output *= coef;
+    return output;
     }
 
   double RainStatisticsParser::getMean()

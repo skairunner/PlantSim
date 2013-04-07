@@ -15,12 +15,12 @@ namespace Parse
       //Parser();
       Parser(const string& filename);
       bool load();
-      vector<vector<float>> parse();
+      vector<vector<double>> parse();
       bool isLoaded();
 
     private:
       bool loaded;
-      virtual vector<float> process(string& input); // Take a string, discard the first cell, then pack all cells except the final cell into a vector of floats.
+      virtual vector<double> process(string& input); // Take a string, discard the first cell, then pack all cells except the final cell into a vector of floats.
       //virtual void parseLogic();
 
       vector<string> rawbuffer;
@@ -36,15 +36,15 @@ namespace Parse
       vector<int>& getResult();
 
     private:
-      virtual vector<float> process(string &input);
+      virtual vector<double> process(string &input);
       vector<int> result;
     };
 
   class RainStatisticsParser
     {
     public:
-      void loadData(vector<vector<float>> & input); // Load a vector of all vectors of that month. Consolidates it.
-      void loadData(const vector<float>& input); // In case you only have one vector.
+      void loadData(vector<vector<double>> & input); // Load a vector of all vectors of that month. Consolidates it.
+      void loadData(const vector<double>& input); // In case you only have one vector.
 
 
       ////
@@ -68,7 +68,7 @@ namespace Parse
       double findMedian();
       double findSkew();
 
-      vector<float> consolidated;
+      vector<double> consolidated;
     };
 
   }

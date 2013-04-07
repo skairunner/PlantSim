@@ -4,6 +4,7 @@
 #include <boost/random/normal_distribution.hpp>
 #include <vector>
 #include "Months.h"
+#include "rain_stats_holder.h"
 
 namespace ALMANAC
   {
@@ -13,19 +14,24 @@ namespace ALMANAC
   class Weather
     {
     public:
-    Weather(const vector<int>& rainyDaysPerMonth, const bool random = false);
+    Weather(const vector<int>& rainyDaysPerMonth, const vector<vector<double>> rainMeans, const vector<vector<double>> rainStats, const bool random = false);
     void step(const float& timestep);
     bool rain();
+    double getRainAmount();
+
+    Month getMonth();
+    void changeDate(const int month, const int date);
 
     private:
     boost::random::mt19937 gen;
     vector<int> wetDaysPerMonth; // <month, number of wet days>
     bool rainedYesterday;
     bool rainedToday;
-    float rainedHowMuch;
-    float rainCoef;
+    double rainedHowMuch;
+    double rainCoef;
 
     Month currentMonth;
+    vector<RainHolder> rainHolder;
 
     void checkForRain();
     void setRainAmount();

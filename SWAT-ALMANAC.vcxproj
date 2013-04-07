@@ -212,6 +212,7 @@
     <ClInclude Include="enums.h" />
     <ClInclude Include="Months.h" />
     <ClInclude Include="parser_rain.h" />
+    <ClInclude Include="rain_stats_holder.h" />
     <ClInclude Include="Weather.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
