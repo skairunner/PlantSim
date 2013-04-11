@@ -24,6 +24,15 @@ namespace ALMANAC
     {
     return rainedHowMuch;
     }
+  double Weather::getMaxTemp()
+    {
+    return maxTemp;
+    }
+
+  double Weather::getMinTemp()
+    {
+    return minTemp;
+    }
 
   Month Weather::getMonth()
     {
@@ -48,33 +57,71 @@ namespace ALMANAC
     return dist(gen);
     }
 
-  Weather::Weather(const vector<int>& rainyDaysPerMonth, const vector<vector<double>> rainMeans, const vector<vector<double>> rainStats, const bool random):
-    //                                                                                                     ^ Each vector<vector<>> is one month, consolidated from 30 years.
-    rainCoef(0.70f), rainedHowMuch(0.0f)
+  double Weather::normalRandom(const double& mean, const double& stdev)
+    {
+    boost::random::normal_distribution<> dist(mean, stdev);
+    return dist(gen);
+    }
+
+  Weather::Weather(const vector<int>& rainyDaysPerMonth, const vector<vector<double>>& sunlightAmount, const bool random):                                                                                              
+    rainCoef(0.70f), rainedHowMuch(0.0f), omegaT(0.5f), omegaR(0.5f), defaultRadiation(16.056f)
       {
       wetDaysPerMonth = rainyDaysPerMonth;
-      Parse::RainStatisticsParser statsparser;
-      gen.seed(rand());
-      
-      rainHolder.push_back(RainHolder());
+      sunlight = sunlightAmount;
+
+      gen.seed(rand());      
+      }
+
+    bool Weather::loadRain(const vector<vector<double>>& rainMeans, const vector<vector<double>>& rainStats)
+      {
+      Parse::StatisticsParser statsparser;
+      RainHolder.push_back(StatsHolder());
       int month = 1;
       for (int it = 0; it < rainStats.size(); it++)
         // Skip the first one, which is a 0.
         {
         statsparser.loadData(rainStats[it]); // Load the data into the stats parser to get statistical numbers.
-        rainHolder.push_back(RainHolder(month, statsparser.getMean(), statsparser.getSTDEV(), statsparser.getSkew(), rainMeans[it]));
-        // In the above case, the same int is plugged into the rainholder. Normally, the *it for statsparser would be a vector<vector<float>>,
-        // as many months of stats, while the *it for rainHolder is the 30 year mean.
+        RainHolder.push_back(StatsHolder(month, statsparser.getMean(), statsparser.getSTDEV(), statsparser.getSkew(), rainMeans[it]));
+        // In the above case, the same int is plugged into the StatsHolder. Normally, the *it for statsparser would be a vector<vector<float>>,
+        // as many months of stats, while the *it for StatsHolder is the 30 year mean.
         month++;
         }
-      
+      loadedRain = true;
+      return true;
       }
 
+    bool Weather::loadTemps(const vector<vector<double>>& tempHiMeans, const vector<vector<double>>& tempLowMeans, const vector<vector<double>>& tempHiStats, const vector<vector<double>>& tempLowStats)
+      {
+      Parse::StatisticsParser statsparser;
+      MaxTemp.push_back(StatsHolder());
+      MinTemp.push_back(StatsHolder());
+
+      int month = 1;
+      for (int it = 0; it < tempHiMeans.size() - 1; it++)
+        // Skip the first one, which is a 0.
+        {
+        statsparser.loadData(tempHiStats[it]); // Load the data into the stats parser to get statistical numbers.
+        MaxTemp.push_back(StatsHolder(month, statsparser.getMean(), statsparser.getSTDEV(), statsparser.getSkew(), tempHiMeans[it]));
+       
+        statsparser.loadData(tempLowStats[it]);
+        MinTemp.push_back(StatsHolder(month, statsparser.getMean(), statsparser.getSTDEV(), statsparser.getSkew(), tempLowMeans[it]));
+        month++;
+        }
+
+      loadedTemp = true;
+      return true;
+      }
 
     void Weather::step(const float& timestep)
       {
-      checkForRain();
-      setRainAmount();
+      if (loadedRain && loadedTemp)
+        {
+        checkForRain();
+        setRainAmount();
+        findTemp();
+        }
+      else
+        cerr << "Loaded rain: " << loadedRain << "\n Loaded temperatures: " << loadedTemp << endl;
       }
 
     void Weather::checkForRain()
@@ -103,9 +150,9 @@ namespace ALMANAC
       if (rainedToday)
         {
         int currentmonth = currentMonth.getMonth();
-        double standardDev = rainHolder[currentmonth].standardDeviation;
-        double skew = rainHolder[currentmonth].skew;
-        double dailyMean = rainHolder[currentmonth].means[currentMonth.getDate()];
+        double standardDev = RainHolder[currentmonth].standardDeviation;
+        double skew = RainHolder[currentmonth].skew;
+        double dailyMean = RainHolder[currentmonth].means[currentMonth.getDate()];
         double randomn = normalRandom();
         rainedHowMuch = (pow(((randomn - skew / 6.0f) * (skew / 6.0f) + 1.0f), 3) - 1.0f) * standardDev / skew + dailyMean * 2.0f; // changed the *2.0f from the front to the back.
         rainedHowMuch = rainedHowMuch > 0.01 ? rainedHowMuch : 0.01;
@@ -114,4 +161,26 @@ namespace ALMANAC
         rainedHowMuch = 0.0f;
       }
 
+    void Weather::findTemp()
+      {
+      double dayMaxTemp = MaxTemp[currentMonth.getMonth()].means[currentMonth.getDate()];
+      double dayMinTemp = MinTemp[currentMonth.getMonth()].means[currentMonth.getDate()];
+      double possibleMaxTemp = dayMaxTemp + (wetDaysPerMonth[currentMonth.getMonth()] / currentMonth.getNumberOfDaysInMonth()) * omegaT * (dayMaxTemp - dayMinTemp);
+      double wetMaxTemp = possibleMaxTemp - omegaT * (dayMaxTemp - dayMinTemp);
+      double possibleMinTemp = dayMinTemp + (wetDaysPerMonth[currentMonth.getMonth()] / currentMonth.getNumberOfDaysInMonth()) * omegaT * (dayMaxTemp - dayMinTemp);
+      if (rainedToday)
+        maxTemp = normalRandom(wetMaxTemp, MaxTemp[currentMonth.getMonth()].standardDeviation);
+      else
+        maxTemp = normalRandom(possibleMaxTemp, MaxTemp[currentMonth.getMonth()].standardDeviation);
+
+      minTemp = normalRandom(possibleMinTemp, MinTemp[currentMonth.getMonth()].standardDeviation);
+
+      // swap max and min if min > max
+      if (minTemp > maxTemp)
+        {
+        double temp = maxTemp;
+        maxTemp = minTemp;
+        minTemp = maxTemp;
+        }
+      }
   }
