@@ -145,7 +145,7 @@ namespace Parse
     return output;
     }
 
-  vector<int>& Parser_RainyDays::getResult()
+  vector<int> Parser_RainyDays::getResult()
     {
     return result;
     }
@@ -154,7 +154,7 @@ namespace Parse
   /// Rain stats parser
   /////
 
-  void RainStatisticsParser::loadData(const vector<double> & input)
+  void StatisticsParser::loadData(const vector<double> & input)
     {
     consolidated = input;
     mean = findMean();
@@ -164,7 +164,7 @@ namespace Parse
     median = findMedian();
     }
 
-  double RainStatisticsParser::findMean()
+  double StatisticsParser::findMean()
     {
     double sum = 0;
     for (auto it = consolidated.begin() + 1; it < consolidated.end(); it++)
@@ -178,7 +178,7 @@ namespace Parse
       return sum / ((consolidated.size() - 1)==1?1:(consolidated.size()-1));
     }
 
-  double RainStatisticsParser::findVariance()
+  double StatisticsParser::findVariance()
     {
     double sum = 0;
     int counter = 0;
@@ -191,7 +191,7 @@ namespace Parse
     return sum;
     }
 
-  double RainStatisticsParser::findMedian()
+  double StatisticsParser::findMedian()
     {
     vector<double> temp = consolidated;
     std::sort(temp.begin(), temp.end());
@@ -210,7 +210,7 @@ namespace Parse
 
     }
 
-  double RainStatisticsParser::findSkew()
+  double StatisticsParser::findSkew()
     {
     vector<long double> devFromMean;
     vector<double> copyOfConsol;
@@ -237,28 +237,48 @@ namespace Parse
     return output;
     }
 
-  double RainStatisticsParser::getMean()
+  double StatisticsParser::getMean()
     {
     return mean;
     }
 
-  double RainStatisticsParser::getVariance()
+  double StatisticsParser::getVariance()
     {
     return variance;
     }
 
-  double RainStatisticsParser::getSkew()
+  double StatisticsParser::getSkew()
     {
     return skew;
     }
 
-  double RainStatisticsParser::getSTDEV()
+  double StatisticsParser::getSTDEV()
     {
     return sqrt(variance);
     }
 
-  double RainStatisticsParser::getMedian()
+  double StatisticsParser::getMedian()
     {
     return median;
     }
+
+  /////
+  /// Output a column
+  /////
+
+  void outputColumn::setfilename(const string& filename)
+    {
+    file = filename;
+    }    
+
+  void outputColumn::output(vector<double>& outputVector)
+          {
+        fstream out;
+        out.open(file.c_str(), ios::out | ios::trunc);
+        for (auto it = outputVector.begin(); it < outputVector.end(); it++)
+          {
+          out << *it << "\n";
+          }
+        out.close();
+        }
   }

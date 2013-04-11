@@ -33,14 +33,14 @@ namespace Parse
     public:
       Parser_RainyDays(const string& filename);
      // virtual vector<vector<float>> parse();
-      vector<int>& getResult();
+      vector<int> getResult();
 
     private:
       virtual vector<double> process(string &input);
       vector<int> result;
     };
 
-  class RainStatisticsParser
+  class StatisticsParser
     {
     public:
       void loadData(vector<vector<double>> & input); // Load a vector of all vectors of that month. Consolidates it.
@@ -69,6 +69,16 @@ namespace Parse
       double findSkew();
 
       vector<double> consolidated;
+    };
+
+  class outputColumn
+    {
+    public:
+      void setfilename(const string& filename);     
+      void output(vector<double>& outputVector);
+
+    private:
+      string file;
     };
 
   }

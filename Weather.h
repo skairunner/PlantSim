@@ -14,33 +14,61 @@ namespace ALMANAC
   class Weather
     {
     public:
-    Weather(const vector<int>& rainyDaysPerMonth, const vector<vector<double>> rainMeans, const vector<vector<double>> rainStats, const bool random = false);
+    Weather(const vector<int>& rainyDaysPerMonth, const vector<vector<double>>& sunlightAmount, const bool random = false);
+    bool loadRain(const vector<vector<double>>& rainMeans, const vector<vector<double>>& rainStats);
+    bool loadTemps(const vector<vector<double>>& tempHiMeans, const vector<vector<double>>& tempLowMeans, const vector<vector<double>>& tempHiStats, const vector<vector<double>>& tempLowStats);
+    bool loadSun(const vector<vector<double>>& radiationMean);
+
     void step(const float& timestep);
     bool rain();
-    double getRainAmount();
 
+    double getRainAmount();
+    double getMaxTemp();
+    double getMinTemp();
 
     Month getMonth();
     void changeDate(const int month, const int date);
 
+    //////////////////////////
     private:
     boost::random::mt19937 gen;
     vector<int> wetDaysPerMonth; // <month, number of wet days>
+
+    bool loadedRain, loadedTemp;
+
+    Month currentMonth;
+    vector<StatsHolder> RainHolder;
+    vector<StatsHolder> MaxTemp;
+    vector<StatsHolder> MinTemp;
+    vector<vector<double>> sunlight;
+
+    ///
+    //// Rain
+    ///
+    void checkForRain();
+    void setRainAmount();
     bool rainedYesterday;
     bool rainedToday;
     double rainedHowMuch;
     double rainCoef;
+    ///
+    //// Sun
+    ///
 
-    Month currentMonth;
-    vector<RainHolder> rainHolder;
-
-    void checkForRain();
-    void setRainAmount();
+    void findTemp();
+    void findRadiation();
+    double minTemp, maxTemp;
+    double directSun;
+    double diffuseSun;
+    double omegaT, // How much wet days affect temp. 0.5
+           omegaR, // 0.5
+           defaultRadiation; // MJ * m^2 (16.056 atm)
+    ///
+    //// RNGs
+    ///
     int random(const int& min, const int& max);
     double random(const double& min, const double& max);
     double normalRandom(); // Returns a normally distributed random number. mean 0 std 1
-    ///
-    //// Weather functions.
-    ///
+    double normalRandom(const double& mean, const double& stdev); // Returns a normally distributed random number with specified mean & stdev
     };
   }
