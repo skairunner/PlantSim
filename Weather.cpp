@@ -34,6 +34,11 @@ namespace ALMANAC
     return minTemp;
     }
 
+  double Weather::getDayRadiation()
+    {
+    return dayRadiation;
+    }
+
   Month Weather::getMonth()
     {
     return currentMonth;
@@ -42,7 +47,7 @@ namespace ALMANAC
   void Weather::changeDate(const int month, const int date)
     {
     currentMonth.setMonth(month);
-    currentMonth.setDate(month);
+    currentMonth.setDate(date);
     }
 
   double Weather::random(const double& min, const double& max)
@@ -63,11 +68,10 @@ namespace ALMANAC
     return dist(gen);
     }
 
-  Weather::Weather(const vector<int>& rainyDaysPerMonth, const vector<vector<double>>& sunlightAmount, const bool random):                                                                                              
+  Weather::Weather(const vector<int>& rainyDaysPerMonth, const bool random):                                                                                              
     rainCoef(0.70f), rainedHowMuch(0.0f), omegaT(0.5f), omegaR(0.5f), defaultRadiation(16.056f)
       {
       wetDaysPerMonth = rainyDaysPerMonth;
-      sunlight = sunlightAmount;
 
       gen.seed(rand());      
       }
@@ -112,16 +116,36 @@ namespace ALMANAC
       return true;
       }
 
+    bool Weather::loadSun(const vector<vector<double>>& sunlightMean)
+      {
+      Parse::StatisticsParser statsparser;
+      sunlight.push_back(StatsHolder());
+
+      int month = 1;
+      for (int it = 0; it < sunlightMean.size() - 1; it++)
+        // Skip the first one, which is a 0.
+        {
+        statsparser.loadData(sunlightMean[it]); // Load the data into the stats parser to get statistical numbers.
+        sunlight.push_back(StatsHolder(month, statsparser.getMean(), statsparser.getSTDEV(), statsparser.getSkew(), sunlightMean[it]));
+
+        month++;
+        }
+
+      loadedSun = true;
+      return true;
+      }
+
     void Weather::step(const float& timestep)
       {
-      if (loadedRain && loadedTemp)
+      if (loadedRain && loadedTemp && loadedSun)
         {
         checkForRain();
         setRainAmount();
         findTemp();
+        findRadiation();
         }
       else
-        cerr << "Loaded rain: " << loadedRain << "\n Loaded temperatures: " << loadedTemp << endl;
+        cerr << "Loaded rain: " << loadedRain << "\n Loaded temperatures: " << loadedTemp << "\n Loaded sunlight: " << loadedSun << endl;
       }
 
     void Weather::checkForRain()
@@ -182,5 +206,17 @@ namespace ALMANAC
         maxTemp = minTemp;
         minTemp = maxTemp;
         }
+      }
+
+    void Weather::findRadiation()
+      {
+      double baseRad = sunlight[currentMonth.getMonth()].means[currentMonth.getDate()] * defaultRadiation;
+      double dryRad = (baseRad * currentMonth.getNumberOfDaysInMonth()) / (omegaR * wetDaysPerMonth[currentMonth.getMonth()] + (currentMonth.getNumberOfDaysInMonth() - wetDaysPerMonth[currentMonth.getMonth()]));
+      double wetRad = dryRad * omegaR;
+
+      if (rainedToday)
+        dayRadiation = normalRandom(wetRad, sunlight[currentMonth.getMonth()].standardDeviation);
+      else
+        dayRadiation = normalRandom(dryRad, sunlight[currentMonth.getMonth()].standardDeviation);
       }
   }

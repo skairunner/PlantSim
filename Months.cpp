@@ -39,15 +39,20 @@ namespace ALMANAC
 
   void Month::advanceDay(const int& numDays)
     {
-    date++;
-    // check for feb
-    if (MONTH == FEBRUARY){
-      if (date > 28)
-        {
-        MONTH++;
-        date = 1;
-        }}
-    else
+    int days = numDays;
+
+    // Add days~
+    for(;days > 0; days--)
+      {
+      date ++;
+      // check for feb
+      if (MONTH == FEBRUARY){
+        if (date > 28)
+          {
+          MONTH++;
+          date = 1;
+          }}
+      else
       {
       if (MONTH != DECEMBER)
         { // First check for non-December cases.
@@ -63,16 +68,19 @@ namespace ALMANAC
           date = 1;
           MONTH = JANUARY;
           }
+        }
       }
     }
 
   void Month::setDate(const int& newDate)
     {
-    if (date > 30 || date <= 0)
+    if (!(date > 30 || date <= 0))
       {
-      if (MONTH == FEBRUARY){
+      if (MONTH == FEBRUARY)
+        {
         if (newDate < 29)
-          date = newDate;}
+          date = newDate;
+        }
       else
         date = newDate;
       }
