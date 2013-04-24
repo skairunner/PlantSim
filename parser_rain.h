@@ -76,6 +76,8 @@ namespace Parse
     public:
       void setfilename(const string& filename);     
       void output(vector<double>& outputVector);
+      void outputRow(vector<double>& outputVector);
+      void clearFile();
 
     private:
       string file;

@@ -32,30 +32,61 @@ int main()
     vector<vector<double>> temphistats = tempHiStats.parse();
     vector<vector<double>> templowstats = tempLowStats.parse();
     vector<vector<double>> sunlight = sunStats.parse();
-    vector<double> his;
-    vector<double> lows;
+    vector<double> his, lows, rain, radiation;
 
-    ALMANAC::Weather WeatherModule(rainyDaysPerMonth.getResult(), sunlight, true);
+    ALMANAC::Weather WeatherModule(rainyDaysPerMonth.getResult(), true);
     WeatherModule.loadRain(rainstats, rainstats);
     WeatherModule.loadTemps(temphistats, templowstats, temphistats, templowstats);
-  //  WeatherModule.loadSun(sunlight);
+    WeatherModule.loadSun(sunlight);
     
     long double totalRain = 0;
-    WeatherModule.changeDate(11, 1);
+   // WeatherModule.changeDate(7, 1);
+    
 
-    for (int counter = 0; counter < 30; counter++)
+    // Initialize files.
+    analysis.setfilename(string("hi.txt"));
+    analysis.clearFile();
+    analysis.setfilename(string("lows.txt"));
+    analysis.clearFile();
+    analysis.setfilename(string("rain.txt"));
+    analysis.clearFile();
+    WeatherModule.changeDate(12, 30);
+    int month = WeatherModule.getMonth().getMonth();
+
+    for (int counter = 0; counter < 366; counter++)
       {
       WeatherModule.step(1);
       cout << WeatherModule.getMonth() << " : ";
-      cout << "\n  High " << std::setprecision(2) << WeatherModule.getMaxTemp() << "¡ÆC\n   Low " << WeatherModule.getMinTemp() << "¡ÆC\n";
+
+      if ( month != WeatherModule.getMonth().getMonth())
+        {
+        month = WeatherModule.getMonth().getMonth();
+        analysis.setfilename(string("hi.txt"));
+        analysis.outputRow(his);
+        analysis.setfilename(string("lows.txt"));
+        analysis.outputRow(lows);
+        analysis.setfilename(string("rain.txt"));
+        analysis.outputRow(rain);
+        his.clear();
+        lows.clear();
+        rain.clear();
+        }
+
+      cout << "\n  High " << std::setprecision(3) << WeatherModule.getMaxTemp() << "¡ÆC\n  Low " << WeatherModule.getMinTemp() << "¡ÆC\n" << "  Radiation: " << WeatherModule.getDayRadiation() << " MJ / m^2\n";
+      cout << "  Rain " << WeatherModule.getRainAmount() << "mm\n";
       his.push_back(WeatherModule.getMaxTemp());
       lows.push_back(WeatherModule.getMinTemp());
+      rain.push_back(WeatherModule.getRainAmount());
+      radiation.push_back(WeatherModule.getDayRadiation());
+           
       }
-
+    /*
     analysis.setfilename(string("hi.txt"));
-    analysis.output(his);
+    analysis.outputRow(his);
     analysis.setfilename(string("lows.txt"));
-    analysis.output(lows);
+    analysis.outputRow(lows);
+    analysis.setfilename(string("rain.txt"));
+    analysis.outputRow(rain);*/
     }
   else
     cout << "Error loading file(s):\n    Rain stats=" << rainStatsTrue << "\n    Temp(hi) stats=" << tempHiStatsTrue

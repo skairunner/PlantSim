@@ -281,4 +281,23 @@ namespace Parse
           }
         out.close();
         }
+
+  void outputColumn::outputRow(vector<double>& outputVector)
+    {
+    fstream out;
+        out.open(file.c_str(), ios::out | ios::app);
+        for (auto it = outputVector.begin(); it < outputVector.end(); it++)
+          {
+          out << *it << '\t'; // horizontal tab
+          }
+        out << "\n";
+        out.close();
+    }
+
+  void outputColumn::clearFile()
+    {
+    fstream out;
+    out.open(file.c_str(), ios::out | ios::trunc);
+    out.close();
+    }
   }

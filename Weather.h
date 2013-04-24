@@ -14,10 +14,10 @@ namespace ALMANAC
   class Weather
     {
     public:
-    Weather(const vector<int>& rainyDaysPerMonth, const vector<vector<double>>& sunlightAmount, const bool random = false);
+    Weather(const vector<int>& rainyDaysPerMonth, const bool random = false);
     bool loadRain(const vector<vector<double>>& rainMeans, const vector<vector<double>>& rainStats);
     bool loadTemps(const vector<vector<double>>& tempHiMeans, const vector<vector<double>>& tempLowMeans, const vector<vector<double>>& tempHiStats, const vector<vector<double>>& tempLowStats);
-    bool loadSun(const vector<vector<double>>& radiationMean);
+    bool loadSun(const vector<vector<double>>& sunlightMean);
 
     void step(const float& timestep);
     bool rain();
@@ -25,6 +25,7 @@ namespace ALMANAC
     double getRainAmount();
     double getMaxTemp();
     double getMinTemp();
+    double getDayRadiation();
 
     Month getMonth();
     void changeDate(const int month, const int date);
@@ -34,21 +35,20 @@ namespace ALMANAC
     boost::random::mt19937 gen;
     vector<int> wetDaysPerMonth; // <month, number of wet days>
 
-    bool loadedRain, loadedTemp;
+    bool loadedRain, loadedTemp, loadedSun;
 
     Month currentMonth;
     vector<StatsHolder> RainHolder;
     vector<StatsHolder> MaxTemp;
     vector<StatsHolder> MinTemp;
-    vector<vector<double>> sunlight;
+    vector<StatsHolder> sunlight;
 
     ///
     //// Rain
     ///
     void checkForRain();
     void setRainAmount();
-    bool rainedYesterday;
-    bool rainedToday;
+    bool rainedYesterday, rainedToday;
     double rainedHowMuch;
     double rainCoef;
     ///
@@ -57,12 +57,13 @@ namespace ALMANAC
 
     void findTemp();
     void findRadiation();
-    double minTemp, maxTemp;
+    double minTemp, maxTemp, dayRadiation;
     double directSun;
     double diffuseSun;
     double omegaT, // How much wet days affect temp. 0.5
            omegaR, // 0.5
            defaultRadiation; // MJ * m^2 (16.056 atm)
+
     ///
     //// RNGs
     ///
