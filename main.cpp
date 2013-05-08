@@ -10,20 +10,22 @@ using namespace std;
 
 int main()
   {
+  srand(time(0));
+
   Parse::Parser_RainyDays rainyDaysPerMonth(string("Content/unknownRainyDays.rain"));
   Parse::Parser rainStats(string("Content/30yearaverage.rain"));
   Parse::Parser tempHiStats (string("Content/30YearAverage.temphi"));
   Parse::Parser tempLowStats (string("Content/30YearAverage.templow"));
   Parse::Parser sunStats (string("Content/30YearAverage.sun"));
   Parse::outputColumn analysis;
+  Parse::MonolithParse STDEV(string("Content/seosan_stdev.monolith"));
 
   bool rainydayspermonthTrue = rainyDaysPerMonth.load();
   bool rainStatsTrue = rainStats.load();
   bool tempHiStatsTrue = tempHiStats.load();
   bool tempLowStatsTrue = tempLowStats.load();
   bool sunStatsTrue = sunStats.load();
-
-  srand(time(0)); 
+  bool monolithSTDEVTrue = STDEV.load();
 
   if (rainydayspermonthTrue && rainStatsTrue && tempHiStatsTrue && tempLowStatsTrue)
     {
@@ -32,12 +34,14 @@ int main()
     vector<vector<double>> temphistats = tempHiStats.parse();
     vector<vector<double>> templowstats = tempLowStats.parse();
     vector<vector<double>> sunlight = sunStats.parse();
+    vector<vector<double>> monoliths = STDEV.parse();
     vector<double> his, lows, rain, radiation;
 
     ALMANAC::Weather WeatherModule(rainyDaysPerMonth.getResult(), true);
     WeatherModule.loadRain(rainstats, rainstats);
     WeatherModule.loadTemps(temphistats, templowstats, temphistats, templowstats);
     WeatherModule.loadSun(sunlight);
+    WeatherModule.loadSTDEVs(monoliths);
     
     long double totalRain = 0;
    // WeatherModule.changeDate(7, 1);
@@ -61,7 +65,7 @@ int main()
       if ( month != WeatherModule.getMonth().getMonth())
         {
         month = WeatherModule.getMonth().getMonth();
-        analysis.setfilename(string("hi.txt"));
+      /*  analysis.setfilename(string("hi.txt"));
         analysis.outputRow(his);
         analysis.setfilename(string("lows.txt"));
         analysis.outputRow(lows);
@@ -69,7 +73,7 @@ int main()
         analysis.outputRow(rain);
         his.clear();
         lows.clear();
-        rain.clear();
+        rain.clear();*/
         }
 
       cout << "\n  High " << std::setprecision(3) << WeatherModule.getMaxTemp() << "¡ÆC\n  Low " << WeatherModule.getMinTemp() << "¡ÆC\n" << "  Radiation: " << WeatherModule.getDayRadiation() << " MJ / m^2\n";
@@ -80,13 +84,13 @@ int main()
       radiation.push_back(WeatherModule.getDayRadiation());
            
       }
-    /*
+    
     analysis.setfilename(string("hi.txt"));
     analysis.outputRow(his);
     analysis.setfilename(string("lows.txt"));
     analysis.outputRow(lows);
     analysis.setfilename(string("rain.txt"));
-    analysis.outputRow(rain);*/
+    analysis.outputRow(rain);
     }
   else
     cout << "Error loading file(s):\n    Rain stats=" << rainStatsTrue << "\n    Temp(hi) stats=" << tempHiStatsTrue

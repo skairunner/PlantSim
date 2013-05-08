@@ -18,6 +18,7 @@ namespace ALMANAC
     bool loadRain(const vector<vector<double>>& rainMeans, const vector<vector<double>>& rainStats);
     bool loadTemps(const vector<vector<double>>& tempHiMeans, const vector<vector<double>>& tempLowMeans, const vector<vector<double>>& tempHiStats, const vector<vector<double>>& tempLowStats);
     bool loadSun(const vector<vector<double>>& sunlightMean);
+    bool loadSTDEVs(const vector<vector<double>>& STDEVs);
 
     void step(const float& timestep);
     bool rain();
