@@ -24,6 +24,7 @@ namespace ALMANAC
     {
     return rainedHowMuch;
     }
+
   double Weather::getMaxTemp()
     {
     return maxTemp;
@@ -135,6 +136,20 @@ namespace ALMANAC
       return true;
       }
 
+    using Parse::stat;
+
+    bool Weather::loadSTDEVs(const vector<vector<double>>& STDEVs)
+      {
+      for (int counter = 1; counter <= 12; counter++)
+        {
+        RainHolder[counter].standardDeviation = STDEVs[counter].at(stat::RAIN);
+        MaxTemp[counter].standardDeviation = STDEVs[counter].at(stat::TEMPMAX);
+        MinTemp[counter].standardDeviation = STDEVs[counter].at(stat::TEMPMIN);
+        }
+
+      return true;
+      }
+
     void Weather::step(const float& timestep)
       {
       if (loadedRain && loadedTemp && loadedSun)
@@ -197,7 +212,7 @@ namespace ALMANAC
       else
         maxTemp = normalRandom(possibleMaxTemp, MaxTemp[currentMonth.getMonth()].standardDeviation);
 
-      minTemp = normalRandom(possibleMinTemp, MinTemp[currentMonth.getMonth()].standardDeviation);
+      minTemp = normalRandom(possibleMinTemp, MinTemp[currentMonth.getMonth()].standardDeviation/3);
 
       // swap max and min if min > max
       if (minTemp > maxTemp)

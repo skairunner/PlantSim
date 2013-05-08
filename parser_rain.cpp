@@ -300,4 +300,46 @@ namespace Parse
     out.open(file.c_str(), ios::out | ios::trunc);
     out.close();
     }
+
+
+  /////
+  /// Parse monolith file.
+  /////
+  MonolithParse::MonolithParse(const string& input)
+    : Parser(input)
+    {}
+
+  vector<double> MonolithParse::process(string& input)
+    {
+    string buffer;
+    vector<double> output;
+    for (auto it = input.begin(); it < input.end(); it++)
+      {
+      if (*it != ' ' && *it != 9) // If not a delimiter.
+        {
+        buffer.push_back(*it);
+        }
+      else
+        {
+        if (buffer.size() != 0) // If buffer isn't empty...
+          output.push_back(atof(buffer.c_str()));
+        else
+          output.push_back(0);
+        buffer.clear(); // Then empty it.
+        }
+      }
+
+    return output;
+    }
+
+  vector<vector<double>> MonolithParse::parse()
+    {
+    vector<vector<double>> output;
+    output.push_back(vector<double>());
+
+    for (auto it = rawbuffer.begin()+1; it < rawbuffer.end(); it++) // Skip the first Korean line.
+      output.push_back(process(*it));
+
+    return output;
+    }
   }

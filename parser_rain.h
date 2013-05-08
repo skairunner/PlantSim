@@ -15,10 +15,10 @@ namespace Parse
       //Parser();
       Parser(const string& filename);
       bool load();
-      vector<vector<double>> parse();
+      virtual vector<vector<double>> parse();
       bool isLoaded();
 
-    private:
+    protected:
       bool loaded;
       virtual vector<double> process(string& input); // Take a string, discard the first cell, then pack all cells except the final cell into a vector of floats.
       //virtual void parseLogic();
@@ -83,4 +83,14 @@ namespace Parse
       string file;
     };
 
+  class MonolithParse: public Parser // Parse a .monolith file that has STDEV information. Slightly different from .rain parsing.
+    {
+    public:
+      MonolithParse(const string& filename);
+      virtual vector<vector<double>> parse();
+    private:
+      virtual vector<double> process(string& input);
+    };
+
+  enum stat{WINDVEL = 1, TEMPMAX, TEMPMIN, RAIN, HUMIDITY};
   }
