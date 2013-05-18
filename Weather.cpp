@@ -136,15 +136,13 @@ namespace ALMANAC
       return true;
       }
 
-    using Parse::stat;
-
     bool Weather::loadSTDEVs(const vector<vector<double>>& STDEVs)
       {
       for (int counter = 1; counter <= 12; counter++)
         {
-        RainHolder[counter].standardDeviation = STDEVs[counter].at(stat::RAIN);
-        MaxTemp[counter].standardDeviation = STDEVs[counter].at(stat::TEMPMAX);
-        MinTemp[counter].standardDeviation = STDEVs[counter].at(stat::TEMPMIN);
+        RainHolder[counter].standardDeviation = STDEVs[counter].at(Parse::stat::RAIN);
+        MaxTemp[counter].standardDeviation = STDEVs[counter].at(Parse::stat::TEMPMAX);
+        MinTemp[counter].standardDeviation = STDEVs[counter].at(Parse::stat::TEMPMIN);
         }
 
       return true;
