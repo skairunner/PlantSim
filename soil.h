@@ -5,17 +5,20 @@
 
 namespace ALMANAC
   {
+  
   enum MOORE {TOP = 0, TOPLEFT, LEFT, BOTTOMLEFT, BOTTOM, BOTTOMRIGHT, RIGHT, TOPRIGHT};
+  class SoilFactory;
 
   class SoilLayer // A single layer of soil.
     {
-    friend class SoilFactory;
-    friend class SoilCell;
     public:
-      void addWater(const double& water);
-    private:
+      friend class SoilFactory;
+      friend class SoilCell;
+      void addWater(const double& addwater);
+      double availableWater();
+    protected:
     virtual void percolateAndLateral(const double& slope); // probably needs a parameter for the Moore direction
-      SoilLayer(const double& sand, const double& clay, const double& silt, const double& organicMatter, unsigned int thickness = 200);
+      SoilLayer(const double& sandi, const double& clayi, const double& silti, const double& organicMatteri, unsigned int thickness = 200);
       double wiltingPoint();
       double fieldCapacity();
       double saturatedMoisture();
@@ -34,15 +37,25 @@ namespace ALMANAC
 
   class SoilCell // a group of soil layers, most likely 10 + shallow aquifer.
     {
-    friend class SoilFactory;
     public:
+      friend class SoilFactory;
       void solveAndPercolate(); // Solve for percolation downwards and lateral flow for each layer, then put them in the respective outbound slots
       int MooreDirection; // One vector for the whole cell. Follows the enum {Moore}.
       double slope; // m/m
-    private:
+      std::vector<double> inspectWater();
+      void addWater(const int& layer, const double& amount);
+    protected:
       void upwardsFlow();
       void scale(); // make sure that the water out doesn't exceed the total available water.
       std::vector<SoilLayer> Layers;  // 0 is top, followed by 1 2 3 ...
       double totalHeight;
+    };
+
+  class SoilFactory
+    {
+    public:
+      static SoilCell* createTestCell();
+    private:
+      noise::module::Perlin gen;
     };
   }
