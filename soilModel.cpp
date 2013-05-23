@@ -5,12 +5,25 @@
 using namespace ALMANAC;
 using namespace ALMANAC::SOIL_MODELS;
 
-void SoilModule::setState(const double& sand, const double& silt, const double& clay, const double& organicMatter)
+SoilProperties SoilModule::setState(const double& sand, const double& silt, const double& clay, const double& organicMatter)
   {
   internalBuffer = SoilModule1.setState(sand, clay, organicMatter);
   internalBuffer.travelTime = (internalBuffer.saturatedMoisture - internalBuffer.fieldCapacity) / internalBuffer.SatHydConductivity;
+  return internalBuffer;
   }
 
+SoilProperties SoilModule::fetch(const double& sand, const double& silt, const double& clay, const double& organicMatter)
+  {
+  Saxton2006 SoilModuleA;
+  SoilProperties internalBuffer = SoilModuleA.setState(sand, clay, organicMatter);
+  internalBuffer.travelTime = (internalBuffer.saturatedMoisture - internalBuffer.fieldCapacity) / internalBuffer.SatHydConductivity;
+  return internalBuffer;
+  }
+
+SoilProperties SoilModule::getState()
+  {
+  return internalBuffer;
+  }
 
 Saxton2006::Saxton2006()
   :wiltingPoint(0), fieldCapacity(0), saturatedMoisture(0), SatHydConductivity(0)

@@ -207,25 +207,26 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AllegroEngine.cpp" />
+    <ClCompile Include="color.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Months.cpp" />
     <ClCompile Include="parser_rain.cpp" />
     <ClCompile Include="vector3.cpp" />
-    <ClCompile Include="soilLayer.cpp" />
+    <ClCompile Include="soil.cpp" />
     <ClCompile Include="soilModel.cpp" />
     <ClCompile Include="Weather.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AllegroEngine.h" />
+    <ClInclude Include="colors.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="enums.h" />
     <ClInclude Include="Months.h" />
     <ClInclude Include="parser_rain.h" />
     <ClInclude Include="vector3.h" />
     <ClInclude Include="rain_stats_holder.h" />
-    <ClInclude Include="soilFactory.h" />
-    <ClInclude Include="soilLayer.h" />
+    <ClInclude Include="soil.h" />
     <ClInclude Include="soilModel.h" />
     <ClInclude Include="Weather.h" />
   </ItemGroup>

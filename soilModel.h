@@ -4,6 +4,7 @@ namespace ALMANAC
   {
   struct SoilProperties
     {
+    SoilProperties(){}
     SoilProperties(const double& WP, const double& FC, const double& SM, const double& SHC): wiltingPoint(WP), fieldCapacity(FC), saturatedMoisture(SM), SatHydConductivity(SHC){}
     double wiltingPoint, fieldCapacity, saturatedMoisture, //unitless
       SatHydConductivity, // mm/h
@@ -30,8 +31,9 @@ namespace ALMANAC
     class SoilModule
       {
       public:
-        void setState(const double& sand, const double& silt, const double& clay, const double& organicMatter);
+        SoilProperties setState(const double& sand, const double& silt, const double& clay, const double& organicMatter);
         SoilProperties getState();
+        static SoilProperties fetch(const double& sand, const double& silt, const double& clay, const double& organicMatter);
       private:
         Saxton2006 SoilModule1;
         SoilProperties internalBuffer;
