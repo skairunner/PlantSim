@@ -12,6 +12,12 @@ SoilCell* testCell;
 bool nextstep, addmorewater;
 int updatecounter;
 int watercounter;
+ALLEGRO_FONT* font;
+
+ALLEGRO_COLOR findSoilColor(const soiltuple& input)
+  {
+
+  }
 
 bool Engine::EngineInit(map<int,bool> errormap)
   {
@@ -25,8 +31,8 @@ bool Engine::EngineInit(map<int,bool> errormap)
     bitmaps.push_back(temp);
     }
 
-  testCell->addWater(0,100);
-
+  testCell->addWater(2,100);
+  font = al_load_ttf_font("malgun.ttf", 12, 0);
   nextstep = false;
   addmorewater = false;
   updatecounter = 0;
@@ -46,13 +52,18 @@ void Engine::Update()
   else 
     updatecounter++;
 
-  if (watercounter == 100)
+  if (watercounter % 80 == 0)
     {
-    testCell->addWater(0, 50);
-    watercounter=0;
+    testCell->addWater(0, 10);
     }
-  else
-    watercounter++;
+  if (watercounter == 160)
+    {
+    testCell->addWater(0, 30);
+    watercounter = 0;
+    }
+  
+
+  watercounter++;
   
   }
 
@@ -69,6 +80,7 @@ void Engine::Render(ALLEGRO_DISPLAY *root)
     al_clear_to_color(temp);
     al_set_target_bitmap(al_get_backbuffer(root));
     al_draw_bitmap(bitmaps[counter], 0, 20 * counter, 0);
+    al_draw_text(font, al_map_rgb(0,0,0), 0, 20 * counter, 0, to_string((long double)waters[counter]).c_str());
     }
   }
 

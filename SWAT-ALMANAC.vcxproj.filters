@@ -45,6 +45,9 @@
     <ClCompile Include="color.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="soilGrid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Weather.h">
@@ -80,5 +83,13 @@
     <ClInclude Include="colors.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="soilGrid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Flood routing with graphical rendering\malgun.ttf">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -20,4 +20,6 @@ class Engine: public AllegroEngine
   void TimerTick(ALLEGRO_TIMER *timer, int count);
 };
 
+
+
 extern Engine DisplayEngine;
