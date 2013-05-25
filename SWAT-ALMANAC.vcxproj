@@ -212,6 +212,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Months.cpp" />
     <ClCompile Include="parser_rain.cpp" />
+    <ClCompile Include="soilGrid.cpp" />
     <ClCompile Include="vector3.cpp" />
     <ClCompile Include="soil.cpp" />
     <ClCompile Include="soilModel.cpp" />
@@ -224,11 +225,17 @@
     <ClInclude Include="enums.h" />
     <ClInclude Include="Months.h" />
     <ClInclude Include="parser_rain.h" />
+    <ClInclude Include="soilGrid.h" />
     <ClInclude Include="vector3.h" />
     <ClInclude Include="rain_stats_holder.h" />
     <ClInclude Include="soil.h" />
     <ClInclude Include="soilModel.h" />
     <ClInclude Include="Weather.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Flood routing with graphical rendering\malgun.ttf">
+      <FileType>Document</FileType>
+    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
