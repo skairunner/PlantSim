@@ -1,5 +1,6 @@
 #include "soil.h"
 #include <cmath>
+#include "enums.h"
 
 using namespace ALMANAC;
 using namespace std;
@@ -167,6 +168,11 @@ soiltuple SoilCell::getTopLayer()
   return output;
   }
 
+int SoilCell::getTopsoilType()
+  {
+  return topsoilType;
+  }
+
 SoilCell* SoilFactory::createTestCell()
   {
   SoilCell* output = new SoilCell();
@@ -187,7 +193,7 @@ SoilCell* SoilFactory::createTestCell()
   return output;
   }
 
-SoilCell SoilFactory::createCell(const double& baseheight, const double& depth, const std::vector<soiltuple>& st)
+SoilCell SoilFactory::createCell(const double& baseheight, const double& depth, std::vector<soiltuple>& st)
   {
   SoilCell output;
   for (auto it = st.begin(); it < st.end(); it++)
@@ -199,5 +205,40 @@ SoilCell SoilFactory::createCell(const double& baseheight, const double& depth, 
       output.Layers.back().isAquifer = true;
     }
   output.baseHeight = baseheight;
+  output.topsoilType = findTopsoilType(*(st.begin()));
   return output;
+  }
+
+int SoilFactory::findTopsoilType(const soiltuple& st)
+  {
+  double clay = st.clay * 100;
+  double sand = st.sand * 100;
+  double silt = st.silt * 100;
+
+  //first, the simple types
+  //clay
+  if ( (clay >= 40) & (sand <= 55) & (silt <= 40))
+    return stCLAY;
+  else if (sand >= 90)	//sand
+    return  stSAND;
+  else if ((silt >= 80) & (clay <= 87)) //silt
+    return  stSILT;
+  else if ((clay >= 35) & (sand >= 55)) //sandy clay
+    return  stSANDYCLAY;
+	else if ((clay >= 40) & (silt >= 40)) //silty clay
+    return  stSILTYCLAY;
+  else if ((clay <= 40) & (clay >= 28) & (sand <= 48) & (sand >= 20)) //clay loam
+    return  stCLAYLOAM;
+  else if ((clay <= 40) & (clay >= 28) & (sand <= 20)) //silty loam
+    return  stSILTYCLAYLOAM;
+  else if ((clay <= 35) & (clay >= 20) & (sand >= 55) & (silt <= 28)) //sandy clay loam
+    return  stSANDYCLAYLOAM;
+	else if (silt >= 50) //silty loam
+    return  stSILTLOAM;
+  else if ((clay <= 28) & (clay >= 5) & (silt <= 50) & (silt >= 28) & (sand <= 52)) //loam
+    return  stLOAM; 
+  else if ((sand < 90) & (silt <= 8/3 * -1 * clay + 40)) //loamy sand
+    return  stLOAMYSAND;
+  else
+    return  stSANDYLOAM; //sandy loam
   }

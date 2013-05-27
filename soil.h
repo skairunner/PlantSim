@@ -22,6 +22,7 @@ namespace ALMANAC
       friend class SoilCell;
       void addWater(const double& addwater);
       double availableWater();
+
     protected:
     virtual void percolateAndLateral(const double& slope); // probably needs a parameter for the Moore direction
       SoilLayer(const double& sandi, const double& clayi, const double& silti, const double& organicMatteri, unsigned int thickness = 200);
@@ -54,6 +55,7 @@ namespace ALMANAC
       double getTotalHeight();
       void calcTotalHeight();
       soiltuple getTopLayer();
+      int getTopsoilType();
 
     protected:
       void upwardsFlow();
@@ -63,6 +65,7 @@ namespace ALMANAC
       int MooreDirection; // One vector for the whole cell. Follows the enum {Moore}.
       double baseHeight; // height excluding soil layers.
       double totalHeight;
+      int topsoilType;
 
     };
 
@@ -70,7 +73,8 @@ namespace ALMANAC
     {
     public:
       static SoilCell* createTestCell();
-      static SoilCell createCell(const double& baseheight, const double& depth, const std::vector<soiltuple>& st);
+      static SoilCell createCell(const double& baseheight, const double& depth, std::vector<soiltuple>& st);
+      static int findTopsoilType(const soiltuple& st);
     private:
       noise::module::Perlin gen;
     };
