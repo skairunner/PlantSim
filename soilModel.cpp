@@ -31,7 +31,7 @@ Saxton2006::Saxton2006()
 
 SoilProperties Saxton2006::setState(const double& sand, const double& clay, const double& organicMatter)
   {
-  if (sand > 1 || clay > 1 || organicMatter > 1)
+  if (sand > 1 || clay > 1 || organicMatter > 1 || sand < 0 || clay < 0 || organicMatter < 0)
     std::cerr << "Error:\nSand: " << sand << "\nClay: " << clay << "\nOM: " << organicMatter << std::endl;
   double wp1 = -0.024 * sand + 0.487 * clay + 0.006 * organicMatter + 0.005 * sand * organicMatter - 0.013 * clay * organicMatter + 0.068 * sand * clay + 0.031;
   wiltingPoint = wp1 + 0.14 * wp1 - 0.02;

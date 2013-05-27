@@ -32,8 +32,10 @@ bool AllegroEngine::Init(int winwidth,int winheight)
   //
   setFPS(errormap, 120);
   //
-  if (!al_install_mouse()) errormap.insert(pair<int,bool>(E_MOUSE,true)); //No mouse?
-  if (!al_install_keyboard()) errormap.insert(pair<int,bool>(E_KEYBOARD,true)); //No mouse?
+  if (!al_install_mouse()) 
+    errormap.insert(pair<int,bool>(E_MOUSE,true)); //No mouse?
+  if (!al_install_keyboard()) 
+    errormap.insert(pair<int,bool>(E_KEYBOARD,true)); //No mouse?
   //
   event_queue = al_create_event_queue();
   if (!event_queue) errormap.insert(pair<int,bool>(E_EVENTQUEUE,true)); //Did the event queue not appear?
