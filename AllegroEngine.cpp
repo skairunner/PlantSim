@@ -30,7 +30,7 @@ bool AllegroEngine::Init(int winwidth,int winheight)
   font = al_load_ttf_font("malgun.ttf",72,0 ); 
   if (!font) errormap.insert(pair<int,bool>(E_FONT,true)); //Did the font fail to load?
   //
-  setFPS(errormap, 120);
+  setFPS(errormap, 10);
   //
   if (!al_install_mouse()) 
     errormap.insert(pair<int,bool>(E_MOUSE,true)); //No mouse?

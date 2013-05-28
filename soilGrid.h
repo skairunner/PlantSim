@@ -13,8 +13,11 @@ namespace ALMANAC
       SoilCell get(const int& x, const int& y);
       SoilCell& ref(const int& x, const int& y);
       void set(const int& x, const int& y, const SoilCell& in);
+      
       int getWidth();
       int getHeight();
+
+      void step(); // Advance water simulation by one day
 
     private:
       std::vector<SoilCell> grid;
@@ -23,9 +26,12 @@ namespace ALMANAC
       noise::module::Perlin sand, clay, silt;
       SoilCell null;
 
-      vector3 slopeVector(const int& x, const int& y);
+      vector3 findGradientVector(const int& x, const int& y);
+      vector3 findMooreNeighborVector(const int& x, const int& y, const int& neighbor); // @ Returns 0 if not applicable.
+      SoilCell* findMooreNeighbor(const int& x, const int& y, const int& neighbor);
       void setPerlinProperties(noise::module::Perlin& gen, const double& freq, const double& lacturnity, const int& octave, const double&persist);
-      int findMooreDirection(const vector3& input);
+      int findMooreDirection(vector3 input);
+      void doLateralForEachCell(); // Move lateral flow stuff thingies.
       
     };
 

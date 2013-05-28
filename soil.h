@@ -5,8 +5,7 @@
 
 namespace ALMANAC
   {
-  
-  enum MOORE {TOP = 0, TOPLEFT, LEFT, BOTTOMLEFT, BOTTOM, BOTTOMRIGHT, RIGHT, TOPRIGHT};
+ 
   class SoilFactory;
 
   struct soiltuple
@@ -48,7 +47,6 @@ namespace ALMANAC
     public:
       friend class SoilFactory;
       void solveAndPercolate(); // Solve for percolation downwards and lateral flow for each layer, then put them in the respective outbound slots
-      int setMoore();
       double slope; // m/m
       std::vector<double> inspectWater();
       void addWater(const int& layer, const double& amount);   
@@ -56,6 +54,9 @@ namespace ALMANAC
       void calcTotalHeight();
       soiltuple getTopLayer();
       int getTopsoilType();
+      void setMooreDirection(const int& moore);
+      int getMooreDirection();
+      void transferLateralWater(std::vector<SoilLayer>& OutLayers); // out of this cell into the other cell. Layer sizes MUST match, otherwise cerr.
 
     protected:
       void upwardsFlow();

@@ -1,6 +1,7 @@
 #include "soil.h"
 #include <cmath>
 #include "enums.h"
+#include <cassert>
 
 using namespace ALMANAC;
 using namespace std;
@@ -134,6 +135,8 @@ void SoilCell::solveAndPercolate()
       (it-1)->addWater(it->percolateUp);
       it->addWater(-it->percolateUp);
       }
+    //Finally, lateral is always done.
+    it->addWater(-it->lateral);
     }
   }
 
@@ -173,6 +176,22 @@ int SoilCell::getTopsoilType()
   return topsoilType;
   }
 
+void SoilCell::setMooreDirection(const int& moore)
+  {
+  MooreDirection = moore;
+  }
+
+void SoilCell::transferLateralWater(std::vector<SoilLayer>& OutLayers)
+  {
+  assert(Layers.size() == OutLayers.size());
+  auto otherit = OutLayers.begin();
+  for (auto it = Layers.begin(); it < Layers.end(); it++)
+    {
+    otherit->addWater(it->lateral);
+    otherit++;
+    }
+  }
+
 SoilCell* SoilFactory::createTestCell()
   {
   SoilCell* output = new SoilCell();
@@ -203,9 +222,11 @@ SoilCell SoilFactory::createCell(const double& baseheight, const double& depth, 
       output.Layers.back().isTopsoil = true;
     else if (it == st.end())
       output.Layers.back().isAquifer = true;
+    output.Layers.back().addWater(output.Layers.back().fieldCapacity()); // initialize with water equal to FC.
     }
   output.baseHeight = baseheight;
   output.topsoilType = findTopsoilType(*(st.begin()));
+  output.calcTotalHeight();
   return output;
   }
 
@@ -242,3 +263,4 @@ int SoilFactory::findTopsoilType(const soiltuple& st)
   else
     return  stSANDYLOAM; //sandy loam
   }
+
