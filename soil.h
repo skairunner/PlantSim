@@ -7,6 +7,7 @@ namespace ALMANAC
   {
  
   class SoilFactory;
+  class transferWater;
 
   struct soiltuple
     {
@@ -19,8 +20,10 @@ namespace ALMANAC
     public:
       friend class SoilFactory;
       friend class SoilCell;
+      friend class transferWater;
       void addWater(const double& addwater);
       double availableWater();
+      double percolationWater();
 
     protected:
     virtual void percolateAndLateral(const double& slope); // probably needs a parameter for the Moore direction
@@ -30,7 +33,6 @@ namespace ALMANAC
       double saturatedMoisture();
       double SatHydConductivity();
       double travelTime();
-      double percolationWater();
 
       double sand, clay, silt, organicMatter;
       SoilProperties properties;
@@ -42,9 +44,16 @@ namespace ALMANAC
       bool isAquifer; // = isAquifer
     };
 
+  class transferWater
+    {
+    public:
+      static void transfer(SoilCell& waterOut, SoilCell& destination);
+    };
+
   class SoilCell // a group of soil layers, most likely 10 + shallow aquifer.
     {
     public:
+      friend class transferWater;
       friend class SoilFactory;
       void solveAndPercolate(); // Solve for percolation downwards and lateral flow for each layer, then put them in the respective outbound slots
       double slope; // m/m
@@ -57,6 +66,7 @@ namespace ALMANAC
       void setMooreDirection(const int& moore);
       int getMooreDirection();
       void transferLateralWater(std::vector<SoilLayer>& OutLayers); // out of this cell into the other cell. Layer sizes MUST match, otherwise cerr.
+      SoilLayer& getFront();
 
     protected:
       void upwardsFlow();
