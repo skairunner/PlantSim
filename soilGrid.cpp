@@ -2,8 +2,28 @@
 #include <stdlib.h>
 #include <vector>
 #include "enums.h"
+#include <iostream>
+#include <cstdlib>
 
 using namespace ALMANAC;
+
+void transferWater::transfer(SoilCell& waterOut, SoilCell& destination)
+  {
+  if (waterOut.Layers.size() != destination.Layers.size())
+    {
+    std::cerr << "Layer sizes do not match.";
+    abort();
+    }
+  else
+    {
+    auto destit = destination.Layers.begin();
+    for (auto it = waterOut.Layers.begin(); it < waterOut.Layers.end(); it++)
+      {
+      destit->addWater(it->lateral);
+      destit++;
+      }
+    }
+  }
 
 void SoilGrid::setPerlinProperties(noise::module::Perlin& gen, const double& freq, const double& lacturnity, const int& octave, const double&persist)
   {
@@ -72,10 +92,13 @@ SoilGrid::SoilGrid(const int& w, const int& h, unsigned int seed)
         }
       grid[x + y * width] = SoilFactory::createCell(baseheight, 200, soils);
       }
+    vector3 vecbuffer;
   for (int y = 0; y < height; y++)
     for (int x = 0; x < width; x++)
       {
-      grid[x + y * width].setMooreDirection(findMooreDirection(findGradientVector(x, y)));
+      vecbuffer = findGradientVector(x, y);
+      grid[x + y * width].setMooreDirection(findMooreDirection(vecbuffer));
+      grid[x + y * width].slope = vecbuffer.length;
       }
   }
 
@@ -195,10 +218,15 @@ SoilCell* SoilGrid::findMooreNeighbor(const int& x, const int& y, const int& nei
 
 void SoilGrid::doLateralForEachCell()
   {
-  for (int counter = 0; counter < grid.size(); counter++)
-    {
-    SoilCell* neighbor = findMooreNeighbor(grid[counter].getMooreDirection();
-    }
+  for (int y = 0; y < height; y++)
+    for (int x = 0; x < width ; x++)
+      {
+      SoilCell* neighbor = findMooreNeighbor(x, y, grid[x + y * width].getMooreDirection());
+      if (neighbor == &null)
+        continue; // if equals null, skip.
+      else
+        transferWater::transfer(*neighbor, grid[x + y * width]);
+      }
   }
 
 void SoilGrid::step()
@@ -206,4 +234,25 @@ void SoilGrid::step()
   for (auto it = grid.begin(); it < grid.end(); it++)
     it->solveAndPercolate();
   doLateralForEachCell();
+  }
+
+int randInt(const int& lower, const int& higher)
+  {
+  // since I'm lazy I'm going to go ahead and use RAND().
+  return rand() / RAND_MAX * (higher - lower) + lower + 1;
+  }
+
+void SoilGrid::addRandomWater(const int& numberOf, const int& howMuch)
+  {
+  for (int counter = numberOf; counter > 0; counter--)
+    {
+    ref(randInt(0, width-1), randInt(0, height-1)).getFront().addWater(howMuch);
+    }  
+  }
+
+void SoilGrid::addWaterSquare(const int& x, const int& y, const int& w, const int& h, const double& howMuch)
+  {
+  for (int yC = y; yC < y + h; yC++)
+    for (int xC = x; xC < x + w; xC++)
+      ref(xC, yC).getFront().addWater(howMuch);
   }

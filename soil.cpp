@@ -8,7 +8,7 @@ using namespace std;
 
 SoilLayer::SoilLayer(const double& sandi, const double& clayi, const double& silti, const double& organicMatteri, unsigned int thickness)
   :sand(sandi), clay(clayi), silt(silti), organicMatter(organicMatteri), depth(thickness), isTopsoil(false), isAquifer(false)
-  , water(50)
+  , water(0)
   {
   properties = SOIL_MODELS::SoilModule::fetch(sand, silt, clay, organicMatter);
   }
@@ -20,7 +20,7 @@ void SoilLayer::percolateAndLateral(const double& slope)
   lateral = 0;
   if ( water > fieldCapacity() + 0.000001f)
     {
-    double lateralFlowTime = travelTime() / slope;
+    double lateralFlowTime = travelTime() / (slope/1000.0f);
     double initialperc = (water - properties.fieldCapacity)*(1-exp(-travelTime()*24-lateralFlowTime*24));// "O + QH"
     percolateDown = initialperc / (1 + 24 * travelTime()) / (24 * lateralFlowTime);
     lateral = initialperc / (1 + 24 * lateralFlowTime) / (24 * travelTime());
@@ -59,7 +59,7 @@ void SoilLayer::addWater(const double& addwater)
 
 double SoilLayer::availableWater()
   {
-  return water - wiltingPoint();
+  return (water - wiltingPoint()) > 0 ? (water - wiltingPoint()) : 0;
   }
 
 double SoilLayer::percolationWater()
@@ -71,9 +71,8 @@ void SoilCell::upwardsFlow()
   {
   for (auto it = Layers.begin()+1; it < Layers.end(); it++)
     {
-    it->percolateUp = 0;
     if ( it->water > it->fieldCapacity() + 0.000001f)
-    it->percolateUp = (it->percolationWater())*(1-exp(0.05*((it-1)->water / (it-1)->fieldCapacity() - it->water / it->fieldCapacity())));
+      it->percolateUp = (it->percolationWater())*(1-exp(0.05*((it-1)->water / (it-1)->fieldCapacity() - it->water / it->fieldCapacity())));
     if (it->percolateUp < 0)
       it->percolateUp = 0;
     } // for each layer, run the algorithm. Exclude the top layer.
@@ -181,6 +180,11 @@ void SoilCell::setMooreDirection(const int& moore)
   MooreDirection = moore;
   }
 
+int SoilCell::getMooreDirection()
+  {
+  return MooreDirection;
+  }
+
 void SoilCell::transferLateralWater(std::vector<SoilLayer>& OutLayers)
   {
   assert(Layers.size() == OutLayers.size());
@@ -220,7 +224,7 @@ SoilCell SoilFactory::createCell(const double& baseheight, const double& depth, 
     output.Layers.push_back(SoilLayer(it->sand, it->silt, it->clay, 0.05, depth));
     if (it == st.begin())
       output.Layers.back().isTopsoil = true;
-    else if (it == st.end())
+    else if (it == st.end()-1)
       output.Layers.back().isAquifer = true;
     output.Layers.back().addWater(output.Layers.back().fieldCapacity()); // initialize with water equal to FC.
     }
@@ -264,3 +268,7 @@ int SoilFactory::findTopsoilType(const soiltuple& st)
     return  stSANDYLOAM; //sandy loam
   }
 
+SoilLayer& SoilCell::getFront()
+  {
+  return Layers.front();
+  }
