@@ -36,18 +36,4 @@ namespace ALMANAC
       void doLateralForEachCell(); // Move lateral flow stuff thingies.
       
     };
-
-  class MapTile // The entire map
-    {
-    public:
-
-    private:
-    };
-
-
-
-
-
-
-
   }

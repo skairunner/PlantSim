@@ -2,6 +2,7 @@
 #include <fstream>
 #include <cmath>
 #include <algorithm>
+#include <iostream>
 
 namespace Parse
   {
@@ -334,6 +335,8 @@ namespace Parse
 
   vector<vector<double>> MonolithParse::parse()
     {
+    if (loaded)
+      {
     vector<vector<double>> output;
     output.push_back(vector<double>());
 
@@ -341,5 +344,8 @@ namespace Parse
       output.push_back(process(*it));
 
     return output;
+      }
+    else
+      cerr << "Failed to load file " << fileName << " .";
     }
   }

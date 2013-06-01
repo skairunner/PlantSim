@@ -79,7 +79,7 @@ SoilNameDict soilnameDict;
 
 bool Engine::EngineInit(map<int,bool> errormap)
   {
-  soilGrid = new SoilGrid(100, 100, 0);
+  soilGrid = new SoilGrid(512, 512, 0);
 
   font = al_load_ttf_font("malgun.ttf", 16, 0);
   
@@ -106,7 +106,7 @@ bool Engine::EngineInit(map<int,bool> errormap)
    for (int y = 0; y < soilGrid->getHeight(); y++)
     for (int x = 0; x < soilGrid->getWidth(); x++)
       {
-      waterlevel = soilGrid->ref(x, y).inspectWater().front();
+      waterlevel = *(soilGrid->ref(x, y).inspectWater().begin()+1);
       buffer = ColorMath::lerp(black, blue, waterlevel/200.0f);
       al_put_pixel(x, y, buffer);
       }
@@ -121,7 +121,7 @@ void Engine::Update()
     {
     if (stepsCounter % 10 == 0)
       {
-      soilGrid->addWaterSquare(0, 0, 100, 100, 50);
+      soilGrid->addWaterSquare(0, 0, 512, 512, 50);
       moreWater = false;
       }
     soilGrid->step();
@@ -155,7 +155,7 @@ void Engine::Render(ALLEGRO_DISPLAY *root)
     al_draw_text(font, al_map_rgb(255,254,253), 0, soilGrid->getHeight() + font->height, 0, "Nothing");
   else
     {
-    al_draw_text(font, al_map_rgb(0,0,0), 0, soilGrid->getHeight() + font->height, 0, soilnameDict.getSoilName(soilGrid->get(mouseX, mouseY).getTopsoilType()).c_str());
+    al_draw_text(font, al_map_rgb(0,0,0), 0, al_get_display_height(root) - 2*font->height, 0, soilnameDict.getSoilName(soilGrid->get(mouseX, mouseY).getTopsoilType()).c_str());
     }
   al_draw_text(font, al_map_rgb(0,0,0), 0, al_get_display_height(root) - font->height, 0, to_string((long double)stepsCounter).c_str());
   }

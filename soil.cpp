@@ -22,8 +22,8 @@ void SoilLayer::percolateAndLateral(const double& slope)
     {
     double lateralFlowTime = travelTime() / (slope/1000.0f);
     double initialperc = (water - properties.fieldCapacity)*(1-exp(-travelTime()*24-lateralFlowTime*24));// "O + QH"
-    percolateDown = initialperc / (1 + 24 * travelTime()) / (24 * lateralFlowTime);
-    lateral = initialperc / (1 + 24 * lateralFlowTime) / (24 * travelTime());
+    percolateDown = initialperc / (1 + 24 * travelTime());
+    lateral = initialperc / (1 + 24 * lateralFlowTime);
     }
   }
 
@@ -122,9 +122,12 @@ void SoilCell::solveAndPercolate()
     else if (it->isAquifer)
       {
       adjustWater(it->percolationWater(), it->lateral, it->percolateDown, it->percolateDown);
-      it->addWater(-it->percolateDown); // Subtract the percolate down water away.
+      //it->addWater(-it->percolateDown); // Subtract the percolate down water away.
+      // Do nothing with the perc down water.
       (it-1)->addWater(it->percolateUp);
       it->addWater(-it->percolateUp);
+      // Then, recharge the water.
+      it->recharge();
       }
     else // If it's neither top nor bottom ...
       {
@@ -268,7 +271,17 @@ int SoilFactory::findTopsoilType(const soiltuple& st)
     return  stSANDYLOAM; //sandy loam
   }
 
-SoilLayer& SoilCell::getFront()
+SoilLayer& SoilCell::getFront(const int& offset)
   {
-  return Layers.front();
+  return *(Layers.begin()+offset);
+  }
+
+void SoilLayer::recharge()
+  {
+  }
+
+void Aquifer::recharge()
+  {
+  if (water < fieldCapacity() * 1.1f)
+    water = fieldCapacity() * 1.1f;
   }
