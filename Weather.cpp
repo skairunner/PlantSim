@@ -40,6 +40,11 @@ namespace ALMANAC
     return dayRadiation;
     }
 
+  double Weather::getAverageHumidity()
+    {
+    return humidity;
+    }
+
   Month Weather::getMonth()
     {
     return currentMonth;
@@ -70,7 +75,7 @@ namespace ALMANAC
     }
 
   Weather::Weather(const vector<int>& rainyDaysPerMonth, const bool random):                                                                                              
-    rainCoef(0.70f), rainedHowMuch(0.0f), omegaT(0.5f), omegaR(0.5f), defaultRadiation(16.056f)
+    rainCoef(0.70f), rainedHowMuch(0.0f), omegaT(0.5f), omegaR(0.5f), defaultRadiation(445.0f), omegaH(0.9f)
       {
       wetDaysPerMonth = rainyDaysPerMonth;
 
@@ -136,6 +141,24 @@ namespace ALMANAC
       return true;
       }
 
+    bool Weather::loadHumidity(const vector<vector<double>>& Humidness)
+      {
+      Parse::StatisticsParser statsparser;
+      MeanHumidity.push_back(StatsHolder());
+
+      int month = 1;
+      for (int it = 0; it < Humidness.size() - 1; it++)
+        // Skip the first one, which is a 0.
+        {
+        statsparser.loadData(Humidness[it]); // Load the data into the stats parser to get statistical numbers.
+        MeanHumidity.push_back(StatsHolder(month, statsparser.getMean(), statsparser.getSTDEV(), statsparser.getSkew(), Humidness[it]));
+
+        month++;
+        }
+
+      return true;
+      }
+
     bool Weather::loadSTDEVs(const vector<vector<double>>& STDEVs)
       {
       for (int counter = 1; counter <= 12; counter++)
@@ -143,6 +166,16 @@ namespace ALMANAC
         RainHolder[counter].standardDeviation = STDEVs[counter].at(Parse::stat::RAIN);
         MaxTemp[counter].standardDeviation = STDEVs[counter].at(Parse::stat::TEMPMAX);
         MinTemp[counter].standardDeviation = STDEVs[counter].at(Parse::stat::TEMPMIN);
+        }
+
+      return true;
+      }
+
+    bool Weather::loadSkew(const vector<vector<double>>& skewVec)
+      {
+      for (int counter = 0; counter < 12; counter++)
+        {
+        RainHolder.at(counter+1).skew = skewVec.at(counter).at(1);
         }
 
       return true;
@@ -202,9 +235,9 @@ namespace ALMANAC
       {
       double dayMaxTemp = MaxTemp[currentMonth.getMonth()].means[currentMonth.getDate()];
       double dayMinTemp = MinTemp[currentMonth.getMonth()].means[currentMonth.getDate()];
-      double possibleMaxTemp = dayMaxTemp + (wetDaysPerMonth[currentMonth.getMonth()] / currentMonth.getNumberOfDaysInMonth()) * omegaT * (dayMaxTemp - dayMinTemp);
+      double possibleMaxTemp = dayMaxTemp + (wetDaysPerMonth[currentMonth.getMonth()] / (double)currentMonth.getNumberOfDaysInMonth()) * omegaT * (dayMaxTemp - dayMinTemp);
       double wetMaxTemp = possibleMaxTemp - omegaT * (dayMaxTemp - dayMinTemp);
-      double possibleMinTemp = dayMinTemp + (wetDaysPerMonth[currentMonth.getMonth()] / currentMonth.getNumberOfDaysInMonth()) * omegaT * (dayMaxTemp - dayMinTemp);
+      double possibleMinTemp = dayMinTemp + (wetDaysPerMonth[currentMonth.getMonth()] / (double)currentMonth.getNumberOfDaysInMonth()) * omegaT * (dayMaxTemp - dayMinTemp);
       if (rainedToday)
         maxTemp = normalRandom(wetMaxTemp, MaxTemp[currentMonth.getMonth()].standardDeviation);
       else
@@ -231,5 +264,20 @@ namespace ALMANAC
         dayRadiation = normalRandom(wetRad, sunlight[currentMonth.getMonth()].standardDeviation);
       else
         dayRadiation = normalRandom(dryRad, sunlight[currentMonth.getMonth()].standardDeviation);
+
+      dayRadiation *= 0.0036; // To convert units into MJ/m^2
+      }
+
+    void Weather::findHumidity()
+      {
+      double meanHumidity = MeanHumidity[currentMonth.getMonth()].means[currentMonth.getDate()];
+      double wetDayProb = omegaH * wetDaysPerMonth[currentMonth.getMonth()] / (double)currentMonth.getNumberOfDaysInMonth();
+      double RHD = meanHumidity - (wetDayProb) / (1 - wetDayProb);
+      double RHW = meanHumidity + omegaH * (1 - meanHumidity/100.0f);
+      double triangularPeak = rainedToday ? RHW : RHD;
+      double triangularUpper = triangularPeak + (1 - triangularPeak / 200.0f) * exp(triangularPeak/100.0f - 1);
+      double triangularLower = triangularPeak * (1 - exp(-meanHumidity));
+      double randNum = random(0, 1);
+      humidity = triangularLower + sqrt(randNum * (triangularPeak - triangularLower) * (triangularUpper - triangularLower));
       }
   }

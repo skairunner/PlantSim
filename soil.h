@@ -24,6 +24,7 @@ namespace ALMANAC
       void addWater(const double& addwater);
       double availableWater();
       double percolationWater();
+      virtual void recharge();
 
     protected:
     virtual void percolateAndLateral(const double& slope); // probably needs a parameter for the Moore direction
@@ -42,6 +43,12 @@ namespace ALMANAC
 
       bool isTopsoil; // = isTopsoil
       bool isAquifer; // = isAquifer
+    };
+
+  class Aquifer : public SoilLayer // specialized for things like saturation and field capacity.
+    {
+    public:
+      virtual void recharge(); // implement a recharge function later. For now, keep the layer at 110% of FC.
     };
 
   class transferWater
@@ -66,7 +73,7 @@ namespace ALMANAC
       void setMooreDirection(const int& moore);
       int getMooreDirection();
       void transferLateralWater(std::vector<SoilLayer>& OutLayers); // out of this cell into the other cell. Layer sizes MUST match, otherwise cerr.
-      SoilLayer& getFront();
+      SoilLayer& getFront(const int& offset = 0);
 
     protected:
       void upwardsFlow();
