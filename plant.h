@@ -1,4 +1,6 @@
 #pragma once
+#include "enums.h"
+#include <map>
 
 namespace ALMANAC
   {
@@ -12,6 +14,7 @@ namespace ALMANAC
   struct SCurveNumbers
     {
     SCurveNumbers(const double& vertical, const double& Scale, const double& horizontal);
+    SCurveNumbers();
     double scale, horiz, vert;
     };
 
@@ -20,8 +23,26 @@ namespace ALMANAC
   class BasePlant
     {
     public:
-
+      BasePlant();
+      void calculate(const double& maxTemp, const double& minTemp, const double& radiation, const double& CO2, const double& humidity); // plug in today's weather :v. CO2 is in ppm
+      void findREG(); // probably has params
+      double findHUI(); // heat unit indx, basically % grown.
+      
     private:
+      std::map<int, double> growthStages;
+      const double baseTemp; // ¡ÆC
+      double previousHeatUnits, heatUnits;
+      double REG; // Stress factor. Has to be set elsewhere.
+      double LAI, prevLAI;
+      const double maxLAI;
+      SCurveNumbers HeatUnitFactorNums;
+      SCurveNumbers CO2CurveFactors;
+      double biomassToVPD; // bc(3)
+      double biomass;
 
+      double findHUF();
+      double findPreviousHUF();
+      double findPreviousHUI();
+      double findVPD(const double& averageTemp, const double& humidity);      
     };
   }
