@@ -16,6 +16,7 @@ namespace Parse
   Parser::Parser(const string& filename)
     {
     fileName = filename; loaded = false;
+    load();
     }
 
   bool Parser::isLoaded()
@@ -346,6 +347,9 @@ namespace Parse
     return output;
       }
     else
+      {
       cerr << "Failed to load file " << fileName << " .";
+      return vector<vector<double>>();
+      }
     }
   }

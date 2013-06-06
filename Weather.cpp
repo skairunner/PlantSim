@@ -82,16 +82,16 @@ namespace ALMANAC
       gen.seed(rand());      
       }
 
-    bool Weather::loadRain(const vector<vector<double>>& rainMeans, const vector<vector<double>>& rainStats)
+    bool Weather::loadRain(const vector<vector<double>>& rainMeans, const vector<vector<double>>& stdevs, const vector<vector<double>>& skews)
       {
       Parse::StatisticsParser statsparser;
       RainHolder.push_back(StatsHolder());
       int month = 1;
-      for (int it = 0; it < rainStats.size(); it++)
+      for (int it = 0; it < rainMeans.size(); it++)
         // Skip the first one, which is a 0.
         {
-        statsparser.loadData(rainStats[it]); // Load the data into the stats parser to get statistical numbers.
-        RainHolder.push_back(StatsHolder(month, statsparser.getMean(), statsparser.getSTDEV(), statsparser.getSkew(), rainMeans[it]));
+        statsparser.loadData(rainMeans[it]); // Monthly mean.
+        RainHolder.push_back(StatsHolder(month, statsparser.getMean(), stdevs.at(month).at(4), skews.at(month).at(1), rainMeans[it]));
         // In the above case, the same int is plugged into the StatsHolder. Normally, the *it for statsparser would be a vector<vector<float>>,
         // as many months of stats, while the *it for StatsHolder is the 30 year mean.
         month++;
@@ -100,7 +100,7 @@ namespace ALMANAC
       return true;
       }
 
-    bool Weather::loadTemps(const vector<vector<double>>& tempHiMeans, const vector<vector<double>>& tempLowMeans, const vector<vector<double>>& tempHiStats, const vector<vector<double>>& tempLowStats)
+    bool Weather::loadTemps(const vector<vector<double>>& tempHiMeans, const vector<vector<double>>& tempLowMeans, const vector<vector<double>>& STDEVs)
       {
       Parse::StatisticsParser statsparser;
       MaxTemp.push_back(StatsHolder());
@@ -110,11 +110,11 @@ namespace ALMANAC
       for (int it = 0; it < tempHiMeans.size() - 1; it++)
         // Skip the first one, which is a 0.
         {
-        statsparser.loadData(tempHiStats[it]); // Load the data into the stats parser to get statistical numbers.
-        MaxTemp.push_back(StatsHolder(month, statsparser.getMean(), statsparser.getSTDEV(), statsparser.getSkew(), tempHiMeans[it]));
+        statsparser.loadData(tempHiMeans[it]); // Load the data into the stats parser to get the means.
+        MaxTemp.push_back(StatsHolder(month, statsparser.getMean(), STDEVs.at(month).at(2), 0, tempHiMeans[it]));
        
-        statsparser.loadData(tempLowStats[it]);
-        MinTemp.push_back(StatsHolder(month, statsparser.getMean(), statsparser.getSTDEV(), statsparser.getSkew(), tempLowMeans[it]));
+        statsparser.loadData(tempLowMeans[it]);
+        MinTemp.push_back(StatsHolder(month, statsparser.getMean(), STDEVs.at(month).at(3), 0, tempLowMeans[it]));
         month++;
         }
 
@@ -189,6 +189,7 @@ namespace ALMANAC
         setRainAmount();
         findTemp();
         findRadiation();
+        findHumidity();
         }
       else
         cerr << "Loaded rain: " << loadedRain << "\n Loaded temperatures: " << loadedTemp << "\n Loaded sunlight: " << loadedSun << endl;
@@ -256,7 +257,8 @@ namespace ALMANAC
 
     void Weather::findRadiation()
       {
-      double baseRad = sunlight[currentMonth.getMonth()].means[currentMonth.getDate()] * defaultRadiation;
+      double baseRad = sunlight[currentMonth.getMonth()].means[currentMonth.getDate()] * defaultRadiation * 7.3; // In this case, 7 hours of daylight is assumed. 
+      // Have to add a way to make the hous per day vary
       double dryRad = (baseRad * currentMonth.getNumberOfDaysInMonth()) / (omegaR * wetDaysPerMonth[currentMonth.getMonth()] + (currentMonth.getNumberOfDaysInMonth() - wetDaysPerMonth[currentMonth.getMonth()]));
       double wetRad = dryRad * omegaR;
 

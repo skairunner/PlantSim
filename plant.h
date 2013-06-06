@@ -16,33 +16,57 @@ namespace ALMANAC
     SCurveNumbers(const double& vertical, const double& Scale, const double& horizontal);
     SCurveNumbers();
     double scale, horiz, vert;
+
+    static double getS_CurveNum(const SCurveNumbers& scv, const double& x)
+      {
+      return scv.vert / (1 + exp(-scv.scale * (x - scv.horiz)));
+      }
     };
 
-  double getS_CurveNum(const SCurveNumbers& scv, const double& x);
+
 
   class BasePlant
     {
     public:
       BasePlant();
-      void calculate(const double& maxTemp, const double& minTemp, const double& radiation, const double& CO2, const double& humidity); // plug in today's weather :v. CO2 is in ppm
+      void calculate(const double& maxTemp, const double& minTemp, const double& radiation, const double& CO2, const double& humidity, const double& albedo, const double& meanWindSpeed); // plug in today's weather :v. CO2 is in ppm
       void findREG(); // probably has params
+      double getHU(); // heat units
       double findHUI(); // heat unit indx, basically % grown.
-      
+      double calcHeight();
+      double getBiomass();
+      double getLAI();
+
     private:
       std::map<int, double> growthStages;
       const double baseTemp; // ¡ÆC
       double previousHeatUnits, heatUnits;
       double REG; // Stress factor. Has to be set elsewhere.
+
       double LAI, prevLAI;
       const double maxLAI;
+
+      const double maxHeight; //mm
+      
+      const double rootFraction1, rootFraction2; // fraction of root weight; 1 is at germination, 2 at maturity
+      const double maxRootDepth; //mm
+      double calcRootDepth();
+
       SCurveNumbers HeatUnitFactorNums;
       SCurveNumbers CO2CurveFactors;
       double biomassToVPD; // bc(3)
       double biomass;
 
+      bool isAnnual; // limits HU to the maturity HUs.
+
       double findHUF();
       double findPreviousHUF();
       double findPreviousHUI();
       double findVPD(const double& averageTemp, const double& humidity);      
+      double findPsychometricConstant(const double& temperature = 2.0f); // AKA 'gamma'
+      double findSlopeOfSaturatedVaporCurve(const double& temperature);
+      double findNetRadiation(const double& radiation, const double& albedo); //aka h(0)
+      double findLatentHeat(const double& temperature);
+      double barometricPressure(const double& altitude);
     };
   }

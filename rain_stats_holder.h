@@ -6,7 +6,7 @@ namespace ALMANAC
   class StatsHolder // Stores the means to be retrieved per day, the stdev/total mean/median/etc etc. for one month.
     {
     public:
-      StatsHolder(const int& TheMonth, const double Mean, const double standardDev, const double Skew, const std::vector<double> MeanVector)
+      StatsHolder(const int& TheMonth, const double& Mean, const double& standardDev, const double& Skew, const std::vector<double>& MeanVector)
         :thisMonth(TheMonth), mean(Mean), standardDeviation(standardDev), skew(Skew), means(MeanVector)
         {
         }
