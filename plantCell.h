@@ -7,5 +7,6 @@ namespace ALMANAC
     public:
       
     private:
+      double albedo;
     };
   }

@@ -10,19 +10,31 @@ namespace ALMANAC
   {
   using namespace std;
 
+  /*struct WeatherData
+    {
+    WeatherData();
+    WeatherData(const double& MaxTemp, const double& MinTemp, const double& Radiation, const double& CO2ppm, const double& Humidity, const double& MeanWindSpeed);
+    double maxTemp, minTemp, radiation, CO2, humidity, meanWindSpeed;
+    };*/
+
+  ///
+  ///
+  /// Other things to do include: wind speed functions and .
+  ///
+  ///
   
   class Weather
     {
     public:
     Weather(const vector<int>& rainyDaysPerMonth, const bool random = false);
-    bool loadRain(const vector<vector<double>>& rainMeans, const vector<vector<double>>& rainStats);
-    bool loadTemps(const vector<vector<double>>& tempHiMeans, const vector<vector<double>>& tempLowMeans, const vector<vector<double>>& tempHiStats, const vector<vector<double>>& tempLowStats);
+    bool loadRain(const vector<vector<double>>& rainMeans, const vector<vector<double>>& stdevs, const vector<vector<double>>& skews); /// stdevs is from the monolith file with rain as the fifth column.
+    bool loadTemps(const vector<vector<double>>& tempHiMeans, const vector<vector<double>>& tempLowMeans, const vector<vector<double>>& STDEVs);
     bool loadSun(const vector<vector<double>>& sunlightMean);
     bool loadSTDEVs(const vector<vector<double>>& STDEVs);
     bool loadHumidity(const vector<vector<double>>& Humidness);
     bool loadSkew(const vector<vector<double>>& skewVec);
 
-    void step(const float& timestep);
+    void step(const float& timestep = 1);
     bool rain();
 
     double getRainAmount();
