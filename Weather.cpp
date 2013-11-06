@@ -82,6 +82,43 @@ namespace ALMANAC
       gen.seed(rand());      
       }
 
+    Weather::Weather(bool def)
+      {
+      Parse::MonolithParse parser(std::string("Content/seosan_skew.monolith"));
+      //parser.load();
+      auto skewInfo = parser.parse();
+
+      Parse::MonolithParse parseStdev(std::string("Content/seosan_stdev.monolith"));
+      parseStdev.load();
+      auto STDEVinfo = parseStdev.parse();
+
+      Parse::Parser_RainyDays rainyDaysP("Content/unknownRainyDays.rain");
+      rainyDaysP.parse();
+      auto result = rainyDaysP.getResult();
+
+      Parse::Parser rainMeansP("Content/30yearaverage.rain");
+      auto rainMeans = rainMeansP.parse();
+
+      Parse::Parser sunP("Content/30YearAverage.sun");
+      auto sunMeans = sunP.parse();
+
+      Parse::Parser TempHiP("Content/30YearAverage.temphi");
+      auto TempHiInfo = TempHiP.parse();
+
+      Parse::Parser TempLoP("Content/30YearAverage.templow");
+      auto TempLoInfo = TempLoP.parse();
+
+      Parse::Parser HumidityP("Content/30YearAverage.humid");
+      auto HumidityInfo = HumidityP.parse();
+
+      *this = Weather(result, false);
+
+      loadRain(rainMeans, STDEVinfo, skewInfo);
+      loadSun(sunMeans);
+      loadTemps(TempHiInfo, TempLoInfo, STDEVinfo);
+      loadHumidity(HumidityInfo);
+      }
+
     bool Weather::loadRain(const vector<vector<double>>& rainMeans, const vector<vector<double>>& stdevs, const vector<vector<double>>& skews)
       {
       Parse::StatisticsParser statsparser;

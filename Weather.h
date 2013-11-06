@@ -27,6 +27,7 @@ namespace ALMANAC
     {
     public:
     Weather(const vector<int>& rainyDaysPerMonth, const bool random = false);
+    Weather(bool def);
     bool loadRain(const vector<vector<double>>& rainMeans, const vector<vector<double>>& stdevs, const vector<vector<double>>& skews); /// stdevs is from the monolith file with rain as the fifth column.
     bool loadTemps(const vector<vector<double>>& tempHiMeans, const vector<vector<double>>& tempLowMeans, const vector<vector<double>>& STDEVs);
     bool loadSun(const vector<vector<double>>& sunlightMean);
