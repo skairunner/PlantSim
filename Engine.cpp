@@ -19,6 +19,9 @@ int mouseX, mouseY;
 bool nextStep = false, moreWater = false;
 int stepsCounter = 0;
 
+int SIDE_LENGTH = 256;
+
+
 class SoilColorDict
   {
   public:
@@ -79,7 +82,7 @@ SoilNameDict soilnameDict;
 
 bool Engine::EngineInit(map<int,bool> errormap)
   {
-  soilGrid = new SoilGrid(512, 512, 0);
+  soilGrid = new SoilGrid(SIDE_LENGTH, SIDE_LENGTH, 0);
 
   font = al_load_ttf_font("malgun.ttf", 16, 0);
   
@@ -101,12 +104,12 @@ bool Engine::EngineInit(map<int,bool> errormap)
   watermap = al_create_bitmap(soilGrid->getWidth(), soilGrid->getHeight());
   al_set_target_bitmap(watermap);
   al_lock_bitmap(watermap, al_get_bitmap_format(watermap), ALLEGRO_LOCK_READWRITE);
-  double waterlevel = 0;
+
   ALLEGRO_COLOR blue = al_map_rgb(0,255,0);
    for (int y = 0; y < soilGrid->getHeight(); y++)
     for (int x = 0; x < soilGrid->getWidth(); x++)
       {
-      waterlevel = *(soilGrid->ref(x, y).inspectWater().begin()+1);
+      double waterlevel = soilGrid->ref(x, y).inspectWater().back();
       buffer = ColorMath::lerp(black, blue, waterlevel/200.0f);
       al_put_pixel(x, y, buffer);
       }
@@ -117,11 +120,11 @@ bool Engine::EngineInit(map<int,bool> errormap)
 
 void Engine::Update()
   {
-  if (true)//nextStep)
+  if (nextStep)//nextStep)
     {
     if (stepsCounter % 10 == 0)
       {
-      soilGrid->addWaterSquare(0, 0, 512, 512, 50);
+      soilGrid->addWaterSquare(0, 0, SIDE_LENGTH, SIDE_LENGTH, 50);
       moreWater = false;
       }
     soilGrid->step();
@@ -131,6 +134,7 @@ void Engine::Update()
     ALLEGRO_COLOR blue = al_map_rgb(0,0,255);
     ALLEGRO_COLOR black = al_map_rgb(0,0,0);
     ALLEGRO_COLOR buffer;
+
     for (int y = 0; y < soilGrid->getHeight(); y++)
       for (int x = 0; x < soilGrid->getWidth(); x++)
         {

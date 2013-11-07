@@ -1,4 +1,5 @@
 #include "plant.h"
+
 #include <cmath>
 
 using namespace ALMANAC;
@@ -12,31 +13,30 @@ SCurveNumbers::SCurveNumbers()
   : scale(0), horiz(0), vert(0)
   {}
 
-/*double SCurveNumbers::getS_CurveNum(const SCurveNumbers& scv, const double& x)
-  {
-  return scv.vert / (1 + exp(-scv.scale * (x - scv.horiz)));
-  }*/
 
-
-
-BasePlant::BasePlant()
-  : baseTemp(8.0f), maxLAI(1.0f), rootFraction1(0.3f), rootFraction2(0.05), maxRootDepth(1000),
+BasePlant::BasePlant(SoilCell* soil)
+  : baseTemp(8.0f), maxLAI(3.0f), rootFraction1(0.3f), rootFraction2(0.05), maxRootDepth(1000),
   maxHeight(1000), HeatUnitFactorNums(1, 17, 0.18), CO2CurveFactors(0.1f, 0.04f, 49), biomass(0), biomassToVPD(7), LAI(0), prevLAI(0),
-  previousHeatUnits(0), heatUnits(0), isAnnual(true)
+  previousHeatUnits(0), heatUnits(0), isAnnual(true), soilPatch(soil), requiredWater(1), suppliedWater(1), height(0)
   {
   growthStages[9] = 1686.0f;
   growthStages[10] = 1800.0f;
+
+  if (soilPatch)
+    myProfile = SoilProfile(*soilPatch);
   }
 
-void BasePlant::calculate(const double& maxTemp, const double& minTemp,
-                          const double& radiation, const double& CO2, const double& humidity, const double& albedo, const double& windspeed)
+void BasePlant::calculate(const WeatherData& data, const double& albedo)
   {
   ///test
-  REG = 1;
+  REG = getWaterStressFactor();
 
-  double heatUnitsAdded = (maxTemp + minTemp) / 2 - baseTemp;
+  double heatUnitsAdded = (data.maxTemp + data.minTemp) / 2 - baseTemp;
   heatUnitsAdded = heatUnitsAdded > 0 ? heatUnitsAdded : 0;
   previousHeatUnits = heatUnits;
+
+  doWater(data);
+
   if (heatUnitsAdded + heatUnits > growthStages.find(10)->second && isAnnual) // If adding HU will go over the limit,
     {
     heatUnitsAdded = 0;
@@ -47,14 +47,42 @@ void BasePlant::calculate(const double& maxTemp, const double& minTemp,
     heatUnits += heatUnitsAdded;
     double deltaHUF = findHUF() - findPreviousHUF();
     prevLAI = LAI;
-    LAI += deltaHUF * maxLAI * (1 - exp(5.0f * (prevLAI - maxLAI))) * sqrt(REG);
+    LAI += deltaHUF * maxLAI * (1 - exp(5.0f * (prevLAI - maxLAI))) * sqrt(REG); 
+    height += deltaHUF * maxHeight * sqrt(REG);
+
     ///////////////////////
-    double photoactiveRadiation = 0.5 * radiation * (1 - exp(-0.65 * LAI));
-    double potentialDeltaBiomass = 100 * SCurveNumbers::getS_CurveNum(CO2CurveFactors, CO2); // BE*
-    potentialDeltaBiomass = potentialDeltaBiomass - biomassToVPD * (findVPD((maxTemp - minTemp)/2.0f, humidity) - 1); // BE'
-    potentialDeltaBiomass = 0.001f * potentialDeltaBiomass * photoactiveRadiation / 10.0f; //result is in kg / m^2
-    biomass += potentialDeltaBiomass * REG;
+    double photoactiveRadiation = 0.5 * data.radiation * (1 - exp(-0.65 * LAI));
+    double potentialDeltaBiomass = 100 * SCurveNumbers::getS_CurveNum(CO2CurveFactors, data.CO2); // BE*
+    potentialDeltaBiomass = potentialDeltaBiomass - biomassToVPD * (findVPD((data.maxTemp - data.minTemp)/2.0f, data.humidity) - 1); // BE'
+    potentialDeltaBiomass = 0.001f * potentialDeltaBiomass * photoactiveRadiation / 10.0f; //result is in kg / m^2  
+
+    
+    biomass += potentialDeltaBiomass * getWaterStressFactor();
     }
+  }
+
+void BasePlant::doWater(const WeatherData& data)
+  {
+  if (soilPatch)
+    {
+    double potentialEvaporation = 0.0032 * data.radiation / 2.456 /*MJ/kg*/ * ((data.maxTemp + data.minTemp)/2 + 17.8) * pow(data.maxTemp-data.minTemp, 0.6); // Hargreaves method.
+    requiredWater = min(potentialEvaporation, potentialEvaporation * LAI);
+    suppliedWater = soilPatch->requestWater(maxRootDepth, requiredWater);
+    }
+  else
+    {
+    requiredWater = 1;
+    suppliedWater = 1;
+    }
+  }
+
+double BasePlant::getWaterStressFactor()
+  {
+  double temp = min(suppliedWater / (requiredWater), 1.0);
+
+  if (temp != temp)
+    return 1;
+  else return temp;
   }
 
 double BasePlant::findHUI()
@@ -85,7 +113,8 @@ double BasePlant::findVPD(const double& averageTemp, const double& humidity)
 
 double BasePlant::calcHeight()
   {
-  return maxHeight * sqrt(findHUF());
+ // return maxHeight * sqrt(findHUF());
+  return height;
   }
 
 double BasePlant::calcRootDepth()
