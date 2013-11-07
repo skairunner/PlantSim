@@ -10,12 +10,12 @@ namespace ALMANAC
   {
   using namespace std;
 
-  /*struct WeatherData
+  struct WeatherData
     {
     WeatherData();
     WeatherData(const double& MaxTemp, const double& MinTemp, const double& Radiation, const double& CO2ppm, const double& Humidity, const double& MeanWindSpeed);
     double maxTemp, minTemp, radiation, CO2, humidity, meanWindSpeed;
-    };*/
+    };  
 
   ///
   ///
@@ -43,6 +43,7 @@ namespace ALMANAC
     double getMinTemp();
     double getDayRadiation();
     double getAverageHumidity();
+    WeatherData getDataBundle();
 
     Month getMonth();
     void changeDate(const int month, const int date);

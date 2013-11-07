@@ -9,6 +9,8 @@ namespace ALMANAC
   {
   using namespace std;
 
+  WeatherData::WeatherData(){}
+
   int Weather::random(const int& min, const int& max)
     {
     boost::random::uniform_int_distribution<int> distribution(min,max);
@@ -44,6 +46,21 @@ namespace ALMANAC
     {
     return humidity;
     }
+
+  WeatherData Weather::getDataBundle()
+    {
+    WeatherData wd;
+    wd.minTemp = getMinTemp();
+    wd.maxTemp = getMaxTemp();
+    wd.humidity = getAverageHumidity();
+    wd.radiation = getDayRadiation();
+    wd.CO2 = 440;
+    wd.meanWindSpeed = 0;
+
+    return wd;
+    }
+
+  
 
   Month Weather::getMonth()
     {
