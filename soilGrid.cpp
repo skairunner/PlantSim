@@ -65,13 +65,17 @@ SoilGrid::SoilGrid(const int& w, const int& h, unsigned int seed)
   double startingZ = 0.99f;
   SoilCell buffer;
   double baseheight, total;
+
   const int layers = 10;
-  soiltuple stBuffer;
+
+  
   std::vector<soiltuple> soils(layers, soiltuple());
   grid = std::vector<SoilCell>(width * height, SoilCell());
   for (int y = 0; y < height; y++)
     for (int x = 0; x < width; x++)
       {
+      soiltuple stBuffer;
+
       baseheight = (perlin.GetValue(x * zoom, y * zoom, 0.5) + 1) * 5000; // *5000 to get a range of roughly ten meters.
       for (int counter = layers-1; counter >= 0; counter--)
         {
@@ -90,15 +94,18 @@ SoilGrid::SoilGrid(const int& w, const int& h, unsigned int seed)
 
         soils[counter] = stBuffer;
         }
+
       grid[x + y * width] = SoilFactory::createCell(baseheight, 200, soils);
       }
-    vector3 vecbuffer;
+     
   for (int y = 0; y < height; y++)
     for (int x = 0; x < width; x++)
       {
-      vecbuffer = findGradientVector(x, y);
+      vector3 vecbuffer = findGradientVector(x, y);
       grid[x + y * width].setMooreDirection(findMooreDirection(vecbuffer));
       grid[x + y * width].slope = vecbuffer.length;
+      if (vecbuffer.length != vecbuffer.length)
+        grid[x + y * width].slope = 0.0001f;
       }
   }
 
