@@ -8,11 +8,20 @@ namespace ALMANAC
  
   class SoilFactory;
   class transferWater;
+  class SoilCell;
 
   struct soiltuple
     {
     soiltuple(){}
     double sand, silt, clay;
+    };
+
+  class SoilProfile // A simplified model of soil. It consists of a vector of pair<>s, with the first number being max depth and the second member a current depth.
+    {
+    public:
+      SoilProfile(SoilCell& sc);
+      SoilProfile();
+      std::vector<std::pair<double, double>> profile;
     };
 
   class SoilLayer // A single layer of soil.
@@ -25,6 +34,10 @@ namespace ALMANAC
       double availableWater();
       double percolationWater();
       virtual void recharge();
+      double getDepth();
+
+      double withdrawWater(const double amount);
+      double withdrawWater(const double amount, const double rootdepth);
 
     protected:
     virtual void percolateAndLateral(const double& slope); // probably needs a parameter for the Moore direction
@@ -59,6 +72,7 @@ namespace ALMANAC
 
   class SoilCell // a group of soil layers, most likely 10 + shallow aquifer.
     {
+    friend class SoilProfile;
     public:
       friend class transferWater;
       friend class SoilFactory;
@@ -74,6 +88,8 @@ namespace ALMANAC
       int getMooreDirection();
       void transferLateralWater(std::vector<SoilLayer>& OutLayers); // out of this cell into the other cell. Layer sizes MUST match, otherwise cerr.
       SoilLayer& getFront(const int& offset = 0);
+      
+      double requestWater(double rootDepth, double demand);
 
     protected:
       void upwardsFlow();

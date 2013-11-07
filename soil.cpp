@@ -13,8 +13,14 @@ SoilLayer::SoilLayer(const double& sandi, const double& clayi, const double& sil
   properties = SOIL_MODELS::SoilModule::fetch(sand, silt, clay, organicMatter);
   }
 
-void SoilLayer::percolateAndLateral(const double& slope)
+double SoilLayer::getDepth()
   {
+  return depth;
+  }
+
+void SoilLayer::percolateAndLateral(const double& slope)
+  { 
+
   percolateDown = 0;
   percolateUp = 0;
   lateral = 0;
@@ -67,6 +73,45 @@ double SoilLayer::percolationWater()
   return (water - fieldCapacity()) > 0 ? (water - fieldCapacity()) : 0;
   }
 
+
+double SoilLayer::withdrawWater(const double amount)
+  {
+  double supply = 0;
+  if (amount > availableWater())
+    {
+    supply = availableWater();
+    water -= availableWater();        
+    }
+  else
+    {
+    supply = amount;
+    water -= amount;
+    }
+
+  return supply;
+  }
+
+double SoilLayer::withdrawWater(const double amount, const double rootdepth)
+  {
+  double supply = 0;
+  double depthFraction = rootdepth / depth;
+  if (depthFraction > 1) depthFraction = 1;
+  double actualAvailableWater = availableWater() * depthFraction;
+
+  if (amount > actualAvailableWater)
+    {
+    supply = actualAvailableWater;
+    water -= actualAvailableWater;        
+    }
+  else
+    {
+    supply = amount;
+    water -= amount;
+    }
+
+  return supply;
+  }
+
 void SoilCell::upwardsFlow()
   {
   for (auto it = Layers.begin()+1; it < Layers.end(); it++)
@@ -77,6 +122,8 @@ void SoilCell::upwardsFlow()
       it->percolateUp = 0;
     } // for each layer, run the algorithm. Exclude the top layer.
   }
+
+
 
 vector<double> SoilCell::inspectWater()
   {
@@ -108,6 +155,7 @@ void SoilCell::solveAndPercolate()
   for (auto it = Layers.begin(); it < Layers.end(); it++)
     it->percolateAndLateral(slope);
   upwardsFlow();
+  
   double throwaway = 0;
   // Move all the intracell water. Do not touch the intercell water.
   for (auto it = Layers.begin(); it < Layers.end(); it++)
@@ -199,6 +247,26 @@ void SoilCell::transferLateralWater(std::vector<SoilLayer>& OutLayers)
     }
   }
 
+double SoilCell::requestWater(double rootDepth, double demand)
+  {
+  double suppliedWater = 0;
+  for (auto it = Layers.begin(); it < Layers.end(); it++)
+    {
+    if (rootDepth - it->getDepth() > 0)
+      {
+      rootDepth -= it->getDepth();
+      suppliedWater += it->withdrawWater(demand / Layers.size());
+      }
+    else
+      {
+      suppliedWater += it->withdrawWater(demand / Layers.size(), rootDepth);
+      }
+    }
+  // currently, excess root length does nothing for the plant.
+
+  return suppliedWater;
+  }
+
 SoilCell* SoilFactory::createTestCell()
   {
   SoilCell* output = new SoilCell();
@@ -284,4 +352,23 @@ void Aquifer::recharge()
   {
   if (water < fieldCapacity() * 1.1f)
     water = fieldCapacity() * 1.1f;
+  }
+
+//////////////
+//////////////
+//////////////
+
+SoilProfile::SoilProfile()
+  {
+
+  }
+
+SoilProfile::SoilProfile(SoilCell& sc)
+  {
+  pair<double, double> buffer; buffer.second = 0;
+  for (auto it = sc.Layers.begin(); it < sc.Layers.end(); it++)
+    {
+    buffer.first = it->getDepth();
+    profile.push_back(buffer);
+    }
   }
