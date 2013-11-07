@@ -1,6 +1,8 @@
 #pragma once
 #include "enums.h"
 #include <map>
+#include "soil.h"
+#include "Weather.h"
 
 namespace ALMANAC
   {
@@ -28,8 +30,8 @@ namespace ALMANAC
   class BasePlant
     {
     public:
-      BasePlant();
-      void calculate(const double& maxTemp, const double& minTemp, const double& radiation, const double& CO2, const double& humidity, const double& albedo, const double& meanWindSpeed); // plug in today's weather :v. CO2 is in ppm
+      BasePlant(SoilCell* soil = 0);
+      void calculate(const WeatherData& data, const double& albedo); // plug in today's weather :v. CO2 is in ppm
       void findREG(); // probably has params
       double getHU(); // heat units
       double findHUI(); // heat unit indx, basically % grown.
@@ -42,6 +44,10 @@ namespace ALMANAC
       const double baseTemp; // ¡ÆC
       double previousHeatUnits, heatUnits;
       double REG; // Stress factor. Has to be set elsewhere.
+      double requiredWater;
+      double suppliedWater;
+
+      double height;
 
       double LAI, prevLAI;
       const double maxLAI;
@@ -59,6 +65,9 @@ namespace ALMANAC
 
       bool isAnnual; // limits HU to the maturity HUs.
 
+      SoilCell* soilPatch;
+      SoilProfile myProfile;
+
       double findHUF();
       double findPreviousHUF();
       double findPreviousHUI();
@@ -68,5 +77,8 @@ namespace ALMANAC
       double findNetRadiation(const double& radiation, const double& albedo); //aka h(0)
       double findLatentHeat(const double& temperature);
       double barometricPressure(const double& altitude);
+      double getWaterStressFactor();
+
+      void doWater(const WeatherData& data);
     };
   }
