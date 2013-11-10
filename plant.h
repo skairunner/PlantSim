@@ -36,8 +36,12 @@ namespace ALMANAC
       double getHU(); // heat units
       double findHUI(); // heat unit indx, basically % grown.
       double calcHeight();
+      double calcRootDepth();
       double getBiomass();
       double getLAI();
+
+      double maxLAI;
+      double getREG();
 
     private:
       std::map<int, double> growthStages;
@@ -47,16 +51,19 @@ namespace ALMANAC
       double requiredWater;
       double suppliedWater;
 
+      double waterTolerence;
+      double currentWaterlogValue;
+
       double height;
 
       double LAI, prevLAI;
-      const double maxLAI;
+     
 
       const double maxHeight; //mm
       
       const double rootFraction1, rootFraction2; // fraction of root weight; 1 is at germination, 2 at maturity
       const double maxRootDepth; //mm
-      double calcRootDepth();
+     
 
       SCurveNumbers HeatUnitFactorNums;
       SCurveNumbers CO2CurveFactors;
@@ -66,7 +73,6 @@ namespace ALMANAC
       bool isAnnual; // limits HU to the maturity HUs.
 
       SoilCell* soilPatch;
-      SoilProfile myProfile;
 
       double findHUF();
       double findPreviousHUF();
@@ -78,6 +84,7 @@ namespace ALMANAC
       double findLatentHeat(const double& temperature);
       double barometricPressure(const double& altitude);
       double getWaterStressFactor();
+      double getWaterlogStressFactor();
 
       void doWater(const WeatherData& data);
     };
