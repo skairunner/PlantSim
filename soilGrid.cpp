@@ -236,10 +236,18 @@ void SoilGrid::doLateralForEachCell()
       }
   }
 
-void SoilGrid::step()
+void SoilGrid::step(const double& rainfall)
   {
+  if (rainfall > 0)
+    for (auto it = grid.begin(); it < grid.end(); it++)
+      it->addNitrogenToTop(0.0219 * rainfall);
+     // it->addNitrogenToTop(0.1 * rainfall);
+
   for (auto it = grid.begin(); it < grid.end(); it++)
+    {
+    it->surfaceWater += rainfall;
     it->solveAndPercolate();
+    }
   doLateralForEachCell();
   }
 

@@ -96,7 +96,10 @@ namespace ALMANAC
       {
       wetDaysPerMonth = rainyDaysPerMonth;
 
-      gen.seed(rand());      
+      if (random)
+        gen.seed(rand());      
+      else
+        gen.seed(0);
       }
 
     Weather::Weather(bool def)
@@ -311,7 +314,7 @@ namespace ALMANAC
 
     void Weather::findRadiation()
       {
-      double baseRad = sunlight[currentMonth.getMonth()].means[currentMonth.getDate()] * defaultRadiation * 7.3; // In this case, 7 hours of daylight is assumed. 
+      double baseRad = sunlight[currentMonth.getMonth()].means[currentMonth.getDate()] * defaultRadiation; // 
       // Have to add a way to make the hous per day vary
       double dryRad = (baseRad * currentMonth.getNumberOfDaysInMonth()) / (omegaR * wetDaysPerMonth[currentMonth.getMonth()] + (currentMonth.getNumberOfDaysInMonth() - wetDaysPerMonth[currentMonth.getMonth()]));
       double wetRad = dryRad * omegaR;

@@ -15,21 +15,27 @@ SCurveNumbers::SCurveNumbers()
 
 
 BasePlant::BasePlant(SoilCell* soil)
-  : baseTemp(8.0f), maxLAI(3.0f), rootFraction1(0.3f), rootFraction2(0.05), maxRootDepth(1000),
+  : baseTemp(8.0f), maxLAI(3.0f), rootFraction1(0.3f), rootFraction2(0.05), maxRootDepth(500),
   maxHeight(1000), HeatUnitFactorNums(1, 17, 0.18), CO2CurveFactors(0.1f, 0.04f, 49), biomass(0), biomassToVPD(7), LAI(0), prevLAI(0),
-  previousHeatUnits(0), heatUnits(0), isAnnual(true), soilPatch(soil), requiredWater(1), suppliedWater(1), height(0)
+  previousHeatUnits(0), heatUnits(0), isAnnual(true), soilPatch(soil), requiredWater(1), suppliedWater(1), height(0), waterTolerence(3)
+  , currentWaterlogValue(0)
   {
   growthStages[9] = 1686.0f;
   growthStages[10] = 1800.0f;
+  }
 
-  if (soilPatch)
-    myProfile = SoilProfile(*soilPatch);
+void BasePlant::findREG()
+  {
+  REG = 1;
+  REG = min(REG, getWaterStressFactor());
+  REG = min(REG, getWaterlogStressFactor());
   }
 
 void BasePlant::calculate(const WeatherData& data, const double& albedo)
   {
-  ///test
-  REG = getWaterStressFactor();
+  ///testc
+ 
+  findREG();
 
   double heatUnitsAdded = (data.maxTemp + data.minTemp) / 2 - baseTemp;
   heatUnitsAdded = heatUnitsAdded > 0 ? heatUnitsAdded : 0;
@@ -67,7 +73,23 @@ void BasePlant::doWater(const WeatherData& data)
     {
     double potentialEvaporation = 0.0032 * data.radiation / 2.456 /*MJ/kg*/ * ((data.maxTemp + data.minTemp)/2 + 17.8) * pow(data.maxTemp-data.minTemp, 0.6); // Hargreaves method.
     requiredWater = min(potentialEvaporation, potentialEvaporation * LAI);
-    suppliedWater = soilPatch->requestWater(maxRootDepth, requiredWater);
+    suppliedWater = soilPatch->requestWater(calcRootDepth(), requiredWater);
+
+    // next add waterlog damage
+    auto layers = soilPatch->getLayers();
+    double depthSum = 0;
+    for each (SoilLayer layer in layers)
+      {
+      depthSum += layer.getDepth();
+
+      if (layer.totalWater() > layer.fieldCapacity() && calcRootDepth() > depthSum)
+        {
+        double tentativeValue = (layer.totalWater() - layer.fieldCapacity()) / (layer.saturatedMoisture() - layer.fieldCapacity()); 
+        if (tentativeValue > 0.5f)
+          currentWaterlogValue += (tentativeValue - 0.5f)/10.0;
+        // How much extra water over the field capacity there is.
+        }
+      }
     }
   else
     {
@@ -83,6 +105,11 @@ double BasePlant::getWaterStressFactor()
   if (temp != temp)
     return 1;
   else return temp;
+  }
+
+double BasePlant::getWaterlogStressFactor()
+  {
+  return max(0.0, 1 - currentWaterlogValue / waterTolerence);
   }
 
 double BasePlant::findHUI()
@@ -119,7 +146,7 @@ double BasePlant::calcHeight()
 
 double BasePlant::calcRootDepth()
   {
-  return 2.5 * maxRootDepth * findHUF();
+  return maxRootDepth * findHUI();
   }
 
 double BasePlant::findPsychometricConstant(const double& temperature)
@@ -160,4 +187,9 @@ double BasePlant::getLAI()
 double BasePlant::getHU()
   {
   return heatUnits;
+  }
+
+double BasePlant::getREG()
+  {
+  return REG;
   }

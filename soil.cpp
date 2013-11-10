@@ -2,13 +2,16 @@
 #include <cmath>
 #include "enums.h"
 #include <cassert>
+#include <iostream>
 
 using namespace ALMANAC;
 using namespace std;
 
+const double BL = 20; // nitrogen leaching parameter
+
 SoilLayer::SoilLayer(const double& sandi, const double& clayi, const double& silti, const double& organicMatteri, unsigned int thickness)
   :sand(sandi), clay(clayi), silt(silti), organicMatter(organicMatteri), depth(thickness), isTopsoil(false), isAquifer(false)
-  , water(0)
+  , water(0), nitrates(56.04)
   {
   properties = SOIL_MODELS::SoilModule::fetch(sand, silt, clay, organicMatter);
   }
@@ -31,6 +34,21 @@ void SoilLayer::percolateAndLateral(const double& slope)
     percolateDown = initialperc / (1 + 24 * travelTime());
     lateral = initialperc / (1 + 24 * lateralFlowTime);
     }
+
+  previousWater = percolationWater();
+
+  movedNitrates = findMovedNitrates(percolateDown + percolateUp + lateral);
+  nitrates -= movedNitrates;
+  }
+
+double SoilLayer::totalWaterMoved()
+  {
+  return percolateDown + percolateUp + lateral;
+  }
+
+double SoilLayer::totalWater()
+  {
+  return water;
   }
 
 double SoilLayer::wiltingPoint()
@@ -73,32 +91,24 @@ double SoilLayer::percolationWater()
   return (water - fieldCapacity()) > 0 ? (water - fieldCapacity()) : 0;
   }
 
-
-double SoilLayer::withdrawWater(const double amount)
+double SoilLayer::withdrawWater(const double& amount, const int numPlants)
   {
-  double supply = 0;
-  if (amount > availableWater())
-    {
-    supply = availableWater();
-    water -= availableWater();        
-    }
-  else
-    {
-    supply = amount;
-    water -= amount;
-    }
-
-  return supply;
+  return withdrawWater(amount, depth, numPlants);
   }
 
-double SoilLayer::withdrawWater(const double amount, const double rootdepth)
+double SoilLayer::withdrawWater(const double& amount, const double& rootdepth, const int numPlants)
   {
   double supply = 0;
   double depthFraction = rootdepth / depth;
   if (depthFraction > 1) depthFraction = 1;
   double actualAvailableWater = availableWater() * depthFraction;
-
-  if (amount > actualAvailableWater)
+  
+  if (numPlants != 0 && amount > actualAvailableWater / numPlants)
+    {
+    supply = actualAvailableWater / numPlants;
+    water -= supply;
+    }
+  else if (amount > actualAvailableWater)
     {
     supply = actualAvailableWater;
     water -= actualAvailableWater;        
@@ -112,89 +122,142 @@ double SoilLayer::withdrawWater(const double amount, const double rootdepth)
   return supply;
   }
 
+double SoilLayer::findMovedNitrates(const double& waterVolume)
+  {
+  return nitrates * (1 - exp(-waterVolume / (saturatedMoisture() * BL)));
+  }
+
+void SoilLayer::adjustWater()
+  {
+  if (isTopsoil) percolateUp = 0;
+
+
+  double waterout = lateral + percolateDown + percolateUp;
+  double mult = 0;
+
+  if (waterout > previousWater) // if water out is larger than available water.
+    {
+    mult = previousWater/waterout;
+    lateral *= mult;
+    percolateUp *= mult;
+    percolateDown *= mult;
+    }
+  }
+
+
+SoilCell::SoilCell()
+  : surfaceWater(0)
+  {
+
+  }
+
 void SoilCell::upwardsFlow()
   {
+  Layers.front().percolateUp = 0;
   for (auto it = Layers.begin()+1; it < Layers.end(); it++)
     {
-    if ( it->water > it->fieldCapacity() + 0.000001f)
+    if ( it->water > it->fieldCapacity())
       it->percolateUp = (it->percolationWater())*(1-exp(0.05*((it-1)->water / (it-1)->fieldCapacity() - it->water / it->fieldCapacity())));
     if (it->percolateUp < 0)
       it->percolateUp = 0;
     } // for each layer, run the algorithm. Exclude the top layer.
   }
 
-
-
 vector<double> SoilCell::inspectWater()
   {
   vector<double> output;
   for (auto i = Layers.begin(); i < Layers.end(); i++)
     {
-    output.push_back(i->availableWater());
+    output.push_back(i->totalWater());
     }
   return output;
   }
 
-void SoilCell::adjustWater(const double& availableWater, double& lateral, double& percUp, double& percDown)
-  {
-  double waterout = lateral + percDown + percUp;
-  double mult = 0;
 
-  if (waterout > availableWater) // if water out is larger than available water.
-    {
-    mult = availableWater/waterout;
-    lateral *= mult;
-    percUp *= mult;
-    percDown *= mult;
-    }
-  }
+
 
 void SoilCell::solveAndPercolate()
   {
+  // First add whatever surface water possible to the top layer. Need to implement runoff sooner or later.
+  double possibleWater = Layers.front().saturatedMoisture() - Layers.front().water;
+  if (surfaceWater < possibleWater)
+    possibleWater = surfaceWater;
+  surfaceWater -= possibleWater;
+  Layers.front().addWater(possibleWater);
+
   // percolate ALL the layers
   for (auto it = Layers.begin(); it < Layers.end(); it++)
     it->percolateAndLateral(slope);
-  upwardsFlow();
-  
-  double throwaway = 0;
+  upwardsFlow(); 
+
   // Move all the intracell water. Do not touch the intercell water.
   for (auto it = Layers.begin(); it < Layers.end(); it++)
     {
-    if (it->isTopsoil)
+    it->adjustWater();  
+
+    if (!it->isAquifer) //perc down
       {
-      // First, check.
-      adjustWater(it->percolationWater(), it->lateral, throwaway, it->percolateDown); // throwaway is 0 because topsoil has no upwards perc
-      (it+1)->addWater(it->percolateDown);
-      it->addWater(-it->percolateDown);
+      // First, check.    
+
+      double possible = it->percolateDown;
+     /*if ( (it+1)->totalWater()+it->percolateDown > (it+1)->saturatedMoisture() ) // make sure not to add too much water than it can phsyicall hold
+        {
+        possible = (it+1)->saturatedMoisture() - (it+1)->totalWater();
+        }*/
+
+      (it+1)->addWater(possible);
+      it->addWater(-possible);
+
+      if (it->totalWaterMoved() > 0)
+        (it+1)->nitrates += it->movedNitrates / it->totalWaterMoved() * possible;  
       }
-    else if (it->isAquifer)
+
+    if (!it->isTopsoil) //perc up
       {
-      adjustWater(it->percolationWater(), it->lateral, it->percolateDown, it->percolateDown);
-      //it->addWater(-it->percolateDown); // Subtract the percolate down water away.
-      // Do nothing with the perc down water.
-      (it-1)->addWater(it->percolateUp);
-      it->addWater(-it->percolateUp);
-      // Then, recharge the water.
-      it->recharge();
+      double possible = it->percolateDown;
+    /*  if ( (it-1)->totalWater()+it->percolateDown > (it-1)->saturatedMoisture() ) // make sure not to add too much water than it can phsyicall hold
+        {
+        possible = (it-1)->saturatedMoisture() - (it-1)->totalWater();
+        }*/
+
+      (it-1)->addWater(possible);
+      it->addWater(-possible);
+
+      if (it->totalWaterMoved() > 0)
+        (it-1)->nitrates += it->movedNitrates / it->totalWaterMoved() * possible;      
       }
-    else // If it's neither top nor bottom ...
+
+    if (it->isAquifer)
       {
-      adjustWater(it->percolationWater(), it->lateral, it->percolateDown, it->percolateDown);
-      (it+1)->addWater(it->percolateDown);
-      it->addWater(-it->percolateDown);
-      (it-1)->addWater(it->percolateUp);
-      it->addWater(-it->percolateUp);
+      it->addWater(-it->percolateDown); // Simply remove the water that moved down.
+      // Recharge the water.
+      it->recharge();      
       }
+
     //Finally, lateral is always done.
     it->addWater(-it->lateral);
     }
   }
+
+std::vector<SoilLayer> SoilCell::getLayers()
+  {
+  return Layers;
+  } 
 
 void SoilCell::addWater(const int& layer, const double& amount)
   {
   if (layer < Layers.size())
     Layers[layer].addWater(amount);
   }
+
+ std::ostream& operator<< (std::ostream& o, ALMANAC::SoilCell& sc)
+    {    
+    auto copy = sc.getLayers();
+    for (auto it = copy.begin(); it < copy.end(); it++)
+      o << it->nitrates << "\t";
+    o << "\n";
+    return o;
+    }
 
 void SoilCell::calcTotalHeight()
   {
@@ -297,6 +360,7 @@ SoilCell SoilFactory::createCell(const double& baseheight, const double& depth, 
       output.Layers.back().isTopsoil = true;
     else if (it == st.end()-1)
       output.Layers.back().isAquifer = true;
+
     output.Layers.back().addWater(output.Layers.back().fieldCapacity()); // initialize with water equal to FC.
     }
   output.baseHeight = baseheight;
@@ -344,31 +408,23 @@ SoilLayer& SoilCell::getFront(const int& offset)
   return *(Layers.begin()+offset);
   }
 
+void SoilCell::addNitrogenToTop(const double& amount)
+  {
+  if (Layers.size() != 0)
+    Layers.front().nitrates += amount;
+  }
+
 void SoilLayer::recharge()
   {
+ /* // addWater(max(0.0, saturatedMoisture() - water)); // Recharge missing immediately
+  if (saturatedMoisture() < water)
+    addWater(max(0.0, (1 - (saturatedMoisture() - water)/availableWater()) * 1));
+  else water = saturatedMoisture();*/
   }
 
 void Aquifer::recharge()
-  {
+  {/*
   if (water < fieldCapacity() * 1.1f)
     water = fieldCapacity() * 1.1f;
-  }
-
-//////////////
-//////////////
-//////////////
-
-SoilProfile::SoilProfile()
-  {
-
-  }
-
-SoilProfile::SoilProfile(SoilCell& sc)
-  {
-  pair<double, double> buffer; buffer.second = 0;
-  for (auto it = sc.Layers.begin(); it < sc.Layers.end(); it++)
-    {
-    buffer.first = it->getDepth();
-    profile.push_back(buffer);
-    }
+  */
   }

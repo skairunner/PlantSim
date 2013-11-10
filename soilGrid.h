@@ -17,10 +17,13 @@ namespace ALMANAC
       int getWidth();
       int getHeight();
 
-      void step(); // Advance water simulation by one day
+      void step(const double& rainfall = 0); // Advance water simulation by one day
 
       void addRandomWater(const int& numberOf, const int& howMuch); // for testing
       void addWaterSquare(const int& x, const int& y, const int& w, const int& h, const double& howMuch);
+
+     
+
     private:
       std::vector<SoilCell> grid;
       int width, height;
