@@ -26,7 +26,9 @@ namespace ALMANAC
       void addWater(const double& addwater);
       double availableWater();
       double percolationWater();
+
       virtual void recharge();
+
       double getDepth();
       double totalWaterMoved();
       double totalWater();
@@ -68,8 +70,7 @@ namespace ALMANAC
   class Aquifer : public SoilLayer // specialized for things like saturation and field capacity.
     {
     public:
-      virtual void recharge(); 
-      
+      virtual void recharge();
     };
 
   class transferWater
