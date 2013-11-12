@@ -30,7 +30,7 @@ void SoilLayer::percolateAndLateral(const double& slope)
   if ( water > fieldCapacity() + 0.000001f)
     {
     double lateralFlowTime = travelTime() / (slope/1000.0f);
-    double initialperc = (water - properties.fieldCapacity)*(1-exp(-travelTime()*24-lateralFlowTime*24));// "O + QH"
+    double initialperc = (water - fieldCapacity())*(1-exp(-travelTime()*24-lateralFlowTime*24));// "O + QH"
     percolateDown = initialperc / (1 + 24 * travelTime());
     lateral = initialperc / (1 + 24 * lateralFlowTime);
     }
@@ -200,10 +200,10 @@ void SoilCell::solveAndPercolate()
       // First, check.    
 
       double possible = it->percolateDown;
-     /*if ( (it+1)->totalWater()+it->percolateDown > (it+1)->saturatedMoisture() ) // make sure not to add too much water than it can phsyicall hold
+      if ( (it+1)->totalWater()+it->percolateDown > (it+1)->saturatedMoisture() ) // make sure not to add too much water than it can phsyicall hold
         {
         possible = (it+1)->saturatedMoisture() - (it+1)->totalWater();
-        }*/
+        }
 
       (it+1)->addWater(possible);
       it->addWater(-possible);
@@ -214,11 +214,11 @@ void SoilCell::solveAndPercolate()
 
     if (!it->isTopsoil) //perc up
       {
-      double possible = it->percolateDown;
-    /*  if ( (it-1)->totalWater()+it->percolateDown > (it-1)->saturatedMoisture() ) // make sure not to add too much water than it can phsyicall hold
+      double possible = it->percolateUp;
+      if ( (it-1)->totalWater()+it->percolateUp > (it-1)->saturatedMoisture() ) // make sure not to add too much water than it can phsyicall hold
         {
         possible = (it-1)->saturatedMoisture() - (it-1)->totalWater();
-        }*/
+        }
 
       (it-1)->addWater(possible);
       it->addWater(-possible);
@@ -416,15 +416,18 @@ void SoilCell::addNitrogenToTop(const double& amount)
 
 void SoilLayer::recharge()
   {
- /* // addWater(max(0.0, saturatedMoisture() - water)); // Recharge missing immediately
-  if (saturatedMoisture() < water)
-    addWater(max(0.0, (1 - (saturatedMoisture() - water)/availableWater()) * 1));
-  else water = saturatedMoisture();*/
+  if (isAquifer)
+    {
+    cout << "I was called!";
+    water = saturatedMoisture();
+    }   
+
   }
 
 void Aquifer::recharge()
-  {/*
-  if (water < fieldCapacity() * 1.1f)
-    water = fieldCapacity() * 1.1f;
-  */
+  {
+  //if (isAquifer)
+      /*if (water < fieldCapacity())
+    water *= 1.3f;*/
+  water = saturatedMoisture();
   }
