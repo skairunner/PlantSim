@@ -168,7 +168,7 @@ vector<double> SoilCell::inspectWater()
   vector<double> output;
   for (auto i = Layers.begin(); i < Layers.end(); i++)
     {
-    output.push_back(i->totalWater());
+    output.push_back(i->availableWater());
     }
   return output;
   }
@@ -418,16 +418,7 @@ void SoilLayer::recharge()
   {
   if (isAquifer)
     {
-    cout << "I was called!";
-    water = saturatedMoisture();
+    if (water < fieldCapacity())
+      water += min((fieldCapacity() - water) / fieldCapacity() * 10, fieldCapacity() - water);
     }   
-
-  }
-
-void Aquifer::recharge()
-  {
-  //if (isAquifer)
-      /*if (water < fieldCapacity())
-    water *= 1.3f;*/
-  water = saturatedMoisture();
   }

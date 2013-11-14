@@ -3,10 +3,12 @@
 #include "soilModel.h"
 #include <vector>
 #include <ostream>
+#include "plant.h"
 
 namespace ALMANAC
   {
- 
+
+  
   class SoilFactory;
   class transferWater;
   class SoilCell;
@@ -67,12 +69,6 @@ namespace ALMANAC
       bool isAquifer; // = isAquifer
     };
 
-  class Aquifer : public SoilLayer // specialized for things like saturation and field capacity.
-    {
-    public:
-      virtual void recharge();
-    };
-
   class transferWater
     {
     public:
@@ -94,7 +90,8 @@ namespace ALMANAC
       double slope; // m/m
 
       std::vector<double> inspectWater();
-        
+      std::vector<SoilLayer> getLayers();      
+
       double getTotalHeight();
       void calcTotalHeight();      
       soiltuple getTopLayer();
@@ -105,9 +102,8 @@ namespace ALMANAC
       SoilLayer& getFront(const int& offset = 0);
       
       double requestWater(double rootDepth, double demand);
-      
-      std::vector<SoilLayer> getLayers();      
-
+         
+      std::vector<BasePlant> plants;
       double surfaceWater;
 
     protected:

@@ -7,17 +7,21 @@ namespace ALMANAC
     
 
   Month::Month()
-    :MONTH(JANUARY), date(1)
+    :MONTH(JANUARY), date(1), year(2013)
     {
 
     }
 
-  Month::Month(const int& NEWMONTH, const int& day)
+  Month::Month(const int& NEWMONTH, const int& day, const int& startYear)
     {
+    year = year;
     if (NEWMONTH > 0 && NEWMONTH < 14)
       MONTH = NEWMONTH;
     else
+      {
       MONTH = JANUARY;
+      year++;
+      }
 
     if (day > 0 && day < 31)
       {
@@ -33,7 +37,7 @@ namespace ALMANAC
 
   ostream& operator<< (ostream& os, const Month& month)
     {
-    os << getMonthName(month.getMonth()) << " " << month.getDate();
+    os << getMonthName(month.getMonth()) << " " << month.getDate() << " " << month.getYear();
     return os;
     }
 
@@ -100,6 +104,11 @@ namespace ALMANAC
   int Month::getDate() const
     {
     return date;
+    }
+
+  int Month::getYear() const
+    {
+    return year;
     }
 
   int Month::getNumberOfDaysInMonth() const

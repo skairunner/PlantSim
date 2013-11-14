@@ -6,6 +6,8 @@
 
 namespace ALMANAC
   {  
+  struct  WeatherData;
+
   class SoilGrid // All of the soil stuffs :v
     {
     public:
@@ -18,6 +20,7 @@ namespace ALMANAC
       int getHeight();
 
       void step(const double& rainfall = 0); // Advance water simulation by one day
+      void stepPlants(const WeatherData& wd);
 
       void addRandomWater(const int& numberOf, const int& howMuch); // for testing
       void addWaterSquare(const int& x, const int& y, const int& w, const int& h, const double& howMuch);

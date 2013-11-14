@@ -1,11 +1,13 @@
 #pragma once
 #include "enums.h"
 #include <map>
-#include "soil.h"
 #include "Weather.h"
+
+
 
 namespace ALMANAC
   {
+  class SoilCell;
   /**
   This class stores the three parameters for S-curves.
   An S-curve is in the form of y = v / (1 + exp(-s * (x - h);
@@ -45,7 +47,7 @@ namespace ALMANAC
 
     private:
       std::map<int, double> growthStages;
-      const double baseTemp; // ¡ÆC
+      double baseTemp; // ¡ÆC
       double previousHeatUnits, heatUnits;
       double REG; // Stress factor. Has to be set elsewhere.
       double requiredWater;
@@ -59,10 +61,10 @@ namespace ALMANAC
       double LAI, prevLAI;
      
 
-      const double maxHeight; //mm
+      double maxHeight; //mm
       
-      const double rootFraction1, rootFraction2; // fraction of root weight; 1 is at germination, 2 at maturity
-      const double maxRootDepth; //mm
+      double rootFraction1, rootFraction2; // fraction of root weight; 1 is at germination, 2 at maturity
+      double maxRootDepth; //mm
      
 
       SCurveNumbers HeatUnitFactorNums;
