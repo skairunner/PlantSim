@@ -4,6 +4,7 @@
 #include "enums.h"
 #include <iostream>
 #include <cstdlib>
+#include "Weather.h"
 
 using namespace ALMANAC;
 
@@ -249,6 +250,15 @@ void SoilGrid::step(const double& rainfall)
     it->solveAndPercolate();
     }
   doLateralForEachCell();
+  }
+
+void SoilGrid::stepPlants(const WeatherData& wd)
+  {
+  for (auto it = grid.begin(); it < grid.end(); it++)
+    for (auto plant = it->plants.begin(); plant < it->plants.end(); plant++)
+      {
+      plant->calculate(wd, 0.25);
+      }
   }
 
 int randInt(const int& lower, const int& higher)

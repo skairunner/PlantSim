@@ -36,11 +36,12 @@ namespace ALMANAC
     {
     public:
       Month();
-      Month(const int& NEWMONTH, const int& day);
+      Month(const int& NEWMONTH, const int& day, const int& startYear = 2013);
       void advanceDay(const int& numDays = 1);
       void setDate(const int& newDate);
       void setMonth(const int& NEWMONTH);
       std::pair<int, int> getFullDate(); // Gets both the date and the month.
+      int getYear() const;
       int getMonth() const;
       int getDate() const;
       int getNumberOfDaysInMonth() const;
@@ -48,6 +49,7 @@ namespace ALMANAC
     private:
       int MONTH;
       int date;
+      int year;
     };
 
   ostream& operator<< (ostream& os, const Month& month);
