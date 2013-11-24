@@ -41,9 +41,12 @@ namespace ALMANAC
       double calcRootDepth();
       double getBiomass();
       double getLAI();
+      double getRequiredWater();
 
       double maxLAI;
       double getREG();
+
+      double getNitrogen();
 
     private:
       std::map<int, double> growthStages;
@@ -57,20 +60,18 @@ namespace ALMANAC
       double currentWaterlogValue;
 
       double height;
-
-      double LAI, prevLAI;
-     
-
       double maxHeight; //mm
-      
+
+      double LAI, prevLAI;      
+           
       double rootFraction1, rootFraction2; // fraction of root weight; 1 is at germination, 2 at maturity
-      double maxRootDepth; //mm
-     
+      double maxRootDepth; //mm     
 
       SCurveNumbers HeatUnitFactorNums;
       SCurveNumbers CO2CurveFactors;
       double biomassToVPD; // bc(3)
-      double biomass;
+      double biomass; // kg
+      double nitrogen; // kg/ha
 
       bool isAnnual; // limits HU to the maturity HUs.
 
@@ -84,10 +85,14 @@ namespace ALMANAC
       double findSlopeOfSaturatedVaporCurve(const double& temperature);
       double findNetRadiation(const double& radiation, const double& albedo); //aka h(0)
       double findLatentHeat(const double& temperature);
+      double findOptimalNitrogenConcentration(); // currently a dummy function
+      double findRequiredNitrogen();
       double barometricPressure(const double& altitude);
       double getWaterStressFactor();
       double getWaterlogStressFactor();
+      double getNitrogenStressFactor();
 
       void doWater(const WeatherData& data);
+      void doNitrogen();
     };
   }
