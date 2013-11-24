@@ -2,6 +2,7 @@
 #include "soil.h"
 
 #include <cmath>
+#include <algorithm>
 
 using namespace ALMANAC;
 
@@ -19,7 +20,7 @@ BasePlant::BasePlant(SoilCell* soil)
   : baseTemp(8.0f), maxLAI(3.0f), rootFraction1(0.3f), rootFraction2(0.05), maxRootDepth(500),
   maxHeight(1000), HeatUnitFactorNums(1, 17, 0.18), CO2CurveFactors(0.1f, 0.04f, 49), biomass(0), biomassToVPD(7), LAI(0), prevLAI(0),
   previousHeatUnits(0), heatUnits(0), isAnnual(true), soilPatch(soil), requiredWater(1), suppliedWater(1), height(0), waterTolerence(3)
-  , currentWaterlogValue(0)
+  , currentWaterlogValue(0), nitrogen(0)
   {
   growthStages[9] = 1686.0f;
   growthStages[10] = 1800.0f;
@@ -30,6 +31,7 @@ void BasePlant::findREG()
   REG = 1;
   REG = min(REG, getWaterStressFactor());
   REG = min(REG, getWaterlogStressFactor());
+  REG = min(REG, getNitrogenStressFactor());
   }
 
 void BasePlant::calculate(const WeatherData& data, const double& albedo)
@@ -43,6 +45,7 @@ void BasePlant::calculate(const WeatherData& data, const double& albedo)
   previousHeatUnits = heatUnits;
 
   doWater(data);
+  doNitrogen();
 
   if (heatUnitsAdded + heatUnits > growthStages.find(10)->second && isAnnual) // If adding HU will go over the limit,
     {
@@ -67,6 +70,11 @@ void BasePlant::calculate(const WeatherData& data, const double& albedo)
     biomass += potentialDeltaBiomass * getWaterStressFactor();
     }
   }
+
+double BasePlant::getRequiredWater()
+{
+    return requiredWater;
+}
 
 void BasePlant::doWater(const WeatherData& data)
   {
@@ -94,24 +102,38 @@ void BasePlant::doWater(const WeatherData& data)
     }
   else
     {
-    requiredWater = 1;
-    suppliedWater = 1;
+    requiredWater = 0;
+    suppliedWater = 0;
     }
   }
 
+void BasePlant::doNitrogen()
+{
+    nitrogen += soilPatch->requestNitrogen(calcRootDepth(), findRequiredNitrogen(), suppliedWater);
+}
+
 double BasePlant::getWaterStressFactor()
   {
-  double temp = min(suppliedWater / (requiredWater), 1.0);
-
-  if (temp != temp)
-    return 1;
-  else return temp;
+    if (requiredWater != 0)
+    {
+        double temp = suppliedWater / requiredWater;
+        temp = min(temp, 1.0);
+        return temp;
+    }  
+    else return 1.0;  
   }
 
 double BasePlant::getWaterlogStressFactor()
   {
   return max(0.0, 1 - currentWaterlogValue / waterTolerence);
   }
+
+double BasePlant::getNitrogenStressFactor()
+{
+    double stressfactor = 200.0 * nitrogen / (findRequiredNitrogen() - 0.5);
+    stressfactor = stressfactor / (stressfactor + exp(3.52 - 0.026 * stressfactor));
+    return stressfactor;
+}
 
 double BasePlant::findHUI()
   {
@@ -141,7 +163,6 @@ double BasePlant::findVPD(const double& averageTemp, const double& humidity)
 
 double BasePlant::calcHeight()
   {
- // return maxHeight * sqrt(findHUF());
   return height;
   }
 
@@ -170,6 +191,19 @@ double BasePlant::findLatentHeat(const double& temperature)
   return 2.5f - 0.0022f * temperature;
   }
 
+// currently a dummy function
+double BasePlant::findOptimalNitrogenConcentration()
+{
+    double temp = 0.01;
+    return temp;
+}
+
+double BasePlant::findRequiredNitrogen()
+{
+    double optimalNitrogen = findOptimalNitrogenConcentration() * biomass;
+    return optimalNitrogen - nitrogen;
+}
+
 double BasePlant::barometricPressure(const double& altitude)
   {
   return 101.0f - 0.0115 * altitude + 0.000000544 * sqrt(altitude);
@@ -194,3 +228,8 @@ double BasePlant::getREG()
   {
   return REG;
   }
+
+double BasePlant::getNitrogen()
+{
+    return nitrogen;
+}

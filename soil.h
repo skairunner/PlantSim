@@ -36,7 +36,10 @@ namespace ALMANAC
       double totalWater();
 
       double withdrawWater(const double& amount, const int numPlants = 0);      
-      double withdrawWater(const double& amount, const double &rootdepth, const int numPlants = 0);      
+      double withdrawWater(const double& amount, const double &rootdepth, const int numPlants = 0);    
+
+      double withdrawNitrogen(const double& amount, const double& waterUptake);
+      double withdrawNitrogen(const double& amount, const double& waterUptake, const double& rootDepth);
 
       double nitrates; // kg/ha
 
@@ -90,6 +93,7 @@ namespace ALMANAC
       double slope; // m/m
 
       std::vector<double> inspectWater();
+      std::vector<double> inspectNitrates();
       std::vector<SoilLayer> getLayers();      
 
       double getTotalHeight();
@@ -102,6 +106,8 @@ namespace ALMANAC
       SoilLayer& getFront(const int& offset = 0);
       
       double requestWater(double rootDepth, double demand);
+      double requestNitrogen(double rootDepth, double demand, double suppliedWater); // Third argument is supplied by the plant. Nitrogen amount supplied is limited by mass flow, ie water uptake.
+
          
       std::vector<BasePlant> plants;
       double surfaceWater;

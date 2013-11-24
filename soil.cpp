@@ -3,6 +3,7 @@
 #include "enums.h"
 #include <cassert>
 #include <iostream>
+#include <algorithm>
 
 using namespace ALMANAC;
 using namespace std;
@@ -11,7 +12,7 @@ const double BL = 20; // nitrogen leaching parameter
 
 SoilLayer::SoilLayer(const double& sandi, const double& clayi, const double& silti, const double& organicMatteri, unsigned int thickness)
   :sand(sandi), clay(clayi), silt(silti), organicMatter(organicMatteri), depth(thickness), isTopsoil(false), isAquifer(false)
-  , water(0), nitrates(56.04)
+  , water(0), nitrates(5.604)
   {
   properties = SOIL_MODELS::SoilModule::fetch(sand, silt, clay, organicMatter);
   }
@@ -122,6 +123,32 @@ double SoilLayer::withdrawWater(const double& amount, const double& rootdepth, c
   return supply;
   }
 
+double SoilLayer::withdrawNitrogen(const double& amount, const double& waterUptake)
+{
+    return withdrawNitrogen(amount, waterUptake, depth);
+}
+
+double SoilLayer::withdrawNitrogen(const double& amount, const double& waterUptake, const double& rootDepth)
+{
+    double supply = 0;
+    
+    double maxNitrogen = waterUptake / water * nitrates;
+
+    if (amount > maxNitrogen)
+    {
+        nitrates -= maxNitrogen;
+        supply = maxNitrogen;
+    }
+    else
+    {
+        supply = amount;
+        nitrates -= amount;
+    }    
+
+
+    return supply;
+}
+
 double SoilLayer::findMovedNitrates(const double& waterVolume)
   {
   return nitrates * (1 - exp(-waterVolume / (saturatedMoisture() * BL)));
@@ -173,8 +200,15 @@ vector<double> SoilCell::inspectWater()
   return output;
   }
 
-
-
+vector<double> SoilCell::inspectNitrates()
+{
+    vector<double> output;
+    for (auto i = Layers.begin(); i < Layers.end(); i++)
+    {
+        output.push_back(i->nitrates);
+    }
+    return output;
+}
 
 void SoilCell::solveAndPercolate()
   {
@@ -329,6 +363,29 @@ double SoilCell::requestWater(double rootDepth, double demand)
 
   return suppliedWater;
   }
+
+double SoilCell::requestNitrogen(double rootDepth, double demand, double suppliedWater)
+{
+    double suppliedNitrogen = 0;
+    double nitPerLayer = demand / Layers.size();
+    double waterPerLayer = suppliedWater / Layers.size();
+
+    for (auto it = Layers.begin(); it < Layers.end(); it++)
+    {
+        if (rootDepth - it->getDepth() > 0)
+        {
+            rootDepth -= it->getDepth();
+            suppliedNitrogen += it->withdrawNitrogen(nitPerLayer, suppliedWater);
+        }
+        else
+        {
+            suppliedNitrogen += it->withdrawNitrogen(nitPerLayer, suppliedWater, rootDepth);
+        }
+    }
+    // currently, excess root length does nothing for the plant.
+
+    return suppliedNitrogen;
+}
 
 SoilCell* SoilFactory::createTestCell()
   {

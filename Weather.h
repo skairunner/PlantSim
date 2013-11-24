@@ -1,7 +1,7 @@
 #pragma once
 #include <noise.h>
-#include <boost/random/mersenne_twister.hpp>
-#include <boost/random/normal_distribution.hpp>
+#include "boost/random/mersenne_twister.hpp"
+#include "boost/random/normal_distribution.hpp"
 #include <vector>
 #include "Months.h"
 #include "rain_stats_holder.h"
