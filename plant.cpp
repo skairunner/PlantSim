@@ -18,12 +18,13 @@ SCurveNumbers::SCurveNumbers()
 
 BasePlant::BasePlant(SoilCell* soil)
   : baseTemp(8.0f), maxLAI(3.0f), rootFraction1(0.3f), rootFraction2(0.05), maxRootDepth(500),
-  maxHeight(1000), HeatUnitFactorNums(1, 17, 0.18), CO2CurveFactors(0.1f, 0.04f, 49), biomass(0), biomassToVPD(7), LAI(0), prevLAI(0),
+  maxHeight(1000), HeatUnitFactorNums(1, 17, 0.18), CO2CurveFactors(0.1f, 0.04f, 49), biomass(0.05), biomassToVPD(7), LAI(0), prevLAI(0),
   previousHeatUnits(0), heatUnits(0), isAnnual(true), soilPatch(soil), requiredWater(1), suppliedWater(1), height(0), waterTolerence(3)
   , currentWaterlogValue(0), nitrogen(0)
   {
   growthStages[9] = 1686.0f;
   growthStages[10] = 1800.0f;
+  nitrogen = findRequiredNitrogen();
   }
 
 void BasePlant::findREG()
@@ -38,7 +39,7 @@ void BasePlant::calculate(const WeatherData& data, const double& albedo)
   {
   ///testc
  
-  findREG();
+  
 
   double heatUnitsAdded = (data.maxTemp + data.minTemp) / 2 - baseTemp;
   heatUnitsAdded = heatUnitsAdded > 0 ? heatUnitsAdded : 0;
@@ -46,6 +47,8 @@ void BasePlant::calculate(const WeatherData& data, const double& albedo)
 
   doWater(data);
   doNitrogen();
+
+  findREG();
 
   if (heatUnitsAdded + heatUnits > growthStages.find(10)->second && isAnnual) // If adding HU will go over the limit,
     {
@@ -130,7 +133,8 @@ double BasePlant::getWaterlogStressFactor()
 
 double BasePlant::getNitrogenStressFactor()
 {
-    double stressfactor = 200.0 * nitrogen / (findRequiredNitrogen() - 0.5);
+    double stressfactor = 200.0 * nitrogen / findRequiredNitrogen() - 100.0;
+    stressfactor = max(stressfactor, 0.0);
     stressfactor = stressfactor / (stressfactor + exp(3.52 - 0.026 * stressfactor));
     return stressfactor;
 }
