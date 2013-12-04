@@ -9,6 +9,8 @@ namespace ALMANAC
   {
   using namespace std;
 
+
+
   WeatherData::WeatherData(){}
 
   int Weather::random(const int& min, const int& max)
@@ -56,11 +58,13 @@ namespace ALMANAC
     wd.radiation = getDayRadiation();
     wd.CO2 = 440;
     wd.meanWindSpeed = 0;
+    wd.nightLength = getNightLength();
 
     return wd;
     }
 
   
+  const double Weather::earthAxis = 0.408407045;
 
   Month Weather::getMonth()
     {
@@ -92,7 +96,7 @@ namespace ALMANAC
     }
 
   Weather::Weather(const vector<int>& rainyDaysPerMonth, const bool random):                                                                                              
-    rainCoef(0.70f), rainedHowMuch(0.0f), omegaT(0.5f), omegaR(0.5f), defaultRadiation(445.0f), omegaH(0.9f)
+      rainCoef(0.70f), rainedHowMuch(0.0f), omegaT(0.5f), omegaR(0.5f), defaultRadiation(445.0f), omegaH(0.9f), latitude(0.641989695)
       {
       wetDaysPerMonth = rainyDaysPerMonth;
 
@@ -339,4 +343,12 @@ namespace ALMANAC
       double randNum = random(0, 1);
       humidity = triangularLower + sqrt(randNum * (triangularPeak - triangularLower) * (triangularUpper - triangularLower));
       }
+
+    double Weather::getNightLength()
+    {
+        int day = currentMonth.getDaysSinceYearStart();
+        double dayLength = 1 - tan(latitude) * tan(earthAxis * cos(3.141592654 * day / 180.0));
+        dayLength *= 12;
+        return 24 - dayLength;
+    }
   }
