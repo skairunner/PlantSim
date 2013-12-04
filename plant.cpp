@@ -6,26 +6,71 @@
 
 using namespace ALMANAC;
 
-SCurveNumbers::SCurveNumbers(const double& vertical, const double& Scale, const double& horizontal)
-  : scale(Scale), horiz(horizontal), vert(vertical)
-  {
-  }
 
-SCurveNumbers::SCurveNumbers()
-  : scale(0), horiz(0), vert(0)
-  {}
+
+BiomassHolder::BiomassHolder()
+{
+    stem = roots = storageOrgan = flowerAndfruits = 0;
+}
+
+BiomassHolder::BiomassHolder(double Stem, double Roots, double Storage, double Fruits)
+: stem(Stem), roots(Roots), storageOrgan(Storage), flowerAndfruits(Fruits)
+{
+
+}
+
+double BiomassHolder::getBiomass() const
+{
+    return flowerAndfruits + roots + stem + storageOrgan;
+}
+
+BiomassHolder::operator double() const
+{
+    return getBiomass();
+}
+
+//////////////
+//////////////
+//////////////
 
 
 BasePlant::BasePlant(SoilCell* soil)
   : baseTemp(8.0f), maxLAI(3.0f), rootFraction1(0.3f), rootFraction2(0.05), maxRootDepth(500),
-  maxHeight(1000), HeatUnitFactorNums(1, 17, 0.18), CO2CurveFactors(0.1f, 0.04f, 49), biomass(0.05), biomassToVPD(7), LAI(0), prevLAI(0),
+  maxHeight(1000), HeatUnitFactorNums(1, 17, 0.18), CO2CurveFactors(0.1f, 0.04f, 49), Biomass(0.05, 0, 0, 0), biomassToVPD(7), LAI(0), prevLAI(0),
   previousHeatUnits(0), heatUnits(0), isAnnual(true), soilPatch(soil), requiredWater(1), suppliedWater(1), height(0), waterTolerence(3)
-  , currentWaterlogValue(0), nitrogen(0)
+  , currentWaterlogValue(0), nitrogen(0), floweringTempCurve(18, 24, 1), floralInductionUnitsRequired(7.0), dayNeutral(true), minimumInduction(0.1), criticalNightLength(12), longDayPlant(true)
+  , floralInductionUnits(0)
   {
-  growthStages[9] = 1686.0f;
-  growthStages[10] = 1800.0f;
-  nitrogen = findRequiredNitrogen();
+    growthStages[6] = 935.0;
+    growthStages[9] = 1686.0f;
+    growthStages[10] = 1800.0f;
+    nitrogen = findRequiredNitrogen();
+    nightLengthCurve = getSCurve(dayNeutral, longDayPlant, minimumInduction, criticalNightLength);
+
+    floweringHU = growthStages[6];
+    finalHU = growthStages[9];
+    maxHU = growthStages[10];
   }
+
+SCurve BasePlant::getSCurve(const bool dayNeutral, const bool longDayPlant, double minInduction, const double& optimalInductionNightLength)
+{
+    double v, s, h, y;
+
+    if (minInduction > 1) minInduction = 1;
+    if (minInduction < 0) minInduction = 0;
+    if (dayNeutral) minInduction = 1;
+
+    // if min induction is 1, v = 0 and y = 1.
+    v = 1.0 - minInduction;
+    y = minInduction;
+    s = 4.0;
+    h = optimalInductionNightLength;
+
+    if (!longDayPlant)
+        s *= -1;
+
+    return SCurve(v, s, h, y);
+}
 
 void BasePlant::findREG()
   {
@@ -35,28 +80,29 @@ void BasePlant::findREG()
   REG = min(REG, getNitrogenStressFactor());
   }
 
-void BasePlant::calculate(const WeatherData& data, const double& albedo)
+
+void BasePlant::calculate(const WeatherData& data, const double& albedo, const double radiation)
   {
-  ///testc
- 
-  
+  ///testc 
 
   double heatUnitsAdded = (data.maxTemp + data.minTemp) / 2 - baseTemp;
   heatUnitsAdded = heatUnitsAdded > 0 ? heatUnitsAdded : 0;
   previousHeatUnits = heatUnits;
 
-  doWater(data);
-  doNitrogen();
+  
 
-  findREG();
-
-  if (heatUnitsAdded + heatUnits > growthStages.find(10)->second && isAnnual) // If adding HU will go over the limit,
+  if (heatUnitsAdded + heatUnits > maxHU && isAnnual) // If adding HU will go over the limit,
     {
     heatUnitsAdded = 0;
     heatUnits = growthStages.find(10)->second;
     }
   else
     {
+    doWater(data);
+    doNitrogen();
+    doFloralInduction(data);
+    findREG();
+
     heatUnits += heatUnitsAdded;
     double deltaHUF = findHUF() - findPreviousHUF();
     prevLAI = LAI;
@@ -64,19 +110,30 @@ void BasePlant::calculate(const WeatherData& data, const double& albedo)
     height += deltaHUF * maxHeight * sqrt(REG);
 
     ///////////////////////
-    double photoactiveRadiation = 0.5 * data.radiation * (1 - exp(-0.65 * LAI));
-    double potentialDeltaBiomass = 100 * SCurveNumbers::getS_CurveNum(CO2CurveFactors, data.CO2); // BE*
+    double photoactiveRadiation;
+    if (radiation == -1)
+        double photoactiveRadiation = 0.5 * data.radiation * (1 - exp(-0.65 * LAI));
+    else
+        photoactiveRadiation = radiation;
+
+    double potentialDeltaBiomass = 100 * CO2CurveFactors.getValue(data.CO2); // BE*
     potentialDeltaBiomass = potentialDeltaBiomass - biomassToVPD * (findVPD((data.maxTemp - data.minTemp)/2.0f, data.humidity) - 1); // BE'
     potentialDeltaBiomass = 0.001f * potentialDeltaBiomass * photoactiveRadiation / 10.0f; //result is in kg / m^2  
 
     
-    biomass += potentialDeltaBiomass * getWaterStressFactor();
+    //biomass += potentialDeltaBiomass * getWaterStressFactor();
+    partitionBiomass(potentialDeltaBiomass);
     }
   }
 
 double BasePlant::getRequiredWater()
 {
     return requiredWater;
+}
+
+BiomassHolder BasePlant::getBiomassStruct()
+{
+    return Biomass;
 }
 
 void BasePlant::doWater(const WeatherData& data)
@@ -115,6 +172,56 @@ void BasePlant::doNitrogen()
     nitrogen += soilPatch->requestNitrogen(calcRootDepth(), findRequiredNitrogen(), suppliedWater);
 }
 
+void BasePlant::doFloralInduction(const WeatherData& data)
+{
+    if (heatUnits > floweringHU && heatUnits < finalHU)
+        floralInductionUnits += floweringTempCurve.getValue((data.maxTemp + data.minTemp) / 2.0) * nightLengthCurve.getValue(data.nightLength);
+
+}
+
+void BasePlant::partitionBiomass(const double dBiomass)
+{
+    double root, fruit, storage, shoot;    
+
+    if (heatUnits < floweringHU)
+    {
+        root = 0.4 - 0.2 * heatUnits / floweringHU;
+        fruit = 0 + 0.1 * heatUnits / floweringHU;
+        storage = 0 + 0.1 * heatUnits / floweringHU;
+        shoot = 0.6;
+    }
+    else if (heatUnits < finalHU) // while flowering stage...
+    {
+        double percentToFruiting = (heatUnits - floweringHU) / (finalHU - floweringHU);
+        root = 0.2 - 0.1 * percentToFruiting;    
+        
+        storage = 0.1 + 0.2 * percentToFruiting;
+        shoot = 0.6 - 0.3 * percentToFruiting;
+
+        fruit = 0.1 + 0.4 * percentToFruiting;
+        if (!flowering()) // if it's not able to flower, route all of the biomass into the other parts of the plant.
+        {
+            root += fruit / 3;
+            storage += fruit / 3;
+            shoot += fruit / 3;
+            fruit = 0;
+        }
+    }
+    else
+    {
+        root = 0.1;
+        fruit = 0.5;
+        storage = 0.3;
+        shoot = 0.3;
+    }
+
+
+    Biomass.roots += dBiomass * root;
+    Biomass.stem += dBiomass * shoot;
+    Biomass.storageOrgan += dBiomass * storage;
+    Biomass.flowerAndfruits += dBiomass * fruit;
+}
+
 double BasePlant::getWaterStressFactor()
   {
     if (requiredWater != 0)
@@ -151,12 +258,12 @@ double BasePlant::findPreviousHUI()
 
 double BasePlant::findHUF()
   {
-  return SCurveNumbers::getS_CurveNum(HeatUnitFactorNums, findHUI());
+  return HeatUnitFactorNums.getValue(findHUI());
   }
 
 double BasePlant::findPreviousHUF()
   {
-  return SCurveNumbers::getS_CurveNum(HeatUnitFactorNums, findPreviousHUI());
+  return HeatUnitFactorNums.getValue(findPreviousHUI());
   }
 
 double BasePlant::findVPD(const double& averageTemp, const double& humidity)
@@ -174,6 +281,13 @@ double BasePlant::calcRootDepth()
   {
   return maxRootDepth * findHUI();
   }
+
+bool BasePlant::flowering()
+{
+    if (floralInductionUnits > floralInductionUnitsRequired)
+        return true;
+    return false;
+}
 
 double BasePlant::findPsychometricConstant(const double& temperature)
   {
@@ -204,7 +318,7 @@ double BasePlant::findOptimalNitrogenConcentration()
 
 double BasePlant::findRequiredNitrogen()
 {
-    double optimalNitrogen = findOptimalNitrogenConcentration() * biomass;
+    double optimalNitrogen = findOptimalNitrogenConcentration() * Biomass;
     return optimalNitrogen - nitrogen;
 }
 
@@ -215,7 +329,7 @@ double BasePlant::barometricPressure(const double& altitude)
 
 double BasePlant::getBiomass()
   {
-  return biomass;
+  return Biomass;
   }
 
 double BasePlant::getLAI()

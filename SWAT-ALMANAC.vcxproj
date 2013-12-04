@@ -217,6 +217,7 @@
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Months.cpp" />
+    <ClCompile Include="curves.cpp" />
     <ClCompile Include="parser_rain.cpp" />
     <ClCompile Include="plant.cpp" />
     <ClCompile Include="soilGrid.cpp" />
@@ -231,6 +232,7 @@
     <ClInclude Include="Engine.h" />
     <ClInclude Include="enums.h" />
     <ClInclude Include="Months.h" />
+    <ClInclude Include="curves.h" />
     <ClInclude Include="parser_rain.h" />
     <ClInclude Include="plant.h" />
     <ClInclude Include="plantCell.h" />
