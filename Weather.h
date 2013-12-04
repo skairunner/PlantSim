@@ -15,6 +15,7 @@ namespace ALMANAC
     WeatherData();
     WeatherData(const double& MaxTemp, const double& MinTemp, const double& Radiation, const double& CO2ppm, const double& Humidity, const double& MeanWindSpeed);
     double maxTemp, minTemp, radiation, CO2, humidity, meanWindSpeed;
+    double nightLength;
     };  
 
   ///
@@ -43,10 +44,15 @@ namespace ALMANAC
     double getMinTemp();
     double getDayRadiation();
     double getAverageHumidity();
+    double getNightLength();
     WeatherData getDataBundle();
 
     Month getMonth();
     void changeDate(const int month, const int date);
+
+
+    double latitude; // radians
+    const static double earthAxis; // radians
 
     //////////////////////////
     private:
