@@ -50,14 +50,14 @@ namespace ALMANAC
       {
       date ++;
       // check for feb
-      if (MONTH == FEBRUARY){
+     /* if (MONTH == FEBRUARY){
         if (date > 28)
           {
           MONTH++;
           date = 1;
           }}
-      else
-      {
+      else*/
+      
       if (MONTH != DECEMBER)
         { // First check for non-December cases.
         if (date > 30)
@@ -73,21 +73,13 @@ namespace ALMANAC
           MONTH = JANUARY;
           }
         }
-      }
+      
     }
 
   void Month::setDate(const int& newDate)
     {
-    if (!(date > 30 || date <= 0))
-      {
-      if (MONTH == FEBRUARY)
-        {
-        if (newDate < 29)
-          date = newDate;
-        }
-      else
+    if (newDate < 31 && newDate > 0)
         date = newDate;
-      }
     }
 
   void Month::setMonth(const int& NEWMONTH)
@@ -113,10 +105,21 @@ namespace ALMANAC
 
   int Month::getNumberOfDaysInMonth() const
     {
-    if (MONTH == FEBRUARY)
+ /*   if (MONTH == FEBRUARY)
       return 28;
-    else
+    else*/
       return 30;
     }
 
+  int Month::getDaysSinceYearStart() const
+  {
+      int days = 0;
+      int months = MONTH;
+
+      months -= 1;
+
+      days = months * 30 + date;
+
+      return days;
   }
+}
