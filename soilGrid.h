@@ -19,7 +19,7 @@ namespace ALMANAC
       int getWidth();
       int getHeight();
 
-      void step(const double& rainfall = 0); // Advance water simulation by one day
+      void step(const double temp, const double& rainfall = 0); // Advance water simulation by one day
       void stepPlants(const WeatherData& wd);
 
       void addRandomWater(const int& numberOf, const int& howMuch); // for testing
