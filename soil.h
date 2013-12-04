@@ -25,6 +25,7 @@ namespace ALMANAC
       friend class SoilFactory;
       friend class SoilCell;
       friend class transferWater;
+
       void addWater(const double& addwater);
       double availableWater();
       double percolationWater();
@@ -41,7 +42,7 @@ namespace ALMANAC
       double withdrawNitrogen(const double& amount, const double& waterUptake);
       double withdrawNitrogen(const double& amount, const double& waterUptake, const double& rootDepth);
 
-      double nitrates; // kg/ha
+      double nitrates; // kg / ha
 
       double fieldCapacity();
       double saturatedMoisture();
@@ -52,14 +53,18 @@ namespace ALMANAC
       virtual void percolateAndLateral(const double& slope); // probably needs a parameter for the Moore direction
       double findMovedNitrates(const double& waterVolume);
 
+
       SoilLayer(const double& sandi, const double& clayi, const double& silti, const double& organicMatteri, unsigned int thickness = 200);
       double wiltingPoint();
+      void denitrification(const double temp);
       double SatHydConductivity();
       double travelTime();
       void adjustWater();
+      double getSoilWeight(); // kg / ha
 
 
-      double sand, clay, silt, organicMatter;
+      double sand, clay, silt, organicMatter; // this organic matter is the % of the soil. 
+      double organicMatterWeight;  // kg / ha
       
       
       SoilProperties properties;
@@ -70,6 +75,9 @@ namespace ALMANAC
 
       bool isTopsoil; // = isTopsoil
       bool isAquifer; // = isAquifer
+
+    private:
+        static const double soilWeight; // kg / m^3
     };
 
   class transferWater
@@ -90,6 +98,7 @@ namespace ALMANAC
       void addWater(const int& layer, const double& amount); 
 
       void solveAndPercolate(); // Solve for percolation downwards and lateral flow for each layer, then put them in the respective outbound slots
+      void calculateNitrogen(const double temp);
       double slope; // m/m
 
       std::vector<double> inspectWater();

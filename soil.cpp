@@ -10,11 +10,15 @@ using namespace std;
 
 const double BL = 20; // nitrogen leaching parameter
 
+const double SoilLayer::soilWeight = 1200;
+
+
 SoilLayer::SoilLayer(const double& sandi, const double& clayi, const double& silti, const double& organicMatteri, unsigned int thickness)
   :sand(sandi), clay(clayi), silt(silti), organicMatter(organicMatteri), depth(thickness), isTopsoil(false), isAquifer(false)
-  , water(0), nitrates(5.604)
+  , water(0), nitrates(5.604), organicMatterWeight(50.4)
   {
   properties = SOIL_MODELS::SoilModule::fetch(sand, silt, clay, organicMatter);
+
   }
 
 double SoilLayer::getDepth()
@@ -123,6 +127,11 @@ double SoilLayer::withdrawWater(const double& amount, const double& rootdepth, c
   return supply;
   }
 
+double SoilLayer::getSoilWeight()
+{
+    return soilWeight / 1000 * depth;
+}
+
 double SoilLayer::withdrawNitrogen(const double& amount, const double& waterUptake)
 {
     return withdrawNitrogen(amount, waterUptake, depth);
@@ -147,6 +156,17 @@ double SoilLayer::withdrawNitrogen(const double& amount, const double& waterUpta
 
 
     return supply;
+}
+
+void SoilLayer::denitrification(const double temp)
+{
+    double SWF = water / fieldCapacity(); // soil water / field capacity
+    double denitr = 0;
+    double tempFactor = max(0.1, temp / (temp + exp(9.93 - 0.312 * temp)));
+    if (SWF > 0.95)
+        denitr = nitrates * (1.0 - exp(-1.4 * tempFactor * organicMatterWeight / getSoilWeight()));
+    
+    nitrates -= denitr;
 }
 
 double SoilLayer::findMovedNitrates(const double& waterVolume)
@@ -272,6 +292,16 @@ void SoilCell::solveAndPercolate()
     it->addWater(-it->lateral);
     }
   }
+
+void SoilCell::calculateNitrogen(const double temp)
+{
+    // denitrification
+    /*for (auto layer = Layers.begin(); layer < Layers.end(); layer++)
+    {
+        layer->denitrification(temp);
+    }*/
+    // currently removed because the denitrification rate is too severe
+}
 
 std::vector<SoilLayer> SoilCell::getLayers()
   {
