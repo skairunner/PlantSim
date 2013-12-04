@@ -45,6 +45,7 @@ namespace ALMANAC
       int getMonth() const;
       int getDate() const;
       int getNumberOfDaysInMonth() const;
+      int getDaysSinceYearStart() const;
 
     private:
       int MONTH;
