@@ -237,7 +237,7 @@ void SoilGrid::doLateralForEachCell()
       }
   }
 
-void SoilGrid::step(const double& rainfall)
+void SoilGrid::step(const double temp, const double& rainfall)
   {
   if (rainfall > 0)
     for (auto it = grid.begin(); it < grid.end(); it++)
@@ -248,17 +248,34 @@ void SoilGrid::step(const double& rainfall)
     {
     it->surfaceWater += rainfall;
     it->solveAndPercolate();
+    it->calculateNitrogen(temp);
     }
   doLateralForEachCell();
   }
 
 void SoilGrid::stepPlants(const WeatherData& wd)
   {
-  for (auto it = grid.begin(); it < grid.end(); it++)
-    for (auto plant = it->plants.begin(); plant < it->plants.end(); plant++)
-      {
-      plant->calculate(wd, 0.25);
-      }
+    for (auto it = grid.begin(); it < grid.end(); it++)
+    {
+        double total = 0;
+
+        for (auto plant = it->plants.begin(); plant < it->plants.end(); plant++)
+        {
+            total += plant->getLAI();
+        }
+
+        for (auto plant = it->plants.begin(); plant < it->plants.end(); plant++)
+          {
+            double radPortion;
+            if (total < 1)
+                radPortion = wd.radiation * plant->getLAI();
+            else
+                radPortion = plant->getLAI() / total * wd.radiation;
+             plant->calculate(wd, 0.25, radPortion);
+          }
+
+    }
+    
   }
 
 int randInt(const int& lower, const int& higher)
