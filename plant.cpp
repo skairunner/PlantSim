@@ -1,5 +1,6 @@
 #include "plant.h"
 #include "soil.h"
+#include "seed.h"
 
 #include <cmath>
 #include <algorithm>
@@ -35,21 +36,37 @@ BiomassHolder::operator double() const
 
 
 BasePlant::BasePlant(SoilCell* soil)
-  : baseTemp(8.0f), maxLAI(3.0f), rootFraction1(0.3f), rootFraction2(0.05), maxRootDepth(500),
-  maxHeight(1000), HeatUnitFactorNums(1, 17, 0.18), CO2CurveFactors(0.1f, 0.04f, 49), Biomass(0.05, 0, 0, 0), biomassToVPD(7), LAI(0), prevLAI(0),
-  previousHeatUnits(0), heatUnits(0), isAnnual(true), soilPatch(soil), requiredWater(1), suppliedWater(1), height(0), waterTolerence(3)
-  , currentWaterlogValue(0), nitrogen(0), floweringTempCurve(18, 24, 1), floralInductionUnitsRequired(7.0), dayNeutral(true), minimumInduction(0.1), criticalNightLength(12), longDayPlant(true)
-  , floralInductionUnits(0)
+  :  Biomass(0.05, 0, 0, 0), LAI(0), prevLAI(0),  previousHeatUnits(0), heatUnits(0), soilPatch(soil), requiredWater(1), suppliedWater(1), height(0)
+  , currentWaterlogValue(0), nitrogen(0), floralInductionUnits(0)
   {
-    growthStages[6] = 935.0;
-    growthStages[9] = 1686.0f;
-    growthStages[10] = 1800.0f;
-    nitrogen = findRequiredNitrogen();
-    nightLengthCurve = getSCurve(dayNeutral, longDayPlant, minimumInduction, criticalNightLength);
+    prop.baseTemp = 8.0;
+    prop.maxLAI = 3.0;
+    prop.maxRootDepth = 500;
+    prop.maxHeight = 1000;
+    prop.HeatUnitFactorNums = SCurve(1, 17, 0.18);
+    prop.CO2CurveFactors = SCurve(0.1, 0.04, 49);
+    prop.biomassToVPD = 7;
+    prop.isAnnual = true;
+    prop.waterTolerence = 3;
+    prop.flowerTempCurve = Parabola(18, 24, 1);
+    prop.floralInductionUnitsRequired = 7.0;
+    prop.dayNeutral = true;
+    prop.minimumInduction = 0.1;
+    prop.criticalNightLength = 12;
+    prop.longDayPlant = true;
+    prop.averageFruitWeight = 0.05; //
 
-    floweringHU = growthStages[6];
-    finalHU = growthStages[9];
-    maxHU = growthStages[10];
+    prop.growthStages[6] = 935.0;
+    prop.growthStages[9] = 1686.0f;
+    prop.growthStages[10] = 1800.0f;
+
+    nitrogen = findRequiredNitrogen();
+    
+    prop.nightLengthCurve = getSCurve(prop.dayNeutral, prop.longDayPlant, prop.minimumInduction, prop.criticalNightLength);
+
+    floweringHU = prop.growthStages[6];
+    finalHU = prop.growthStages[9];
+    maxHU = prop.growthStages[10];
   }
 
 SCurve BasePlant::getSCurve(const bool dayNeutral, const bool longDayPlant, double minInduction, const double& optimalInductionNightLength)
@@ -85,16 +102,16 @@ void BasePlant::calculate(const WeatherData& data, const double& albedo, const d
   {
   ///testc 
 
-  double heatUnitsAdded = (data.maxTemp + data.minTemp) / 2 - baseTemp;
+  double heatUnitsAdded = (data.maxTemp + data.minTemp) / 2 - prop.baseTemp;
   heatUnitsAdded = heatUnitsAdded > 0 ? heatUnitsAdded : 0;
   previousHeatUnits = heatUnits;
 
   
 
-  if (heatUnitsAdded + heatUnits > maxHU && isAnnual) // If adding HU will go over the limit,
+  if (heatUnitsAdded + heatUnits > maxHU && prop.isAnnual) // If adding HU will go over the limit,
     {
     heatUnitsAdded = 0;
-    heatUnits = growthStages.find(10)->second;
+    heatUnits = prop.growthStages.find(10)->second;
     }
   else
     {
@@ -106,8 +123,8 @@ void BasePlant::calculate(const WeatherData& data, const double& albedo, const d
     heatUnits += heatUnitsAdded;
     double deltaHUF = findHUF() - findPreviousHUF();
     prevLAI = LAI;
-    LAI += deltaHUF * maxLAI * (1 - exp(5.0f * (prevLAI - maxLAI))) * sqrt(REG); 
-    height += deltaHUF * maxHeight * sqrt(REG);
+    LAI += deltaHUF * prop.maxLAI * (1 - exp(5.0f * (prevLAI - prop.maxLAI))) * sqrt(REG); 
+    height += deltaHUF * prop.maxHeight * sqrt(REG);
 
     ///////////////////////
     double photoactiveRadiation;
@@ -116,8 +133,8 @@ void BasePlant::calculate(const WeatherData& data, const double& albedo, const d
     else
         photoactiveRadiation = radiation;
 
-    double potentialDeltaBiomass = 100 * CO2CurveFactors.getValue(data.CO2); // BE*
-    potentialDeltaBiomass = potentialDeltaBiomass - biomassToVPD * (findVPD((data.maxTemp - data.minTemp)/2.0f, data.humidity) - 1); // BE'
+    double potentialDeltaBiomass = 100 * prop.CO2CurveFactors.getValue(data.CO2); // BE*
+    potentialDeltaBiomass = potentialDeltaBiomass - prop.biomassToVPD * (findVPD((data.maxTemp - data.minTemp)/2.0f, data.humidity) - 1); // BE'
     potentialDeltaBiomass = 0.001f * potentialDeltaBiomass * photoactiveRadiation / 10.0f; //result is in kg / m^2  
 
     
@@ -175,7 +192,7 @@ void BasePlant::doNitrogen()
 void BasePlant::doFloralInduction(const WeatherData& data)
 {
     if (heatUnits > floweringHU && heatUnits < finalHU)
-        floralInductionUnits += floweringTempCurve.getValue((data.maxTemp + data.minTemp) / 2.0) * nightLengthCurve.getValue(data.nightLength);
+        floralInductionUnits += prop.flowerTempCurve.getValue((data.maxTemp + data.minTemp) / 2.0) * prop.nightLengthCurve.getValue(data.nightLength);
 
 }
 
@@ -199,7 +216,7 @@ void BasePlant::partitionBiomass(const double dBiomass)
         shoot = 0.6 - 0.3 * percentToFruiting;
 
         fruit = 0.1 + 0.4 * percentToFruiting;
-        if (!flowering()) // if it's not able to flower, route all of the biomass into the other parts of the plant.
+        if (!canFlower()) // if it's not able to flower, route all of the biomass into the other parts of the plant.
         {
             root += fruit / 3;
             storage += fruit / 3;
@@ -213,6 +230,14 @@ void BasePlant::partitionBiomass(const double dBiomass)
         fruit = 0.5;
         storage = 0.3;
         shoot = 0.3;
+        if (!canFlower())
+        {
+            root += fruit / 3;
+            storage += fruit / 3;
+            shoot += fruit / 3;
+            fruit = 0;
+        }
+
     }
 
 
@@ -235,7 +260,7 @@ double BasePlant::getWaterStressFactor()
 
 double BasePlant::getWaterlogStressFactor()
   {
-  return max(0.0, 1 - currentWaterlogValue / waterTolerence);
+  return max(0.0, 1 - currentWaterlogValue / prop.waterTolerence);
   }
 
 double BasePlant::getNitrogenStressFactor()
@@ -248,22 +273,22 @@ double BasePlant::getNitrogenStressFactor()
 
 double BasePlant::findHUI()
   {
-  return heatUnits / growthStages.find(9)->second; // rbegin = back
+  return heatUnits / prop.growthStages.find(9)->second; // rbegin = back
   }
 
 double BasePlant::findPreviousHUI()
   {
-  return previousHeatUnits / growthStages.find(9)->second; // rbegin = back
+  return previousHeatUnits / prop.growthStages.find(9)->second; // rbegin = back
   }
 
 double BasePlant::findHUF()
   {
-  return HeatUnitFactorNums.getValue(findHUI());
+  return prop.HeatUnitFactorNums.getValue(findHUI());
   }
 
 double BasePlant::findPreviousHUF()
   {
-  return HeatUnitFactorNums.getValue(findPreviousHUI());
+  return prop.HeatUnitFactorNums.getValue(findPreviousHUI());
   }
 
 double BasePlant::findVPD(const double& averageTemp, const double& humidity)
@@ -279,12 +304,12 @@ double BasePlant::calcHeight()
 
 double BasePlant::calcRootDepth()
   {
-  return maxRootDepth * findHUI();
+  return prop.maxRootDepth * findHUI();
   }
 
-bool BasePlant::flowering()
+bool BasePlant::canFlower()
 {
-    if (floralInductionUnits > floralInductionUnitsRequired)
+    if (floralInductionUnits > prop.floralInductionUnitsRequired)
         return true;
     return false;
 }
@@ -350,4 +375,23 @@ double BasePlant::getREG()
 double BasePlant::getNitrogen()
 {
     return nitrogen;
+}
+
+std::string BasePlant::getName()
+{
+    return prop.name;
+}
+
+void BasePlant::createSeeds()
+{
+    if (Biomass.flowerAndfruits < prop.averageFruitWeight)
+        return;
+
+    int numSeeds = Biomass.flowerAndfruits / prop.averageFruitWeight;
+    double weight = Biomass.flowerAndfruits / numSeeds;
+
+    for (int counter = 0; counter < numSeeds; counter++)
+    {
+        seedlist.push_back();
+    }
 }

@@ -16,6 +16,9 @@ int main(int argc, char **argv)
   Weather WeatherModule(true);
   WeatherModule.changeDate(MARCH, 5);
 
+  //
+
+
   SoilGrid sg(1, 1); 
 
  /* BasePlant plant(&sg.ref(0, 0));
@@ -31,6 +34,10 @@ int main(int argc, char **argv)
   fstream Nfile;
   Nfile.open("nitrogen.txt", fstream::out | fstream::trunc);
   Nfile << "Date\tBiomass\tPlant nitrogen\tPrecipitation\tNitrogen\n";
+
+  fstream PlantPartFile;
+  PlantPartFile.open("plantparts.txt", fstream::out | fstream::trunc);
+  PlantPartFile << "Date\tTemp\tRoot\tStem\tStorage\tFruit\tTotal\n";
 
   //sg.ref(0, 0).requestWater(1000, 0);
   //sg.addWaterSquare(0, 0, 1, 1, 50);
@@ -66,7 +73,20 @@ int main(int argc, char **argv)
     }
 
     Nfile << "\n";
+
+
+    //// output biomass per plant part
+    BiomassHolder biomass = plant.getBiomassStruct();
+    PlantPartFile << WeatherModule.getMonth() << "\t" << (WeatherModule.getMaxTemp() + WeatherModule.getMinTemp())/2.0 << "\t" << biomass.roots << "\t" << biomass.stem << "\t" << biomass.storageOrgan << "\t" << biomass.flowerAndfruits << "\t" << biomass << "\n";
     }
+
+  sg.ref(0, 0).plants.front().createSeeds();
+ 
+
+
+
+
+  /////
 
   cout << sg.ref(0, 0).plants.front().getBiomass();
   cout << "\nDone.";

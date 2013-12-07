@@ -54,6 +54,9 @@
     <ClCompile Include="curves.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="seed.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Weather.h">
@@ -99,6 +102,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="curves.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="seed.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="plantproperties.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

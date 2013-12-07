@@ -3,12 +3,13 @@
 #include <map>
 #include "Weather.h"
 #include "curves.h"
+#include "plantproperties.h"
+#include "seed.h"
 
 
 namespace ALMANAC
   {
-  class SoilCell;
-  
+  class SoilCell;  
 
   struct BiomassHolder
   {
@@ -27,7 +28,10 @@ namespace ALMANAC
   class BasePlant
     {
     public:
+      friend class Seed;
       BasePlant(SoilCell* soil = 0);
+
+      std::string getName();
       void calculate(const WeatherData& data, const double& albedo, const double radiation = -1); // plug in today's weather :v. CO2 is in ppm
       void findREG(); // probably has params
       double getHU(); // heat units
@@ -39,50 +43,38 @@ namespace ALMANAC
       double getLAI();
       double getRequiredWater();
 
-      double maxLAI;
       double getREG();
 
       double getNitrogen();
-      bool flowering();
+      bool canFlower();
+
+      void createSeeds();
+
+      std::vector<Seed> seedlist;
 
     private:
-      std::map<int, double> growthStages;
-      double baseTemp; // ¡ÆC
+        PlantProperties prop;
+
       double previousHeatUnits, heatUnits;
       double REG; // Stress factor. Has to be set elsewhere.
       double requiredWater;
       double suppliedWater;
 
-      double waterTolerence;
+
       double currentWaterlogValue;
 
       double height;
-      double maxHeight; //mm
 
       double LAI, prevLAI;      
-           
-      double rootFraction1, rootFraction2; // fraction of root weight; 1 is at germination, 2 at maturity
-      double maxRootDepth; //mm     
 
-      SCurve HeatUnitFactorNums;
-      SCurve CO2CurveFactors;
-
-      Parabola floweringTempCurve;
-      double floralInductionUnitsRequired; // default 7
       double floralInductionUnits;
-      bool dayNeutral;
-      bool longDayPlant; // long day/short night plant if true, short day / long night plant if false.
-      double minimumInduction;
-      double criticalNightLength;
-      SCurve nightLengthCurve;
+      
       static SCurve getSCurve(const bool dayNeutral, const bool longDayPlant, double minInduction, const double& optimalInductionNightLength);
 
-      double biomassToVPD; // bc(3)
       BiomassHolder Biomass;  // kg
 
       double nitrogen; // kg/ha
 
-      bool isAnnual; // limits HU to the maturity HUs.
       double flowerFactor; // % of flowering successfully done.
 
       SoilCell* soilPatch;
