@@ -127,7 +127,7 @@ void Engine::Update()
       soilGrid->addWaterSquare(0, 0, SIDE_LENGTH, SIDE_LENGTH, 50);
       moreWater = false;
       }
-    soilGrid->step();
+    soilGrid->step(20);
     al_set_target_bitmap(watermap);
     al_lock_bitmap(watermap, al_get_bitmap_format(watermap), ALLEGRO_LOCK_READWRITE);
     double waterlevel = 0;
