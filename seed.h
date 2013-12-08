@@ -9,11 +9,12 @@ namespace ALMANAC
     {
     public:
         Seed();
-        Seed(BasePlant* bp);
+        Seed(const PlantProperties& PP, const int& dormancy, const double& seed, const double fruit = 0);
         PlantProperties pp;
 
         int dormantDays;
-    private:
+        double seedBiomass;
+        double fruitBiomass; // for fleshy fruits like apples.
                
     };
 

@@ -67,7 +67,22 @@ BasePlant::BasePlant(SoilCell* soil)
     floweringHU = prop.growthStages[6];
     finalHU = prop.growthStages[9];
     maxHU = prop.growthStages[10];
+
+    rng.seed(rand());
   }
+
+double BasePlant::random(double min, double max)
+{
+    if (min > max)
+    {
+        double temp = min;
+        min = max;
+        max = min;
+    }
+
+    uniform_real_distribution<> dist(min, max);
+    return dist(rng);
+}
 
 SCurve BasePlant::getSCurve(const bool dayNeutral, const bool longDayPlant, double minInduction, const double& optimalInductionNightLength)
 {
@@ -164,7 +179,7 @@ void BasePlant::doWater(const WeatherData& data)
     // next add waterlog damage
     auto layers = soilPatch->getLayers();
     double depthSum = 0;
-    for each (SoilLayer layer in layers)
+    for (SoilLayer& layer : layers)
       {
       depthSum += layer.getDepth();
 
@@ -382,16 +397,36 @@ std::string BasePlant::getName()
     return prop.name;
 }
 
+
+
 void BasePlant::createSeeds()
 {
     if (Biomass.flowerAndfruits < prop.averageFruitWeight)
         return;
 
     int numSeeds = Biomass.flowerAndfruits / prop.averageFruitWeight;
-    double weight = Biomass.flowerAndfruits / numSeeds;
+    
+    double totalWeight = numSeeds * prop.averageFruitWeight;
+
+    vector<double> seedWeights;
+    double sum = 0;
+    for (int counter = 0; counter < numSeeds; counter++)
+    {
+        double added = random(0.01, 1);
+        seedWeights.push_back(added);
+        sum += added;
+    }
+    for (int counter = 0; counter < numSeeds; counter++)
+    {
+        seedWeights[counter] /= sum;
+    }
+
+    double extraWeight = (Biomass.flowerAndfruits - totalWeight) / (double)numSeeds;
+    
 
     for (int counter = 0; counter < numSeeds; counter++)
     {
-        seedlist.push_back();
+        
+        seedlist.push_back(Seed(prop, 60, prop.averageFruitWeight + extraWeight * seedWeights[counter]));
     }
 }
