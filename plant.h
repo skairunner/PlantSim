@@ -5,6 +5,7 @@
 #include "curves.h"
 #include "plantproperties.h"
 #include "seed.h"
+#include <random>
 
 
 namespace ALMANAC
@@ -53,6 +54,9 @@ namespace ALMANAC
       std::vector<Seed> seedlist;
 
     private:
+        mt19937 rng;
+        double random(double min = 0, double max = 1);
+
         PlantProperties prop;
 
       double previousHeatUnits, heatUnits;
