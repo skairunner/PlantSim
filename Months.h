@@ -46,6 +46,8 @@ namespace ALMANAC
       int getDate() const;
       int getNumberOfDaysInMonth() const;
       int getDaysSinceYearStart() const;
+      
+      friend int operator- (const Month&, const Month&);
 
     private:
       int MONTH;
@@ -53,6 +55,7 @@ namespace ALMANAC
       int year;
     };
 
+  int operator-(const Month& left, const Month& right);
   ostream& operator<< (ostream& os, const Month& month);
     
   }

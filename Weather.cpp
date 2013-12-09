@@ -59,6 +59,7 @@ namespace ALMANAC
     wd.CO2 = 440;
     wd.meanWindSpeed = 0;
     wd.nightLength = getNightLength();
+    wd.date = currentMonth;
 
     return wd;
     }

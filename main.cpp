@@ -14,7 +14,7 @@ using namespace std;
 int main(int argc, char **argv)
   {
   Weather WeatherModule(true);
-  WeatherModule.changeDate(MARCH, 5);
+  WeatherModule.changeDate(APRIL, 5);
 
   //
 
@@ -32,7 +32,7 @@ int main(int argc, char **argv)
 
   fstream PlantPartFile;
   PlantPartFile.open("plantparts.txt", fstream::out | fstream::trunc);
-  PlantPartFile << "Date\tTemp\tRoot\tStem\tStorage\tFruit\tTotal\n";
+  PlantPartFile << "Date\tTemp\tRoot\tStem\tStorage\tFruit\tTotal\tHUF\tFloral induction\n";
 
   //sg.ref(0, 0).requestWater(1000, 0);
   //sg.addWaterSquare(0, 0, 1, 1, 50);
@@ -72,10 +72,12 @@ int main(int argc, char **argv)
 
     //// output biomass per plant part
     BiomassHolder biomass = plant.getBiomassStruct();
-    PlantPartFile << WeatherModule.getMonth() << "\t" << (WeatherModule.getMaxTemp() + WeatherModule.getMinTemp())/2.0 << "\t" << biomass.roots << "\t" << biomass.stem << "\t" << biomass.storageOrgan << "\t" << biomass.flowerAndfruits << "\t" << biomass << "\n";
+    PlantPartFile << WeatherModule.getMonth() << "\t" << (WeatherModule.getMaxTemp() + WeatherModule.getMinTemp())/2.0 << "\t" << biomass.roots 
+        << "\t" << biomass.stem << "\t" << biomass.storageOrgan << "\t" << biomass.flowerAndfruits << "\t" << biomass << "\t" << plant.findHUI()
+        << "\t" << plant.getInduction() << "\t" << plant.getHU() << "\n";
     }
 
-  sg.ref(0, 0).plants.front().createSeeds();
+  sg.ref(0, 0).plants.front().createSeeds(WeatherModule.getMonth());
  
   auto seeds = sg.ref(0, 0).plants.front().seedlist;
 

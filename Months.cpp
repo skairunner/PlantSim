@@ -122,4 +122,14 @@ namespace ALMANAC
 
       return days;
   }
+
+  int operator-(const Month& left, const Month& right)
+  {
+      int yearDiff = left.year - right.year;
+      int monthDiff = left.MONTH - right.MONTH;
+      int dayDiff = left.date - right.date;
+      
+      return yearDiff * 360 + monthDiff * 30 + dayDiff;
+  }
 }
+

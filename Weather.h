@@ -16,6 +16,8 @@ namespace ALMANAC
     WeatherData(const double& MaxTemp, const double& MinTemp, const double& Radiation, const double& CO2ppm, const double& Humidity, const double& MeanWindSpeed);
     double maxTemp, minTemp, radiation, CO2, humidity, meanWindSpeed;
     double nightLength;
+
+    Month date;
     };  
 
   ///

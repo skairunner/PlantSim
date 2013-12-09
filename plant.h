@@ -29,7 +29,6 @@ namespace ALMANAC
   class BasePlant
     {
     public:
-      friend class Seed;
       BasePlant(SoilCell* soil = 0);
 
       std::string getName();
@@ -47,9 +46,11 @@ namespace ALMANAC
       double getREG();
 
       double getNitrogen();
+
+      double getInduction();
       bool canFlower();
 
-      void createSeeds();
+      void createSeeds(const Month& date);
 
       std::vector<Seed> seedlist;
 
@@ -99,6 +100,7 @@ namespace ALMANAC
       double getNitrogenStressFactor(); 
 
       double floweringHU;
+      double endFloweringHU;
       double finalHU;
       double maxHU;
 
@@ -106,5 +108,7 @@ namespace ALMANAC
       void doNitrogen();
       void doFloralInduction(const WeatherData& data);
       void partitionBiomass(const double dBiomass);
+      void doTempStress(const WeatherData& wd);
+      double tempstress;
     };
   }

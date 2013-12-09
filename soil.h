@@ -3,6 +3,7 @@
 #include "soilModel.h"
 #include <vector>
 #include <ostream>
+#include "seed.h"
 #include "plant.h"
 
 namespace ALMANAC
@@ -119,6 +120,9 @@ namespace ALMANAC
 
          
       std::vector<BasePlant> plants;
+      std::vector<Seed> seeds;
+
+
       double surfaceWater;
 
     protected:

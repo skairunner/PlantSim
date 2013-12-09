@@ -37,17 +37,17 @@ BiomassHolder::operator double() const
 
 BasePlant::BasePlant(SoilCell* soil)
   :  Biomass(0.05, 0, 0, 0), LAI(0), prevLAI(0),  previousHeatUnits(0), heatUnits(0), soilPatch(soil), requiredWater(1), suppliedWater(1), height(0)
-  , currentWaterlogValue(0), nitrogen(0), floralInductionUnits(0)
+  , currentWaterlogValue(0), nitrogen(0), floralInductionUnits(0), tempstress(1)
   {
-    prop.baseTemp = 8.0;
-    prop.maxLAI = 3.0;
+    prop.baseTemp = 5.0;
+    prop.maxLAI = 3.3;
     prop.maxRootDepth = 500;
     prop.maxHeight = 1000;
     prop.HeatUnitFactorNums = SCurve(1, 17, 0.18);
     prop.CO2CurveFactors = SCurve(0.1, 0.04, 49);
     prop.biomassToVPD = 7;
     prop.isAnnual = true;
-    prop.waterTolerence = 3;
+    prop.waterTolerence = 2;
     prop.flowerTempCurve = Parabola(18, 24, 1);
     prop.floralInductionUnitsRequired = 7.0;
     prop.dayNeutral = true;
@@ -55,16 +55,23 @@ BasePlant::BasePlant(SoilCell* soil)
     prop.criticalNightLength = 12;
     prop.longDayPlant = true;
     prop.averageFruitWeight = 0.05; //
+    prop.minGerminationTemp = 5.0;
+    prop.optimalGerminationTemp = 17;
+    prop.optimalTemperature = 15.55;
+    prop.tempCurve = Parabola(prop.optimalTemperature *0.5, prop.optimalTemperature, 1);
 
-    prop.growthStages[6] = 935.0;
-    prop.growthStages[9] = 1686.0f;
-    prop.growthStages[10] = 1800.0f;
+    
+    prop.growthStages[6] = 800.0;
+    prop.growthStages[7] = 1093.0;
+    prop.growthStages[9] = 1686.0;
+    prop.growthStages[10] = 1800.0;
 
     nitrogen = findRequiredNitrogen();
     
     prop.nightLengthCurve = getSCurve(prop.dayNeutral, prop.longDayPlant, prop.minimumInduction, prop.criticalNightLength);
 
     floweringHU = prop.growthStages[6];
+    endFloweringHU = prop.growthStages[7];
     finalHU = prop.growthStages[9];
     maxHU = prop.growthStages[10];
 
@@ -110,6 +117,7 @@ void BasePlant::findREG()
   REG = min(REG, getWaterStressFactor());
   REG = min(REG, getWaterlogStressFactor());
   REG = min(REG, getNitrogenStressFactor());
+  REG = min(REG, max(tempstress, 0.0));
   }
 
 
@@ -126,13 +134,21 @@ void BasePlant::calculate(const WeatherData& data, const double& albedo, const d
   if (heatUnitsAdded + heatUnits > maxHU && prop.isAnnual) // If adding HU will go over the limit,
     {
     heatUnitsAdded = 0;
-    heatUnits = prop.growthStages.find(10)->second;
+    heatUnits = maxHU;
+    return;
     }
+
+  else if (heatUnits > finalHU)
+  {
+      heatUnits += heatUnitsAdded;
+
+  }
   else
     {
     doWater(data);
     doNitrogen();
     doFloralInduction(data);
+    doTempStress(data);
     findREG();
 
     heatUnits += heatUnitsAdded;
@@ -157,6 +173,11 @@ void BasePlant::calculate(const WeatherData& data, const double& albedo, const d
     partitionBiomass(potentialDeltaBiomass);
     }
   }
+
+double BasePlant::getInduction()
+{
+    return floralInductionUnits;
+}
 
 double BasePlant::getRequiredWater()
 {
@@ -206,9 +227,15 @@ void BasePlant::doNitrogen()
 
 void BasePlant::doFloralInduction(const WeatherData& data)
 {
-    if (heatUnits > floweringHU && heatUnits < finalHU)
+    if (heatUnits > floweringHU && heatUnits < endFloweringHU)
         floralInductionUnits += prop.flowerTempCurve.getValue((data.maxTemp + data.minTemp) / 2.0) * prop.nightLengthCurve.getValue(data.nightLength);
 
+}
+
+void BasePlant::doTempStress(const WeatherData& data)
+{
+    tempstress = prop.tempCurve.getValue((data.maxTemp + data.minTemp) / 2.0);
+   // tempstress = sin(3.1415 / 2.0 * tempstress);
 }
 
 void BasePlant::partitionBiomass(const double dBiomass)
@@ -260,6 +287,11 @@ void BasePlant::partitionBiomass(const double dBiomass)
     Biomass.stem += dBiomass * shoot;
     Biomass.storageOrgan += dBiomass * storage;
     Biomass.flowerAndfruits += dBiomass * fruit;
+
+
+    /// PEAS ONLY. FIX LATER
+    Biomass.flowerAndfruits += Biomass.storageOrgan;
+    Biomass.storageOrgan = 0;
 }
 
 double BasePlant::getWaterStressFactor()
@@ -399,9 +431,12 @@ std::string BasePlant::getName()
 
 
 
-void BasePlant::createSeeds()
+void BasePlant::createSeeds(const Month& date)
 {
     if (Biomass.flowerAndfruits < prop.averageFruitWeight)
+        return;
+
+    if (!canFlower())
         return;
 
     int numSeeds = Biomass.flowerAndfruits / prop.averageFruitWeight;
@@ -427,6 +462,8 @@ void BasePlant::createSeeds()
     for (int counter = 0; counter < numSeeds; counter++)
     {
         
-        seedlist.push_back(Seed(prop, 60, prop.averageFruitWeight + extraWeight * seedWeights[counter]));
+        seedlist.push_back(Seed(prop, date, 90, prop.averageFruitWeight + extraWeight * seedWeights[counter]));
     }
+
+    Biomass.flowerAndfruits = 0;
 }
