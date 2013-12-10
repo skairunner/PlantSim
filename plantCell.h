@@ -1,12 +1,12 @@
 #pragma once
 
 namespace ALMANAC
-  {
-  class PlantCell
+{
+    class PlantCell
     {
     public:
-      
+
     private:
-      double albedo;
+        double albedo;
     };
-  }
+}

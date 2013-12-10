@@ -9,50 +9,50 @@
 
 
 namespace ALMANAC
-  {
-  class SoilCell;  
+{
+    class SoilCell;
 
-  struct BiomassHolder
-  {
-      BiomassHolder();
-      BiomassHolder(double Stem, double Roots, double Storage, double Fruits);
-      double stem;
-      double roots;
-      double storageOrgan;
-      double flowerAndfruits;
-      double getBiomass() const;
-      operator double() const;
-  };
+    struct BiomassHolder
+    {
+        BiomassHolder();
+        BiomassHolder(double Stem, double Roots, double Storage, double Fruits);
+        double stem;
+        double roots;
+        double storageOrgan;
+        double flowerAndfruits;
+        double getBiomass() const;
+        operator double() const;
+    };
 
 
 
-  class BasePlant
+    class BasePlant
     {
     public:
-      BasePlant(SoilCell* soil = 0);
+        BasePlant(SoilCell* soil = 0);
 
-      std::string getName();
-      void calculate(const WeatherData& data, const double& albedo, const double radiation = -1); // plug in today's weather :v. CO2 is in ppm
-      void findREG(); // probably has params
-      double getHU(); // heat units
-      double findHUI(); // heat unit indx, basically % grown.
-      double calcHeight();
-      double calcRootDepth();
-      double getBiomass();
-      BiomassHolder getBiomassStruct();
-      double getLAI();
-      double getRequiredWater();
+        std::string getName();
+        void calculate(const WeatherData& data, const double& albedo, const double radiation = -1); // plug in today's weather :v. CO2 is in ppm
+        void findREG(); // probably has params
+        double getHU(); // heat units
+        double findHUI(); // heat unit indx, basically % grown.
+        double calcHeight();
+        double calcRootDepth();
+        double getBiomass();
+        BiomassHolder getBiomassStruct();
+        double getLAI();
+        double getRequiredWater();
 
-      double getREG();
+        double getREG();
 
-      double getNitrogen();
+        double getNitrogen();
 
-      double getInduction();
-      bool canFlower();
+        double getInduction();
+        bool canFlower();
 
-      void createSeeds(const Month& date);
+        void createSeeds(const Month& date);
 
-      std::vector<Seed> seedlist;
+        std::vector<Seed> seedlist;
 
     private:
         mt19937 rng;
@@ -60,55 +60,55 @@ namespace ALMANAC
 
         PlantProperties prop;
 
-      double previousHeatUnits, heatUnits;
-      double REG; // Stress factor. Has to be set elsewhere.
-      double requiredWater;
-      double suppliedWater;
+        double previousHeatUnits, heatUnits;
+        double REG; // Stress factor. Has to be set elsewhere.
+        double requiredWater;
+        double suppliedWater;
 
 
-      double currentWaterlogValue;
+        double currentWaterlogValue;
 
-      double height;
+        double height;
 
-      double LAI, prevLAI;      
+        double LAI, prevLAI;
 
-      double floralInductionUnits;
-      
-      static SCurve getSCurve(const bool dayNeutral, const bool longDayPlant, double minInduction, const double& optimalInductionNightLength);
+        double floralInductionUnits;
 
-      BiomassHolder Biomass;  // kg
+        static SCurve getSCurve(const bool dayNeutral, const bool longDayPlant, double minInduction, const double& optimalInductionNightLength);
 
-      double nitrogen; // kg/ha
+        BiomassHolder Biomass;  // kg
 
-      double flowerFactor; // % of flowering successfully done.
+        double nitrogen; // kg/ha
 
-      SoilCell* soilPatch;
+        double flowerFactor; // % of flowering successfully done.
 
-      double findHUF();
-      double findPreviousHUF();
-      double findPreviousHUI();
-      double findVPD(const double& averageTemp, const double& humidity);      
-      double findPsychometricConstant(const double& temperature = 2.0f); // AKA 'gamma'
-      double findSlopeOfSaturatedVaporCurve(const double& temperature);
-      double findNetRadiation(const double& radiation, const double& albedo); //aka h(0)
-      double findLatentHeat(const double& temperature);
-      double findOptimalNitrogenConcentration(); // currently a dummy function
-      double findRequiredNitrogen();
-      double barometricPressure(const double& altitude);
-      double getWaterStressFactor();
-      double getWaterlogStressFactor();
-      double getNitrogenStressFactor(); 
+        SoilCell* soilPatch;
 
-      double floweringHU;
-      double endFloweringHU;
-      double finalHU;
-      double maxHU;
+        double findHUF();
+        double findPreviousHUF();
+        double findPreviousHUI();
+        double findVPD(const double& averageTemp, const double& humidity);
+        double findPsychometricConstant(const double& temperature = 2.0f); // AKA 'gamma'
+        double findSlopeOfSaturatedVaporCurve(const double& temperature);
+        double findNetRadiation(const double& radiation, const double& albedo); //aka h(0)
+        double findLatentHeat(const double& temperature);
+        double findOptimalNitrogenConcentration(); // currently a dummy function
+        double findRequiredNitrogen();
+        double barometricPressure(const double& altitude);
+        double getWaterStressFactor();
+        double getWaterlogStressFactor();
+        double getNitrogenStressFactor();
 
-      void doWater(const WeatherData& data);
-      void doNitrogen();
-      void doFloralInduction(const WeatherData& data);
-      void partitionBiomass(const double dBiomass);
-      void doTempStress(const WeatherData& wd);
-      double tempstress;
+        double floweringHU;
+        double endFloweringHU;
+        double finalHU;
+        double maxHU;
+
+        void doWater(const WeatherData& data);
+        void doNitrogen();
+        void doFloralInduction(const WeatherData& data);
+        void partitionBiomass(const double dBiomass);
+        void doTempStress(const WeatherData& wd);
+        double tempstress;
     };
-  }
+}

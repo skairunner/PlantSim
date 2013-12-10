@@ -16,16 +16,16 @@ namespace ALMANAC
         PlantProperties pp;
 
         bool attemptGerminate(const WeatherData& wd);
-        
+
         bool germinated;
         int dormantDays;
-        
+
         double seedBiomass;
         double fruitBiomass; // for fleshy fruits like apples.
         Month date;
 
     protected:
-        
+
         Parabola germinationCurve;
         double germinationCounter;
 

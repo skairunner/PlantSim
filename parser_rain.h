@@ -6,91 +6,91 @@
 // Possible use as other parsers.
 
 namespace Parse
-  {
-  using namespace std;
+{
+    using namespace std;
 
-  class Parser
+    class Parser
     {
     public:
-      //Parser();
-      Parser(const string& filename);
-      bool load();
-      virtual vector<vector<double>> parse();
-      bool isLoaded();
+        //Parser();
+        Parser(const string& filename);
+        bool load();
+        virtual vector<vector<double>> parse();
+        bool isLoaded();
 
     protected:
-      bool loaded;
-      virtual vector<double> process(string& input); // Take a string, discard the first cell, then pack all cells except the final cell into a vector of floats.
-      //virtual void parseLogic();
+        bool loaded;
+        virtual vector<double> process(string& input); // Take a string, discard the first cell, then pack all cells except the final cell into a vector of floats.
+        //virtual void parseLogic();
 
-      vector<string> rawbuffer;
-     // string internalbuffer;
-      string fileName;
+        vector<string> rawbuffer;
+        // string internalbuffer;
+        string fileName;
     };
 
-  class Parser_RainyDays: public Parser
+    class Parser_RainyDays : public Parser
     {
     public:
-      Parser_RainyDays(const string& filename);
-     // virtual vector<vector<float>> parse();
-      vector<int> getResult();
+        Parser_RainyDays(const string& filename);
+        // virtual vector<vector<float>> parse();
+        vector<int> getResult();
 
     private:
-      virtual vector<double> process(string &input);
-      vector<int> result;
+        virtual vector<double> process(string &input);
+        vector<int> result;
     };
 
-  class StatisticsParser
+    class StatisticsParser
     {
     public:
-      void loadData(vector<vector<double>> & input); // Load a vector of all vectors of that month. Consolidates it.
-      void loadData(const vector<double>& input); // In case you only have one vector.
+        void loadData(vector<vector<double>> & input); // Load a vector of all vectors of that month. Consolidates it.
+        void loadData(const vector<double>& input); // In case you only have one vector.
 
 
-      ////
-      //// Accessors
-      ////
-      double getMean();
-      double getVariance();
-      double getSTDEV();
-      double getMedian();
-      double getSkew();
+        ////
+        //// Accessors
+        ////
+        double getMean();
+        double getVariance();
+        double getSTDEV();
+        double getMedian();
+        double getSkew();
 
     private:
-      double mean;
-      double median;
-      double standardDeviation;
-      double variance;
-      double skew;
+        double mean;
+        double median;
+        double standardDeviation;
+        double variance;
+        double skew;
 
-      double findMean();
-      double findVariance();
-      double findMedian();
-      double findSkew();
+        double findMean();
+        double findVariance();
+        double findMedian();
+        double findSkew();
 
-      vector<double> consolidated;
+        vector<double> consolidated;
     };
 
-  class outputColumn
+    class outputColumn
     {
     public:
-      void setfilename(const string& filename);     
-      void output(vector<double>& outputVector);
-      void outputRow(vector<double>& outputVector);
-      void clearFile();
+        void setfilename(const string& filename);
+        void output(vector<double>& outputVector);
+        void outputRow(vector<double>& outputVector);
+        void clearFile();
 
     private:
-      string file;
+        string file;
     };
 
-  class MonolithParse: public Parser // Parse a .monolith file that has STDEV information. Slightly different from .rain parsing.
+    class MonolithParse : public Parser // Parse a .monolith file that has STDEV information. Slightly different from .rain parsing.
     {
     public:
-      MonolithParse(const string& filename);
-      virtual vector<vector<double>> parse();
+        MonolithParse(const string& filename);
+        virtual vector<vector<double>> parse();
     private:
-      virtual vector<double> process(string& input);
+        virtual vector<double> process(string& input);
     };
 
-  enum stat{WINDVEL = 1, TEMPMAX, TEMPMIN, RAIN, HUMIDITY};
-  }
+    enum stat{ WINDVEL = 1, TEMPMAX, TEMPMIN, RAIN, HUMIDITY };
+}
