@@ -23,16 +23,7 @@ namespace ALMANAC
             year++;
         }
 
-        if (day > 0 && day < 31)
-        {
-            if (MONTH == FEBRUARY)
-            {
-                if (day < 29)
-                    date = day;
-            }
-            else
-                date = day;
-        }
+        date = day;
     }
 
     ostream& operator<< (ostream& os, const Month& month)
@@ -49,28 +40,24 @@ namespace ALMANAC
         for (; days > 0; days--)
         {
             date++;
-            // check for feb
-            /* if (MONTH == FEBRUARY){
-               if (date > 28)
-               {
-               MONTH++;
-               date = 1;
-               }}
-               else*/
 
-            if (MONTH != DECEMBER)
-            { // First check for non-December cases.
+            if (date == 31 && MONTH == DECEMBER)
+                date = date;
+
+            if (MONTH != DECEMBER) // First check for non-December cases.
+            {
                 if (date > 30)
                 {
                     date = 1;
                     MONTH++;
                 }
-            }
-            else
-            if (date > 30) // If it's both december and the date is over 30...
+            }            
+
+            else if (date > 30) // If it's both december and the date is over 30...
             {
                 date = 1;
                 MONTH = JANUARY;
+                year++;
             }
         }
 
