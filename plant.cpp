@@ -37,7 +37,7 @@ BiomassHolder::operator double() const
 
 BasePlant::BasePlant(SoilCell* soil)
 : Biomass(0.05, 0, 0, 0), LAI(0), prevLAI(0), previousHeatUnits(0), heatUnits(0), soilPatch(soil), requiredWater(1), suppliedWater(1), height(0)
-, currentWaterlogValue(0), nitrogen(0), floralInductionUnits(0), tempstress(1)
+, currentWaterlogValue(0), nitrogen(0), floralInductionUnits(0), tempstress(1), rootDepth(0)
 {
     prop.baseTemp = 5.0;
     prop.maxLAI = 3.3;
@@ -157,6 +157,7 @@ void BasePlant::calculate(const WeatherData& data, const double& albedo, const d
         prevLAI = LAI;
         LAI += deltaHUF * prop.maxLAI * (1 - exp(5.0f * (prevLAI - prop.maxLAI))) * sqrt(REG);
         height += deltaHUF * prop.maxHeight * sqrt(REG);
+        rootDepth += deltaHUF * prop.maxRootDepth * sqrt(REG);
 
         ///////////////////////
         double photoactiveRadiation;
@@ -238,7 +239,7 @@ void BasePlant::doFloralInduction(const WeatherData& data)
 void BasePlant::doTempStress(const WeatherData& data)
 {
     tempstress = prop.tempCurve.getValue((data.maxTemp + data.minTemp) / 2.0);
-    // tempstress = sin(3.1415 / 2.0 * tempstress);
+    //tempstress = sin(3.1415 / 2.0 * tempstress);
 }
 
 void BasePlant::partitionBiomass(const double dBiomass)
@@ -354,7 +355,8 @@ double BasePlant::calcHeight()
 
 double BasePlant::calcRootDepth()
 {
-    return prop.maxRootDepth * findHUI();
+ //   return prop.maxRootDepth * findHUI();
+    return rootDepth;
 }
 
 bool BasePlant::canFlower()

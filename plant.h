@@ -69,6 +69,7 @@ namespace ALMANAC
         double currentWaterlogValue;
 
         double height;
+        double rootDepth;
 
         double LAI, prevLAI;
 
