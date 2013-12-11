@@ -222,6 +222,7 @@
     <ClCompile Include="plant.cpp" />
     <ClCompile Include="seed.cpp" />
     <ClCompile Include="soilGrid.cpp" />
+    <ClCompile Include="testingSuite.cpp" />
     <ClCompile Include="vector3.cpp" />
     <ClCompile Include="soil.cpp" />
     <ClCompile Include="soilModel.cpp" />
@@ -240,6 +241,7 @@
     <ClInclude Include="plantproperties.h" />
     <ClInclude Include="seed.h" />
     <ClInclude Include="soilGrid.h" />
+    <ClInclude Include="testingSuite.h" />
     <ClInclude Include="vector3.h" />
     <ClInclude Include="rain_stats_holder.h" />
     <ClInclude Include="soil.h" />

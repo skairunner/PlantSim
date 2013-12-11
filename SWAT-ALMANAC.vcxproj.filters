@@ -57,6 +57,9 @@
     <ClCompile Include="seed.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="testingSuite.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Weather.h">
@@ -108,6 +111,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="plantproperties.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="testingSuite.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
