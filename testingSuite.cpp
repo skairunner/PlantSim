@@ -29,7 +29,7 @@ void Tests::perPlantingDates()
             soilg.stepPlants(WeatherCopy.getDataBundle());
         }
 
-        auto plant = soilg.ref(0, 0).plants.front();
+        auto plant = soilg.ref(0, 0).plants.back();
         batchFile << startDate << "\t" << plant.getBiomassStruct() << "\t" << plant.getBiomassStruct().flowerAndfruits << "\t";
 
         plant.createSeeds(WeatherCopy.getDataBundle().date);
@@ -45,9 +45,10 @@ void Tests::perPlantingDates()
     return;
 }
 
-void Tests::singlePlant()
+void Tests::singlePlant(const int daysToRun, Month startDate)
 {
     Weather WeatherModule(true);
+    WeatherModule.changeDate(MARCH, 25);
     SoilGrid sg(1, 1);
 
 
@@ -67,18 +68,18 @@ void Tests::singlePlant()
     //sg.addWaterSquare(0, 0, 1, 1, 50);
     sg.ref(0, 0).plants.push_back(BasePlant(&sg.ref(0, 0)));
 
-    sg.step(25);
+    sg.step(0, 25);
 
-    WeatherModule.changeDate(JANUARY, 12);
+    WeatherModule.changeDate(startDate);
 
-    for (int counter = 0; counter < 250; counter++)
+    for (int counter = 0; counter < daysToRun; counter++)
     {
         WeatherModule.step();
         sg.step(0, WeatherModule.getRainAmount());
         sg.stepPlants(WeatherModule.getDataBundle());
 
 
-        BasePlant plant = sg.ref(0, 0).plants.front();
+        BasePlant plant = sg.ref(0, 0).plants.back();
 
         //// output plant stats    
         file << WeatherModule.getMonth() << "\t" << plant.getHU() << "\t" << plant.calcHeight() << "\t" << plant.calcRootDepth() << "\t" << plant.getBiomass() * 1000 << "\t" << plant.getLAI() << "\t" << plant.getREG();
@@ -108,9 +109,9 @@ void Tests::singlePlant()
             << "\t" << plant.getInduction() << "\t" << plant.getHU() << "\n";
     }
 
-    sg.ref(0, 0).plants.front().createSeeds(WeatherModule.getMonth());
+    sg.ref(0, 0).plants.back().createSeeds(WeatherModule.getMonth());
 
-    auto seeds = sg.ref(0, 0).plants.front().seedlist;
+    auto seeds = sg.ref(0, 0).plants.back().seedlist;
 
     int seedcounter = 0;
     for (auto seed : seeds)
@@ -123,7 +124,7 @@ void Tests::singlePlant()
 
     /////
 
-    cout << sg.ref(0, 0).plants.front().getBiomass();
+    cout << sg.ref(0, 0).plants.back().getBiomass();
     cout << "\nDone.";
 
     cin.ignore(1);

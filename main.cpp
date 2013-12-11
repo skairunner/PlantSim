@@ -15,14 +15,13 @@ using namespace std;
 int main(int argc, char **argv)
 {
 
-    Tests::perPlantingDates();
+    /*Tests::perPlantingDates();
     return 0;
-
-    Tests::singlePlant();
+    */
+    Tests::singlePlant(360*10);
     return 0;
 
     /////
-
 
     DisplayEngine.Init(800, 640);
     DisplayEngine.Start();

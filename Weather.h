@@ -51,6 +51,7 @@ namespace ALMANAC
 
         Month getMonth();
         void changeDate(const int month, const int date);
+        void changeDate(Month& Date);
 
 
         double latitude; // radians

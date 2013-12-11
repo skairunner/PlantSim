@@ -37,7 +37,7 @@ BiomassHolder::operator double() const
 
 BasePlant::BasePlant(SoilCell* soil)
 : Biomass(0.05, 0, 0, 0), LAI(0), prevLAI(0), previousHeatUnits(0), heatUnits(0), soilPatch(soil), requiredWater(1), suppliedWater(1), height(0)
-, currentWaterlogValue(0), nitrogen(0), floralInductionUnits(0), tempstress(1), rootDepth(0)
+, currentWaterlogValue(0), nitrogen(0), floralInductionUnits(0), tempstress(1), rootDepth(0), dead(false)
 {
     prop.baseTemp = 5.0;
     prop.maxLAI = 3.3;
@@ -57,6 +57,7 @@ BasePlant::BasePlant(SoilCell* soil)
     prop.averageFruitWeight = 0.05; //
     prop.minGerminationTemp = 5.0;
     prop.optimalGerminationTemp = 17;
+    prop.germinationThermalUnits = 7;
     prop.optimalTemperature = 15.55;
     prop.tempCurve = Parabola(prop.optimalTemperature *0.5, prop.optimalTemperature, 1);
 
@@ -69,6 +70,24 @@ BasePlant::BasePlant(SoilCell* soil)
     nitrogen = findRequiredNitrogen();
 
     prop.nightLengthCurve = getSCurve(prop.dayNeutral, prop.longDayPlant, prop.minimumInduction, prop.criticalNightLength);
+
+    floweringHU = prop.growthStages[6];
+    endFloweringHU = prop.growthStages[7];
+    finalHU = prop.growthStages[9];
+    maxHU = prop.growthStages[10];
+
+    rng.seed(rand());
+}
+
+
+BasePlant::BasePlant(Seed seed, SoilCell* soil)
+: LAI(0), prevLAI(0), previousHeatUnits(0), heatUnits(0), soilPatch(soil), requiredWater(1), suppliedWater(1), height(0)
+, currentWaterlogValue(0), nitrogen(0), floralInductionUnits(0), tempstress(1), rootDepth(0), dead(false), REG(0)
+{
+    prop = seed.pp;
+    Biomass = BiomassHolder(seed.seedBiomass / 10.0, 0, 0, 0);
+
+    nitrogen = findRequiredNitrogen();
 
     floweringHU = prop.growthStages[6];
     endFloweringHU = prop.growthStages[7];
@@ -130,11 +149,17 @@ void BasePlant::calculate(const WeatherData& data, const double& albedo, const d
     previousHeatUnits = heatUnits;
 
 
+    if (isDead())
+    {
+        reduceStandingBiomass();
+    }
 
     if (heatUnitsAdded + heatUnits > maxHU && prop.isAnnual) // If adding HU will go over the limit,
     {
         heatUnitsAdded = 0;
         heatUnits = maxHU;
+        dead = true;
+        createSeeds(data.date);
         return;
     }
 
@@ -293,9 +318,11 @@ void BasePlant::partitionBiomass(const double dBiomass)
     Biomass.flowerAndfruits += dBiomass * fruit;
 
 
-    /// PEAS ONLY. FIX LATER
-    Biomass.flowerAndfruits += Biomass.storageOrgan;
-    Biomass.storageOrgan = 0;
+    if (prop.isAnnual)
+    {
+        Biomass.flowerAndfruits += Biomass.storageOrgan;
+        Biomass.storageOrgan = 0;
+    }    
 }
 
 double BasePlant::getWaterStressFactor()
@@ -434,7 +461,10 @@ std::string BasePlant::getName()
     return prop.name;
 }
 
-
+bool BasePlant::isDead()
+{
+    return dead;
+}
 
 void BasePlant::createSeeds(const Month& date)
 {
@@ -444,9 +474,9 @@ void BasePlant::createSeeds(const Month& date)
     if (!canFlower())
         return;
 
-    int numSeeds = Biomass.flowerAndfruits / prop.averageFruitWeight;
+    int numSeeds = Biomass.flowerAndfruits / prop.averageFruitWeight + 0.5;
 
-    double totalWeight = numSeeds * prop.averageFruitWeight;
+    double totalWeight =numSeeds * prop.averageFruitWeight;
 
     vector<double> seedWeights;
     double sum = 0;
@@ -467,8 +497,13 @@ void BasePlant::createSeeds(const Month& date)
     for (int counter = 0; counter < numSeeds; counter++)
     {
 
-        seedlist.push_back(Seed(prop, date, 90, prop.averageFruitWeight + extraWeight * seedWeights[counter]));
+        seedlist.push_back(Seed(prop, date, 100, prop.averageFruitWeight + extraWeight * seedWeights[counter]));
     }
 
     Biomass.flowerAndfruits = 0;
+}
+
+void BasePlant::reduceStandingBiomass()
+{
+
 }

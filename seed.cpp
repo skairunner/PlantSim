@@ -5,13 +5,13 @@
 using namespace ALMANAC;
 
 Seed::Seed()
-: germinated(false)
+: germinated(false), germinationCounter(0)
 {
 
 }
 
 Seed::Seed(const PlantProperties& PP, const Month& Date, const int& dormancy, const double& seed, const double fruit)
-: germinated(false)
+: germinated(false), germinationCounter(0)
 {
     pp = PP;
     seedBiomass = seed;
@@ -31,6 +31,8 @@ bool Seed::attemptGerminate(const WeatherData& wd)
         return false;
 
     germinationCounter += max(0.0, germinationCurve.getValue((wd.minTemp + wd.maxTemp) / 2.0));
+
+
     if (germinationCounter > pp.germinationThermalUnits)
         germinated = true;
 

@@ -35,7 +35,8 @@ namespace ALMANAC
 
         double biomassToVPD; // bc(3)
 
-        bool isAnnual; // limits HU to the maturity HUs.      
+        bool isAnnual; // limits HU to the maturity HUs.    
+
 
         double averageFruitWeight; // kg
     };

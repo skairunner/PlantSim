@@ -5,6 +5,7 @@
 #include <iostream>
 #include <cstdlib>
 #include "Weather.h"
+#include <iostream>
 
 using namespace ALMANAC;
 
@@ -259,11 +260,11 @@ void SoilGrid::stepPlants(const WeatherData& wd)
     {
         double total = 0;
 
+        // Run plant updatings
         for (auto plant = it->plants.begin(); plant < it->plants.end(); plant++)
         {
             total += plant->getLAI();
         }
-
         for (auto plant = it->plants.begin(); plant < it->plants.end(); plant++)
         {
             double radPortion;
@@ -273,7 +274,40 @@ void SoilGrid::stepPlants(const WeatherData& wd)
             else
                 radPortion = plant->getLAI() / total * wd.radiation;
             plant->calculate(wd, 0.25, radPortion);
+
+
+            // Collect seeds
+            if (plant->seedlist.size() > 0)
+            {
+                
+                /*for (Seed s : plant->seedlist)
+                {
+                    it->seeds.push_back(s);
+                }*/
+                // For testing purposes, only push back one seed.
+                it->seeds.push_back(plant->seedlist.front());
+
+                plant->seedlist.clear();
+            }
         }
+
+        // Run seeds.
+        for (Seed& seed : it->seeds)
+        {
+            if (seed.attemptGerminate(wd))
+                it->plants.push_back(BasePlant(seed, &(*it)));
+        }
+
+        for (int counter = 0; counter < it->seeds.size(); counter++)
+        {
+            if (it->seeds.at(counter).germinated)
+            {
+                it->seeds[counter] = it->seeds.back();
+                it->seeds.pop_back();
+                counter--;
+            }
+        }
+        
 
     }
 

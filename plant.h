@@ -30,6 +30,7 @@ namespace ALMANAC
     {
     public:
         BasePlant(SoilCell* soil = 0);
+        BasePlant(Seed seed, SoilCell* soil = 0);
 
         std::string getName();
         void calculate(const WeatherData& data, const double& albedo, const double radiation = -1); // plug in today's weather :v. CO2 is in ppm
@@ -49,16 +50,21 @@ namespace ALMANAC
 
         double getInduction();
         bool canFlower();
+        bool isDead();
 
         void createSeeds(const Month& date);
 
         std::vector<Seed> seedlist;
+
+        double deadBiomass;
 
     private:
         mt19937 rng;
         double random(double min = 0, double max = 1);
 
         PlantProperties prop;
+
+        bool dead;
 
         double previousHeatUnits, heatUnits;
         double REG; // Stress factor. Has to be set elsewhere.
@@ -94,7 +100,7 @@ namespace ALMANAC
         double findNetRadiation(const double& radiation, const double& albedo); //aka h(0)
         double findLatentHeat(const double& temperature);
         double findOptimalNitrogenConcentration(); // currently a dummy function
-        double findRequiredNitrogen();
+        double findRequiredNitrogen(); // finds the extra nitrogen the plant needs.
         double barometricPressure(const double& altitude);
         double getWaterStressFactor();
         double getWaterlogStressFactor();
@@ -110,6 +116,8 @@ namespace ALMANAC
         void doFloralInduction(const WeatherData& data);
         void partitionBiomass(const double dBiomass);
         void doTempStress(const WeatherData& wd);
+
+        void reduceStandingBiomass(); // = die off, for annual plants.
         double tempstress;
     };
 }

@@ -78,6 +78,11 @@ namespace ALMANAC
         currentMonth.setDate(date);
     }
 
+    void Weather::changeDate(Month& Date)
+    {
+        changeDate(Date.getMonth(), Date.getDate());
+    }
+
     double Weather::random(const double& min, const double& max)
     {
         boost::random::uniform_real_distribution<double> distribution(min, max);

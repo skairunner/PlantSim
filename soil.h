@@ -129,7 +129,8 @@ namespace ALMANAC
         void upwardsFlow();
 
         void scale(); // make sure that the water out doesn't exceed the total available water.
-        std::vector<SoilLayer> Layers;  // 0 is top, followed by 1 2 3 ...
+        std::vector<SoilLayer> Layers;  // 0 is top, followed by 1 2 3 ...'
+        
         int MooreDirection; // One vector for the whole cell. Follows the enum {Moore}.
         double baseHeight; // height excluding soil layers.
         double totalHeight;
