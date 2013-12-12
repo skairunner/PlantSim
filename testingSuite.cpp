@@ -93,7 +93,7 @@ void Tests::singlePlant(const int daysToRun, Month startDate)
         file << "\n";
 
         //// output nitrogen stats
-        Nfile << WeatherModule.getMonth() << "\t" << plant.getBiomass() << "\t" << plant.getNitrogen() << "\t" << WeatherModule.getRainAmount();
+        Nfile << WeatherModule.getMonth() << "\t" << plant.getBiomass()*1000 << "\t" << plant.getNitrogen() << "\t" << WeatherModule.getRainAmount();
         for (double val : sg.get(0, 0).inspectNitrates())
         {
             Nfile << "\t" << val;

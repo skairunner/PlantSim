@@ -258,13 +258,15 @@ void SoilGrid::stepPlants(const WeatherData& wd)
 {
     for (auto it = grid.begin(); it < grid.end(); it++)
     {
-        double total = 0;
+        double total = 0;        
 
         // Run plant updatings
         for (auto plant = it->plants.begin(); plant < it->plants.end(); plant++)
         {
-            total += plant->getLAI();
+            if (!plant->isDead())
+                total += plant->getLAI();
         }
+
         for (auto plant = it->plants.begin(); plant < it->plants.end(); plant++)
         {
             double radPortion;

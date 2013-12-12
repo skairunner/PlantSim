@@ -56,7 +56,7 @@ BasePlant::BasePlant(SoilCell* soil)
     prop.longDayPlant = true;
     prop.averageFruitWeight = 0.05; //
     prop.minGerminationTemp = 5.0;
-    prop.optimalGerminationTemp = 17;
+    prop.optimalGerminationTemp = 12;
     prop.germinationThermalUnits = 7;
     prop.optimalTemperature = 15.55;
     prop.tempCurve = Parabola(prop.optimalTemperature *0.5, prop.optimalTemperature, 1);
@@ -144,6 +144,9 @@ void BasePlant::calculate(const WeatherData& data, const double& albedo, const d
 {
     ///testc 
 
+    if (data.date.getMonth() == AUGUST && data.date.getDate() == 1 && data.date.getYear() == 2014)
+        cout << "hue";
+
     double heatUnitsAdded = (data.maxTemp + data.minTemp) / 2 - prop.baseTemp;
     heatUnitsAdded = heatUnitsAdded > 0 ? heatUnitsAdded : 0;
     previousHeatUnits = heatUnits;
@@ -152,6 +155,7 @@ void BasePlant::calculate(const WeatherData& data, const double& albedo, const d
     if (isDead())
     {
         reduceStandingBiomass();
+        return;
     }
 
     if (heatUnitsAdded + heatUnits > maxHU && prop.isAnnual) // If adding HU will go over the limit,
@@ -264,7 +268,7 @@ void BasePlant::doFloralInduction(const WeatherData& data)
 void BasePlant::doTempStress(const WeatherData& data)
 {
     tempstress = prop.tempCurve.getValue((data.maxTemp + data.minTemp) / 2.0);
-    //tempstress = sin(3.1415 / 2.0 * tempstress);
+    tempstress = sin(3.1415 / 2.0 * tempstress);
 }
 
 void BasePlant::partitionBiomass(const double dBiomass)
@@ -497,7 +501,7 @@ void BasePlant::createSeeds(const Month& date)
     for (int counter = 0; counter < numSeeds; counter++)
     {
 
-        seedlist.push_back(Seed(prop, date, 100, prop.averageFruitWeight + extraWeight * seedWeights[counter]));
+        seedlist.push_back(Seed(prop, date, 80, prop.averageFruitWeight + extraWeight * seedWeights[counter]));
     }
 
     Biomass.flowerAndfruits = 0;
