@@ -2441,7 +2441,13 @@ Value::asBool() const
    case booleanValue:
       return value_.bool_;
    case stringValue:
-
+       if (value_.string_)
+       {
+           if (value_.string_[0] == 'f' || value_.string_[0] == 'F')
+               return 0;
+           if (value_.string_[0] == 't' || value_.string_[0] == 'F')
+               return 1;
+       }
       return value_.string_  &&  value_.string_[0] != 0;
    case arrayValue:
    case objectValue:
