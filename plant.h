@@ -12,20 +12,6 @@ namespace ALMANAC
 {
     class SoilCell;
 
-    struct BiomassHolder
-    {
-        BiomassHolder();
-        BiomassHolder(double Stem, double Roots, double Storage, double Fruits);
-        double stem;
-        double roots;
-        double storageOrgan;
-        double flowerAndfruits;
-        double getBiomass() const;
-        operator double() const;
-    };
-
-
-
     class BasePlant
     {
     public:
@@ -41,7 +27,7 @@ namespace ALMANAC
         double calcRootDepth();
         double getBiomass();
         BiomassHolder getBiomassStruct();
-        double getLAI();
+        double getLAI(); // strictly for accessing the LAI of the plant.
         double getRequiredWater();
 
         double getREG();
@@ -57,6 +43,7 @@ namespace ALMANAC
         std::vector<Seed> seedlist;
 
         double deadBiomass;
+        double removedNitrogen;
 
     private:
         mt19937 rng;
@@ -78,12 +65,13 @@ namespace ALMANAC
         double rootDepth;
 
         double LAI, prevLAI;
+        double maxBiomass;
 
         double floralInductionUnits;
 
         static SCurve getSCurve(const bool dayNeutral, const bool longDayPlant, double minInduction, const double& optimalInductionNightLength);
 
-        BiomassHolder Biomass;  // kg
+        BiomassHolder Biomass;  // kg        
 
         double nitrogen; // kg/ha
 
@@ -117,7 +105,7 @@ namespace ALMANAC
         void partitionBiomass(const double dBiomass);
         void doTempStress(const WeatherData& wd);
 
-        void reduceStandingBiomass(); // = die off, for annual plants.
+        void reduceStandingBiomass(const WeatherData& data); // = die off, for annual plants.
         double tempstress;
     };
 }

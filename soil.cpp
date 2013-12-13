@@ -15,7 +15,7 @@ const double SoilLayer::soilWeight = 1200;
 
 SoilLayer::SoilLayer(const double& sandi, const double& clayi, const double& silti, const double& organicMatteri, unsigned int thickness)
 :sand(sandi), clay(clayi), silt(silti), organicMatter(organicMatteri), depth(thickness), isTopsoil(false), isAquifer(false)
-, water(0), nitrates(5.604), organicMatterWeight(50.4)
+, water(0), nitrates(5.604), organicMatterWeight(50.4), plantmatter(0)
 {
     properties = SOIL_MODELS::SoilModule::fetch(sand, silt, clay, organicMatter);
 

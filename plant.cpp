@@ -9,36 +9,17 @@ using namespace ALMANAC;
 
 
 
-BiomassHolder::BiomassHolder()
-{
-    stem = roots = storageOrgan = flowerAndfruits = 0;
-}
 
-BiomassHolder::BiomassHolder(double Stem, double Roots, double Storage, double Fruits)
-: stem(Stem), roots(Roots), storageOrgan(Storage), flowerAndfruits(Fruits)
-{
-
-}
-
-double BiomassHolder::getBiomass() const
-{
-    return flowerAndfruits + roots + stem + storageOrgan;
-}
-
-BiomassHolder::operator double() const
-{
-    return getBiomass();
-}
-
-//////////////
-//////////////
-//////////////
 
 
 BasePlant::BasePlant(SoilCell* soil)
 : Biomass(0.05, 0, 0, 0), LAI(0), prevLAI(0), previousHeatUnits(0), heatUnits(0), soilPatch(soil), requiredWater(1), suppliedWater(1), height(0)
-, currentWaterlogValue(0), nitrogen(0), floralInductionUnits(0), tempstress(1), rootDepth(0), dead(false)
+, currentWaterlogValue(0), nitrogen(0), floralInductionUnits(0), tempstress(1), rootDepth(0), dead(false), deadBiomass(0), maxBiomass(0), removedNitrogen(0)
 {
+    maxBiomass = Biomass;
+
+ 
+
     prop.baseTemp = 5.0;
     prop.maxLAI = 3.3;
     prop.maxRootDepth = 500;
@@ -48,7 +29,9 @@ BasePlant::BasePlant(SoilCell* soil)
     prop.biomassToVPD = 7;
     prop.isAnnual = true;
     prop.waterTolerence = 2;
-    prop.flowerTempCurve = Parabola(18, 24, 1);
+    prop.minFloweringTemp = 18;
+    prop.optimalFloweringTemp = 24;
+    prop.flowerTempCurve = Parabola(prop.minFloweringTemp, prop.optimalFloweringTemp, 1);
     prop.floralInductionUnitsRequired = 7.0;
     prop.dayNeutral = true;
     prop.minimumInduction = 0.1;
@@ -58,8 +41,22 @@ BasePlant::BasePlant(SoilCell* soil)
     prop.minGerminationTemp = 5.0;
     prop.optimalGerminationTemp = 12;
     prop.germinationThermalUnits = 7;
+    prop.minimumTemperature = 15.55 / 2.0;
     prop.optimalTemperature = 15.55;
-    prop.tempCurve = Parabola(prop.optimalTemperature *0.5, prop.optimalTemperature, 1);
+    prop.seedRatio = 1;
+    prop.tempCurve = Parabola(prop.minimumTemperature, prop.optimalTemperature, 1);
+    prop.dormancy = 80;
+
+    prop.startingNitrogenConcentration = 0.06;
+    prop.finalNitrogenConcentration = 0.01;
+    /*
+    prop.baseRatios = BiomassHolder(0.6, 0.4, 0, 0);
+    prop.fruitingRatios = BiomassHolder(0.6, 0.2, 0.1, 0.1);
+    prop.finalRatios = BiomassHolder(0.1, 0.1, 0.3, 0.5);*/ // defaults
+
+    prop.baseRatios =     BiomassHolder(0.6, 0.4, 0.0, 0.0);
+    prop.fruitingRatios = BiomassHolder(0.6, 0.2, 0.0, 0.2);
+    prop.finalRatios =    BiomassHolder(0.1, 0.1, 0.0, 0.8);
 
 
     prop.growthStages[6] = 800.0;
@@ -82,10 +79,11 @@ BasePlant::BasePlant(SoilCell* soil)
 
 BasePlant::BasePlant(Seed seed, SoilCell* soil)
 : LAI(0), prevLAI(0), previousHeatUnits(0), heatUnits(0), soilPatch(soil), requiredWater(1), suppliedWater(1), height(0)
-, currentWaterlogValue(0), nitrogen(0), floralInductionUnits(0), tempstress(1), rootDepth(0), dead(false), REG(0)
+, currentWaterlogValue(0), nitrogen(0), floralInductionUnits(0), tempstress(1), rootDepth(0), dead(false), REG(0), deadBiomass(0), removedNitrogen(0)
 {
     prop = seed.pp;
     Biomass = BiomassHolder(seed.seedBiomass / 10.0, 0, 0, 0);
+    maxBiomass = Biomass;
 
     nitrogen = findRequiredNitrogen();
 
@@ -144,9 +142,6 @@ void BasePlant::calculate(const WeatherData& data, const double& albedo, const d
 {
     ///testc 
 
-    if (data.date.getMonth() == AUGUST && data.date.getDate() == 1 && data.date.getYear() == 2014)
-        cout << "hue";
-
     double heatUnitsAdded = (data.maxTemp + data.minTemp) / 2 - prop.baseTemp;
     heatUnitsAdded = heatUnitsAdded > 0 ? heatUnitsAdded : 0;
     previousHeatUnits = heatUnits;
@@ -154,7 +149,7 @@ void BasePlant::calculate(const WeatherData& data, const double& albedo, const d
 
     if (isDead())
     {
-        reduceStandingBiomass();
+        reduceStandingBiomass(data);
         return;
     }
 
@@ -185,6 +180,7 @@ void BasePlant::calculate(const WeatherData& data, const double& albedo, const d
         double deltaHUF = findHUF() - findPreviousHUF();
         prevLAI = LAI;
         LAI += deltaHUF * prop.maxLAI * (1 - exp(5.0f * (prevLAI - prop.maxLAI))) * sqrt(REG);
+
         height += deltaHUF * prop.maxHeight * sqrt(REG);
         rootDepth += deltaHUF * prop.maxRootDepth * sqrt(REG);
 
@@ -194,7 +190,7 @@ void BasePlant::calculate(const WeatherData& data, const double& albedo, const d
             double photoactiveRadiation = 0.5 * data.radiation * (1 - exp(-0.65 * LAI));
         else
             photoactiveRadiation = radiation;
-
+     
         double potentialDeltaBiomass = 100 * prop.CO2CurveFactors.getValue(data.CO2); // BE*
         potentialDeltaBiomass = potentialDeltaBiomass - prop.biomassToVPD * (findVPD((data.maxTemp - data.minTemp) / 2.0f, data.humidity) - 1); // BE'
         potentialDeltaBiomass = 0.001f * potentialDeltaBiomass * photoactiveRadiation / 10.0f; //result is in kg / m^2  
@@ -204,6 +200,9 @@ void BasePlant::calculate(const WeatherData& data, const double& albedo, const d
 
         potentialDeltaBiomass *= REG;
         partitionBiomass(potentialDeltaBiomass);
+
+        if (maxBiomass < Biomass)
+            maxBiomass = Biomass;
     }
 }
 
@@ -268,7 +267,8 @@ void BasePlant::doFloralInduction(const WeatherData& data)
 void BasePlant::doTempStress(const WeatherData& data)
 {
     tempstress = prop.tempCurve.getValue((data.maxTemp + data.minTemp) / 2.0);
-    tempstress = sin(3.1415 / 2.0 * tempstress);
+
+    //tempstress = sin(3.1415 / 2.0 * tempstress);
 }
 
 void BasePlant::partitionBiomass(const double dBiomass)
@@ -277,20 +277,34 @@ void BasePlant::partitionBiomass(const double dBiomass)
 
     if (heatUnits < floweringHU)
     {
+        double ratio = heatUnits / floweringHU;
+        root = prop.baseRatios.roots * (1 - ratio) + prop.fruitingRatios.roots * ratio;
+        fruit = prop.baseRatios.flowerAndfruits * (1 - ratio) + prop.fruitingRatios.flowerAndfruits * ratio;
+        storage = prop.baseRatios.storageOrgan * (1 - ratio) + prop.fruitingRatios.storageOrgan * ratio;
+        shoot = prop.baseRatios.stem * (1 - ratio) + prop.fruitingRatios.stem * ratio;
+        /*
         root = 0.4 - 0.2 * heatUnits / floweringHU;
         fruit = 0 + 0.1 * heatUnits / floweringHU;
         storage = 0 + 0.1 * heatUnits / floweringHU;
-        shoot = 0.6;
+        shoot = 0.6;*/
     }
     else if (heatUnits < finalHU) // while flowering stage...
     {
-        double percentToFruiting = (heatUnits - floweringHU) / (finalHU - floweringHU);
-        root = 0.2 - 0.1 * percentToFruiting;
+        double ratio = (heatUnits - floweringHU) / (finalHU - floweringHU);
 
-        storage = 0.1 + 0.2 * percentToFruiting;
-        shoot = 0.6 - 0.3 * percentToFruiting;
+        root = prop.fruitingRatios.roots * (1 - ratio) + prop.finalRatios.roots * ratio;
+        fruit = prop.fruitingRatios.flowerAndfruits * (1 - ratio) + prop.finalRatios.flowerAndfruits * ratio;
+        storage = prop.fruitingRatios.storageOrgan * (1 - ratio) + prop.finalRatios.storageOrgan * ratio;
+        shoot = prop.fruitingRatios.stem * (1 - ratio) + prop.finalRatios.stem * ratio;
 
-        fruit = 0.1 + 0.4 * percentToFruiting;
+
+        /*root = 0.2 - 0.1 * ratio;
+
+        storage = 0.1 + 0.2 * ratio;
+        shoot = 0.6 - 0.5 * ratio;
+
+        fruit = 0.1 + 0.4 * ratio;*/
+
         if (!canFlower()) // if it's not able to flower, route all of the biomass into the other parts of the plant.
         {
             root += fruit / 3;
@@ -301,10 +315,11 @@ void BasePlant::partitionBiomass(const double dBiomass)
     }
     else
     {
-        root = 0.1;
-        fruit = 0.5;
-        storage = 0.3;
-        shoot = 0.3;
+        root = prop.finalRatios.roots;
+        fruit = prop.finalRatios.flowerAndfruits;
+        storage = prop.finalRatios.storageOrgan;
+        shoot = prop.finalRatios.stem;
+
         if (!canFlower())
         {
             root += fruit / 3;
@@ -322,11 +337,11 @@ void BasePlant::partitionBiomass(const double dBiomass)
     Biomass.flowerAndfruits += dBiomass * fruit;
 
 
-    if (prop.isAnnual)
+    /*if (prop.isAnnual)
     {
         Biomass.flowerAndfruits += Biomass.storageOrgan;
         Biomass.storageOrgan = 0;
-    }    
+    }    */
 }
 
 double BasePlant::getWaterStressFactor()
@@ -417,10 +432,12 @@ double BasePlant::findLatentHeat(const double& temperature)
     return 2.5f - 0.0022f * temperature;
 }
 
-// currently a dummy function
 double BasePlant::findOptimalNitrogenConcentration()
 {
-    double temp = 0.01;
+    // Interpolates between start and final, with it reaching final values before flowering HU
+    double ratio = min(1.0, heatUnits / floweringHU);
+    
+    double temp =  (1 - ratio) * prop.startingNitrogenConcentration + ratio * prop.finalNitrogenConcentration;
     return temp;
 }
 
@@ -442,7 +459,10 @@ double BasePlant::getBiomass()
 
 double BasePlant::getLAI()
 {
-    return LAI;
+    double mod = Biomass / maxBiomass;
+    if (mod != mod)
+        mod = 0;
+    return LAI * mod;
 }
 
 double BasePlant::getHU()
@@ -480,7 +500,7 @@ void BasePlant::createSeeds(const Month& date)
 
     int numSeeds = Biomass.flowerAndfruits / prop.averageFruitWeight + 0.5;
 
-    double totalWeight =numSeeds * prop.averageFruitWeight;
+    double totalWeight = numSeeds * prop.averageFruitWeight;
 
     vector<double> seedWeights;
     double sum = 0;
@@ -500,14 +520,33 @@ void BasePlant::createSeeds(const Month& date)
 
     for (int counter = 0; counter < numSeeds; counter++)
     {
+        double fruitWeight = prop.averageFruitWeight + extraWeight * seedWeights[counter];
+        double seedWeight = fruitWeight * prop.seedRatio;
+        fruitWeight -= seedWeight;
 
-        seedlist.push_back(Seed(prop, date, 80, prop.averageFruitWeight + extraWeight * seedWeights[counter]));
+        seedlist.push_back(Seed(prop, date, prop.dormancy, seedWeight, fruitWeight));
     }
 
     Biomass.flowerAndfruits = 0;
 }
 
-void BasePlant::reduceStandingBiomass()
+void BasePlant::reduceStandingBiomass(const WeatherData& data)
 {
+    double less = 0;
+    double temp = data.maxTemp + data.minTemp;
+    temp /= 2;
+    
+    less = 0.95;
+    deadBiomass += Biomass * (1 - less);
+    removedNitrogen += nitrogen * (1- less);
 
+    Biomass.flowerAndfruits *= less;
+    Biomass.roots *= less;
+    Biomass.stem *= less;
+    Biomass.storageOrgan *= less;
+
+    if (Biomass < 0.01)
+    {
+        Biomass.flowerAndfruits = Biomass.roots = Biomass.stem = Biomass.storageOrgan = 0;
+    }
 }

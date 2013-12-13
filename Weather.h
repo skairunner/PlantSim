@@ -14,7 +14,7 @@ namespace ALMANAC
     {
         WeatherData();
         WeatherData(const double& MaxTemp, const double& MinTemp, const double& Radiation, const double& CO2ppm, const double& Humidity, const double& MeanWindSpeed);
-        double maxTemp, minTemp, radiation, CO2, humidity, meanWindSpeed;
+        double maxTemp, minTemp, radiation, CO2, humidity, meanWindSpeed, precipitation;
         double nightLength;
 
         Month date;

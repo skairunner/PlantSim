@@ -25,7 +25,7 @@ void Tests::perPlantingDates()
         for (int counter2 = 0; counter2 < 250; counter2++)
         {
             WeatherCopy.step();
-            soilg.step((WeatherCopy.getMaxTemp() + WeatherCopy.getMinTemp()) / 2.0, WeatherCopy.getRainAmount());
+            soilg.step(WeatherCopy.getDataBundle());
             soilg.stepPlants(WeatherCopy.getDataBundle());
         }
 
@@ -64,18 +64,21 @@ void Tests::singlePlant(const int daysToRun, Month startDate)
     PlantPartFile.open("plantparts.txt", fstream::out | fstream::trunc);
     PlantPartFile << "Date\tTemp\tRoot\tStem\tStorage\tFruit\tTotal\tHUF\tFloral induction\n";
 
+    
+
     //sg.ref(0, 0).requestWater(1000, 0);
     //sg.addWaterSquare(0, 0, 1, 1, 50);
     sg.ref(0, 0).plants.push_back(BasePlant(&sg.ref(0, 0)));
 
-    sg.step(0, 25);
+    
 
     WeatherModule.changeDate(startDate);
+    sg.step(WeatherModule.getDataBundle());
 
     for (int counter = 0; counter < daysToRun; counter++)
     {
         WeatherModule.step();
-        sg.step(0, WeatherModule.getRainAmount());
+        sg.step(WeatherModule.getDataBundle());
         sg.stepPlants(WeatherModule.getDataBundle());
 
 

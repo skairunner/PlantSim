@@ -238,13 +238,18 @@ void SoilGrid::doLateralForEachCell()
     }
 }
 
-void SoilGrid::step(const double temp, const double& rainfall)
+void SoilGrid::step(const WeatherData& wd)
 {
+    double rainfall = wd.precipitation;
+    double temp = (wd.maxTemp + wd.minTemp) / 2.0;
+
+
     if (rainfall > 0)
     for (auto it = grid.begin(); it < grid.end(); it++)
         it->addNitrogenToTop(0.0219 * rainfall);
     // it->addNitrogenToTop(0.1 * rainfall);
 
+    
     for (auto it = grid.begin(); it < grid.end(); it++)
     {
         it->surfaceWater += rainfall;
@@ -263,7 +268,7 @@ void SoilGrid::stepPlants(const WeatherData& wd)
         // Run plant updatings
         for (auto plant = it->plants.begin(); plant < it->plants.end(); plant++)
         {
-            if (!plant->isDead())
+            //if (!plant->isDead())
                 total += plant->getLAI();
         }
 
@@ -290,6 +295,15 @@ void SoilGrid::stepPlants(const WeatherData& wd)
                 it->seeds.push_back(plant->seedlist.front());
 
                 plant->seedlist.clear();
+            }
+
+            // Collect dead matter.
+            if (plant->deadBiomass > 0)
+            {
+                it->Layers.front().nitrates += plant->removedNitrogen;
+                it->Layers.front().plantmatter += plant->deadBiomass;
+
+                plant->deadBiomass = plant->removedNitrogen = 0;
             }
         }
 

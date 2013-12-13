@@ -60,6 +60,7 @@ namespace ALMANAC
         wd.meanWindSpeed = 0;
         wd.nightLength = getNightLength();
         wd.date = currentMonth;
+        wd.precipitation = getRainAmount();
 
         return wd;
     }

@@ -13,6 +13,7 @@ namespace ALMANAC
     class SoilFactory;
     class transferWater;
     class SoilCell;
+    class SoilGrid;
 
     struct soiltuple
     {
@@ -25,6 +26,7 @@ namespace ALMANAC
     public:
         friend class SoilFactory;
         friend class SoilCell;
+        friend class SoilGrid;
         friend class transferWater;
 
         void addWater(const double& addwater);
@@ -66,6 +68,7 @@ namespace ALMANAC
 
         double sand, clay, silt, organicMatter; // this organic matter is the % of the soil. 
         double organicMatterWeight;  // kg / ha
+        double plantmatter; // kg / m^2
 
 
         SoilProperties properties;
@@ -92,6 +95,7 @@ namespace ALMANAC
     public:
         friend class transferWater;
         friend class SoilFactory;
+        friend class SoilGrid;
 
         SoilCell();
 
