@@ -1,4 +1,5 @@
 #include "testingSuite.h"
+#include "plantDictionary.h"
 
 using namespace ALMANAC;
 
@@ -48,7 +49,6 @@ void Tests::perPlantingDates()
 void Tests::singlePlant(const int daysToRun, Month startDate)
 {
     Weather WeatherModule(true);
-    WeatherModule.changeDate(MARCH, 25);
     SoilGrid sg(1, 1);
 
 
@@ -68,6 +68,9 @@ void Tests::singlePlant(const int daysToRun, Month startDate)
 
     //sg.ref(0, 0).requestWater(1000, 0);
     //sg.addWaterSquare(0, 0, 1, 1, 50);
+
+
+    //sg.ref(0, 0).plants.push_back(BasePlant(PD.getPlant("Pea"), &sg.ref(0, 0)));
     sg.ref(0, 0).plants.push_back(BasePlant(&sg.ref(0, 0)));
 
     

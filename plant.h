@@ -17,6 +17,7 @@ namespace ALMANAC
     public:
         BasePlant(SoilCell* soil = 0);
         BasePlant(Seed seed, SoilCell* soil = 0);
+        BasePlant(PlantProperties plantprop, SoilCell* soil = 0);
 
         std::string getName();
         void calculate(const WeatherData& data, const double& albedo, const double radiation = -1); // plug in today's weather :v. CO2 is in ppm

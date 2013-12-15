@@ -69,6 +69,9 @@
     <ClCompile Include="jsoncpp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="plantDictionary.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Weather.h">
@@ -130,6 +133,9 @@
     </ClInclude>
     <ClInclude Include="json\json-forwards.h">
       <Filter>Header Files\json</Filter>
+    </ClInclude>
+    <ClInclude Include="plantDictionary.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

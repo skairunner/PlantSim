@@ -8,17 +8,25 @@
 #include <fstream>
 #include "testingSuite.h"
 
+#include "plantDictionary.h"
+
 using namespace ALMANAC;
 using namespace std;
 
 
 int main(int argc, char **argv)
 {
-
+    PD.init();
     /*Tests::perPlantingDates();
-    return 0;
-    */
+    return 0;*/
+    
+    BasePlant p1;
+    BasePlant p2 = BasePlant(PD.getPlant("Pea"));
+
+
+
     Tests::singlePlant(360*10);
+    cin.ignore(0);
     return 0;
 
     /////

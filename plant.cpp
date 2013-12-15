@@ -33,7 +33,7 @@ BasePlant::BasePlant(SoilCell* soil)
     prop.optimalFloweringTemp = 24;
     prop.flowerTempCurve = Parabola(prop.minFloweringTemp, prop.optimalFloweringTemp, 1);
     prop.floralInductionUnitsRequired = 7.0;
-    prop.dayNeutral = true;
+    prop.dayNeutral = false;
     prop.minimumInduction = 0.1;
     prop.criticalNightLength = 12;
     prop.longDayPlant = true;
@@ -76,6 +76,24 @@ BasePlant::BasePlant(SoilCell* soil)
     rng.seed(rand());
 }
 
+BasePlant::BasePlant(PlantProperties plantprop, SoilCell* soil)
+: LAI(0), prevLAI(0), previousHeatUnits(0), heatUnits(0), soilPatch(soil), requiredWater(1), suppliedWater(1), height(0)
+, currentWaterlogValue(0), nitrogen(0), floralInductionUnits(0), tempstress(1), rootDepth(0), dead(false), REG(0), deadBiomass(0), removedNitrogen(0)
+{
+    prop = plantprop;
+    Biomass = BiomassHolder(prop.averageFruitWeight * prop.seedRatio / 10, 0, 0, 0);
+    maxBiomass = Biomass;
+
+    nitrogen = findRequiredNitrogen();
+
+    floweringHU = prop.growthStages[6];
+    endFloweringHU = prop.growthStages[7];
+    finalHU = prop.growthStages[9];
+    maxHU = prop.growthStages[10];
+    prop.nightLengthCurve = getSCurve(prop.dayNeutral, prop.longDayPlant, prop.minimumInduction, prop.criticalNightLength);
+
+    rng.seed(rand());
+}
 
 BasePlant::BasePlant(Seed seed, SoilCell* soil)
 : LAI(0), prevLAI(0), previousHeatUnits(0), heatUnits(0), soilPatch(soil), requiredWater(1), suppliedWater(1), height(0)
@@ -141,6 +159,9 @@ void BasePlant::findREG()
 void BasePlant::calculate(const WeatherData& data, const double& albedo, const double radiation)
 {
     ///testc 
+
+    if (data.date.getMonth() == MARCH && data.date.getDate() == 13)
+        bool stuff = albedo == albedo;
 
     double heatUnitsAdded = (data.maxTemp + data.minTemp) / 2 - prop.baseTemp;
     heatUnitsAdded = heatUnitsAdded > 0 ? heatUnitsAdded : 0;
@@ -267,7 +288,6 @@ void BasePlant::doFloralInduction(const WeatherData& data)
 void BasePlant::doTempStress(const WeatherData& data)
 {
     tempstress = prop.tempCurve.getValue((data.maxTemp + data.minTemp) / 2.0);
-
     //tempstress = sin(3.1415 / 2.0 * tempstress);
 }
 
