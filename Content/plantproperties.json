@@ -1,0 +1,98 @@
+[
+	{
+		"name" : "Pea",
+		"annual" : "TRUE",
+		"maxLAI" : 3.3,
+		"stage 6" : 800,
+		"stage 7" : 1093,
+		"stage 9" : 1686,
+		"stage 10" : 1800,
+		"base temp" : 0,
+		"water tolerence" : 2,
+		"max height" : 1000,
+		"max root depth" : 500,
+		"starting nitrogen" : 0.06,
+		"final nitrogen" : 0.01,
+		"day neutral" : "FALSE",
+		"flowering min temp" : 18,
+		"flowering optimal temp" : 24,
+		"floral induction units" : 7,
+		"long day" : "TRUE",
+		"minimum induction" : 0.1,
+		"critical night length" : 12,
+		"min growth temp" : 7.775,
+		"optimal growth temp" : 15.55,
+		"base" : {
+			"stem" : 0.6,
+			"root" : 0.4,
+			"storage" : 0,
+			"fruit" : 0
+			},
+		"flowering" : {
+			"stem" : 0.6,
+			"root" : 0.2,
+			"storage" : 0,
+			"fruit" : 0.2
+			},
+		"final" : {
+			"stem" : 0.1,
+			"root" : 0.1,
+			"storage" : 0,
+			"fruit" : 0.8
+			},
+		"germination min temp" : 5,
+		"germination optimal temp" : 12,
+		"germination thermal units" : 7,
+		"average fruit weight" : 0.05,
+		"seed ratio" : 1,
+		"dormancy" : 80
+	},
+	{
+		"name" : "Snowbird Snowpea",
+		"annual" : "TRUE",
+		"maxLAI" : 3.3,
+		"stage 6" : 800,
+		"stage 7" : 1093,
+		"stage 9" : 1686,
+		"stage 10" : 1800,
+		"base temp" : 5,
+		"water tolerence" : 2,
+		"max height" : 610,
+		"max root depth" : 500,
+		"starting nitrogen" : 0.06,
+		"final nitrogen" : 0.01,
+		"day neutral" : "FALSE",
+		"flowering min temp" : 18,
+		"flowering optimal temp" : 24,
+		"floral induction units" : 7,
+		"long day" : "TRUE",
+		"minimum induction" : 0.1,
+		"critical night length" : 12,
+		"min growth temp" : 7.775,
+		"optimal growth temp" : 15.55,
+		"base" : {
+			"stem" : 0.6,
+			"root" : 0.4,
+			"storage" : 0,
+			"fruit" : 0
+			},
+		"flowering" : {
+			"stem" : 0.6,
+			"root" : 0.2,
+			"storage" : 0,
+			"fruit" : 0.2
+			},
+		"final" : {
+			"stem" : 0.1,
+			"root" : 0.1,
+			"storage" : 0,
+			"fruit" : 0.8
+			},
+		"germination min temp" : 5,
+		"germination optimal temp" : 12,
+		"germination thermal units" : 7,
+		"average fruit weight" : 0.05,
+		"seed ratio" : 1,
+		"dormancy" : 80
+	}
+]

@@ -33,16 +33,16 @@ BasePlant::BasePlant(SoilCell* soil)
     prop.optimalFloweringTemp = 24;
     prop.flowerTempCurve = Parabola(prop.minFloweringTemp, prop.optimalFloweringTemp, 1);
     prop.floralInductionUnitsRequired = 7.0;
-    prop.dayNeutral = true;
+    prop.dayNeutral = false;
     prop.minimumInduction = 0.1;
-    prop.criticalNightLength = 12;
+    prop.criticalNightLength = 10;
     prop.longDayPlant = true;
     prop.averageFruitWeight = 0.05; //
     prop.minGerminationTemp = 5.0;
     prop.optimalGerminationTemp = 12;
     prop.germinationThermalUnits = 7;
-    prop.minimumTemperature = 15.55 / 2.0;
-    prop.optimalTemperature = 15.55;
+    prop.minimumTemperature = 7.55;
+    prop.optimalTemperature = 23.55;
     prop.seedRatio = 1;
     prop.tempCurve = Parabola(prop.minimumTemperature, prop.optimalTemperature, 1);
     prop.dormancy = 80;
@@ -76,6 +76,24 @@ BasePlant::BasePlant(SoilCell* soil)
     rng.seed(rand());
 }
 
+BasePlant::BasePlant(PlantProperties plantprop, SoilCell* soil)
+: LAI(0), prevLAI(0), previousHeatUnits(0), heatUnits(0), soilPatch(soil), requiredWater(1), suppliedWater(1), height(0)
+, currentWaterlogValue(0), nitrogen(0), floralInductionUnits(0), tempstress(1), rootDepth(0), dead(false), REG(0), deadBiomass(0), removedNitrogen(0)
+{
+    prop = plantprop;
+    Biomass = BiomassHolder(prop.averageFruitWeight * prop.seedRatio / 10, 0, 0, 0);
+    maxBiomass = Biomass;
+
+    nitrogen = findRequiredNitrogen();
+
+    floweringHU = prop.growthStages[6];
+    endFloweringHU = prop.growthStages[7];
+    finalHU = prop.growthStages[9];
+    maxHU = prop.growthStages[10];
+    prop.nightLengthCurve = getSCurve(prop.dayNeutral, prop.longDayPlant, prop.minimumInduction, prop.criticalNightLength);
+
+    rng.seed(rand());
+}
 
 BasePlant::BasePlant(Seed seed, SoilCell* soil)
 : LAI(0), prevLAI(0), previousHeatUnits(0), heatUnits(0), soilPatch(soil), requiredWater(1), suppliedWater(1), height(0)
@@ -122,7 +140,7 @@ SCurve BasePlant::getSCurve(const bool dayNeutral, const bool longDayPlant, doub
     s = 4.0;
     h = optimalInductionNightLength;
 
-    if (!longDayPlant)
+    if (longDayPlant)
         s *= -1;
 
     return SCurve(v, s, h, y);
@@ -141,6 +159,9 @@ void BasePlant::findREG()
 void BasePlant::calculate(const WeatherData& data, const double& albedo, const double radiation)
 {
     ///testc 
+
+    if (data.date.getMonth() == MARCH && data.date.getDate() == 13)
+        bool stuff = albedo == albedo;
 
     double heatUnitsAdded = (data.maxTemp + data.minTemp) / 2 - prop.baseTemp;
     heatUnitsAdded = heatUnitsAdded > 0 ? heatUnitsAdded : 0;
@@ -259,15 +280,14 @@ void BasePlant::doNitrogen()
 
 void BasePlant::doFloralInduction(const WeatherData& data)
 {
-    if (heatUnits > floweringHU && heatUnits < endFloweringHU)
-        floralInductionUnits += prop.flowerTempCurve.getValue((data.maxTemp + data.minTemp) / 2.0) * prop.nightLengthCurve.getValue(data.nightLength);
+    if (heatUnits > maxHU * 0.2 /*floweringHU*/ && heatUnits < endFloweringHU)
+        floralInductionUnits += max(0.0, prop.flowerTempCurve.getValue((data.maxTemp + data.minTemp) / 2.0) /** prop.nightLengthCurve.getValue(data.nightLength)*/);
 
 }
 
 void BasePlant::doTempStress(const WeatherData& data)
 {
     tempstress = prop.tempCurve.getValue((data.maxTemp + data.minTemp) / 2.0);
-
     //tempstress = sin(3.1415 / 2.0 * tempstress);
 }
 
