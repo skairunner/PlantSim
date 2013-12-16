@@ -62,7 +62,7 @@ void Tests::singlePlant(const int daysToRun, Month startDate)
 
     fstream PlantPartFile;
     PlantPartFile.open("plantparts.txt", fstream::out | fstream::trunc);
-    PlantPartFile << "Date\tTemp\tRoot\tStem\tStorage\tFruit\tTotal\tHUF\tFloral induction\n";
+    PlantPartFile << "Date\tTemp\tRoot\tStem\tStorage\tFruit\tTotal\tNight length\tFloral induction\n";
 
     
 
@@ -111,7 +111,7 @@ void Tests::singlePlant(const int daysToRun, Month startDate)
         //// output biomass per plant part
         BiomassHolder biomass = plant.getBiomassStruct();
         PlantPartFile << WeatherModule.getMonth() << "\t" << (WeatherModule.getMaxTemp() + WeatherModule.getMinTemp()) / 2.0 << "\t" << biomass.roots
-            << "\t" << biomass.stem << "\t" << biomass.storageOrgan << "\t" << biomass.flowerAndfruits << "\t" << biomass << "\t" << plant.findHUI()
+            << "\t" << biomass.stem << "\t" << biomass.storageOrgan << "\t" << biomass.flowerAndfruits << "\t" << biomass << "\t" << WeatherModule.getDataBundle().nightLength
             << "\t" << plant.getInduction() << "\t" << plant.getHU() << "\n";
     }
 

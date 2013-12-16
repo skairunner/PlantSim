@@ -13,7 +13,7 @@ namespace ALMANAC
     {
     public:
         static void perPlantingDates(); // Runs the simulation for each plant, changing the start sim day by one day for the whole year.
-        static void singlePlant(const int daysToRun = 250, Month startDate = Month(JANUARY, 12));
+        static void singlePlant(const int daysToRun = 250, Month startDate = Month(APRIL, 12));
     };
     
 }
