@@ -28,6 +28,7 @@ BasePlant::BasePlant(SoilCell* soil)
     prop.CO2CurveFactors = SCurve(0.1, 0.04, 49);
     prop.biomassToVPD = 7;
     prop.isAnnual = true;
+    prop.isTree = false;
     prop.waterTolerence = 2;
     prop.minFloweringTemp = 18;
     prop.optimalFloweringTemp = 24;
@@ -183,10 +184,39 @@ void BasePlant::calculate(const WeatherData& data, const double& albedo, const d
         return;
     }
 
-    else if (heatUnits > finalHU)
+    const double tolerence = 0.00005; // plants less than 1 gram are proclaimed to be dead.
+
+    if (isDormant()) // for decreasing standing biomass.
+    {
+        if (!prop.isTree) // current dummy function.
+        {
+            height *= .998;
+            rootDepth *= .998;
+
+            if (Biomass < tolerence)
+                dead = true;
+            else if (Biomass - Biomass.storageOrgan > tolerence) // there are other parts of the plant left
+            {
+                // consume said parts
+                Biomass.flowerAndfruits *= 0.995;
+                Biomass.roots           *= 0.998;
+                Biomass.stem            *= 0.995;
+            }
+            else
+            {
+
+            } // otherwise consume the storage organ
+            {
+                Biomass.storageOrgan *= 0.995;
+            }
+        }
+
+    }
+    
+
+    if (heatUnits > finalHU)
     {
         heatUnits += heatUnitsAdded;
-
     }
     else
     {
@@ -212,6 +242,7 @@ void BasePlant::calculate(const WeatherData& data, const double& albedo, const d
         else
             photoactiveRadiation = radiation;
      
+        prop.biomassToVPD = 7;
         double potentialDeltaBiomass = 100 * prop.CO2CurveFactors.getValue(data.CO2); // BE*
         potentialDeltaBiomass = potentialDeltaBiomass - prop.biomassToVPD * (findVPD((data.maxTemp - data.minTemp) / 2.0f, data.humidity) - 1); // BE'
         potentialDeltaBiomass = 0.001f * potentialDeltaBiomass * photoactiveRadiation / 10.0f; //result is in kg / m^2  
@@ -508,6 +539,16 @@ std::string BasePlant::getName()
 bool BasePlant::isDead()
 {
     return dead;
+}
+
+bool BasePlant::isDormant()
+{
+    if (!prop.isAnnual && heatUnits > maxHU)
+        return true;
+    if (tempstress < 0.001)
+        return true;
+
+    return false;
 }
 
 void BasePlant::createSeeds(const Month& date)

@@ -34,6 +34,7 @@ void PlantDictionary::init()
 
         pp.name = plant["name"].asString();
         pp.isAnnual = plant["annual"].asBool();
+        pp.isTree = false;
         pp.maxLAI = plant["maxLAI"].asDouble();
         pp.growthStages[6] = plant["stage 6"].asDouble();
         pp.growthStages[7] = plant["stage 7"].asDouble();

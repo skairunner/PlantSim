@@ -19,13 +19,10 @@ int main(int argc, char **argv)
     PD.init();
     /*Tests::perPlantingDates();
     return 0;*/
-    
-    BasePlant p1;
-    BasePlant p2 = BasePlant(PD.getPlant("Pea"));
 
 
-
-    Tests::singlePlant(360*10);
+    Tests::singlePlant(360 * 10, "Pea", Month(AUGUST, 10));
+    //Tests::singlePlant(360*10, "Cabbage");
     cin.ignore(0);
     return 0;
 

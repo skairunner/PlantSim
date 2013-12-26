@@ -62,6 +62,7 @@ namespace ALMANAC
         double biomassToVPD; // bc(3), =7
 
         bool isAnnual; // limits HU to the maturity HUs.    
+        bool isTree;
 
 
 

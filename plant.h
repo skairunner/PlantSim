@@ -38,6 +38,7 @@ namespace ALMANAC
         double getInduction();
         bool canFlower();
         bool isDead();
+        bool isDormant();
 
         void createSeeds(const Month& date);
 

@@ -46,7 +46,7 @@ void Tests::perPlantingDates()
     return;
 }
 
-void Tests::singlePlant(const int daysToRun, Month startDate)
+void Tests::singlePlant(const int daysToRun, const std::string& plantname, Month startDate)
 {
     Weather WeatherModule(true);
     SoilGrid sg(1, 1);
@@ -70,8 +70,8 @@ void Tests::singlePlant(const int daysToRun, Month startDate)
     //sg.addWaterSquare(0, 0, 1, 1, 50);
 
 
-    //sg.ref(0, 0).plants.push_back(BasePlant(PD.getPlant("Pea"), &sg.ref(0, 0)));
-    sg.ref(0, 0).plants.push_back(BasePlant(&sg.ref(0, 0)));
+    sg.ref(0, 0).plants.push_back(BasePlant(PD.getPlant(plantname), &sg.ref(0, 0)));
+    //sg.ref(0, 0).plants.push_back(BasePlant(&sg.ref(0, 0)));
 
     
 
