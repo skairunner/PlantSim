@@ -40,6 +40,10 @@ namespace ALMANAC
         BiomassHolder fruitingRatios;
         BiomassHolder finalRatios;
 
+        double dormantHeightDecrease;
+        double dormantRootDecrease;
+        BiomassHolder dormantBiomassDecrease;
+
         double minimumTemperature;
         double optimalTemperature;
 

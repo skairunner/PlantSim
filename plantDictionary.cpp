@@ -47,15 +47,52 @@ void PlantDictionary::init()
         pp.startingNitrogenConcentration = plant["starting nitrogen"].asDouble();
         pp.finalNitrogenConcentration = plant["final nitrogen"].asDouble();
         pp.dayNeutral = plant["day neutral"].asBool();
-        double min = plant["flowering min temp"].asDouble();
-        double opt = plant["flowering optimal temp"].asDouble();
-        pp.minFloweringTemp = min;
-        pp.optimalFloweringTemp = opt;
-        pp.flowerTempCurve = Parabola(min, opt, 1);
-        pp.floralInductionUnitsRequired = plant["floral induction units"].asDouble();
-        pp.longDayPlant = plant["long day"].asBool();
-        pp.minimumInduction = plant["minimum induction"].asDouble();
-        pp.criticalNightLength = plant["critical night length"].asDouble();
+
+        if (!pp.dayNeutral)
+        {
+            double min = plant["flowering min temp"].asDouble();
+            double opt = plant["flowering optimal temp"].asDouble();
+            pp.minFloweringTemp = min;
+            pp.optimalFloweringTemp = opt;
+            pp.flowerTempCurve = Parabola(min, opt, 1);
+            pp.floralInductionUnitsRequired = plant["floral induction units"].asDouble();
+            pp.longDayPlant = plant["long day"].asBool();
+            pp.minimumInduction = plant["minimum induction"].asDouble();
+            pp.criticalNightLength = plant["critical night length"].asDouble();
+        }
+        else
+        {
+            double min = 0;
+            double opt = 25;
+            pp.minFloweringTemp = 10;
+            pp.optimalFloweringTemp = 25;
+            pp.flowerTempCurve = Parabola(min, opt, 1);
+            pp.floralInductionUnitsRequired = 0;
+            pp.longDayPlant = false;
+            pp.minimumInduction = 1;
+            pp.criticalNightLength = 12;
+        }
+
+        bool useDefaultDormancyValues = false;
+        useDefaultDormancyValues = plant["default dormancy"].asBool();
+        if (useDefaultDormancyValues)
+        {
+            pp.dormantHeightDecrease = 0.995;
+            pp.dormantHeightDecrease = 0.998;
+            pp.dormantBiomassDecrease = BiomassHolder(0.995, 0.998, 0.995, 0.995);
+        }
+        else
+        {
+            pp.dormantHeightDecrease = plant["dormant height decrease"].asDouble();
+            pp.dormantRootDecrease = plant["dormant root decrease"].asDouble();
+            double stem = plant["dormant biomass"]["stem"].asDouble();
+            double root = plant["dormant biomass"]["root"].asDouble();
+            double storage = plant["dormant biomass"]["storage"].asDouble();
+            double fruit = plant["dormant biomass"]["fruit"].asDouble();
+            pp.dormantBiomassDecrease = BiomassHolder(stem, root, storage, fruit);
+
+        }
+
         pp.minimumTemperature = plant["min growth temp"].asDouble();
         pp.optimalTemperature = plant["optimal growth temp"].asDouble();
 

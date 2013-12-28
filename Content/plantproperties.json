@@ -2,6 +2,7 @@
 	{
 		"name" : "Pea",
 		"annual" : "TRUE",
+		"isTree" : "FALSE",
 		"maxLAI" : 6,
 		"stage 6" : 800,
 		"stage 7" : 1093,
@@ -45,11 +46,13 @@
 		"germination thermal units" : 7,
 		"average fruit weight" : 0.05,
 		"seed ratio" : 0.5,
-		"dormancy" : 80
+		"dormancy" : 80,
+		"default dormancy" : "TRUE"
 	},
 	{
 		"name" : "\"Snowbird\" Snowpea",
 		"annual" : "TRUE",
+		"isTree" : "FALSE",
 		"maxLAI" : 6,
 		"stage 6" : 800,
 		"stage 7" : 1093,
@@ -93,11 +96,13 @@
 		"germination thermal units" : 7,
 		"average fruit weight" : 0.05,
 		"seed ratio" : 0.5,
-		"dormancy" : 80
+		"dormancy" : 80,
+		"default dormancy" : "TRUE"
 	},
 	{
 		"name" : "Cabbage",
 		"annual" : "TRUE",
+		"isTree" : "FALSE",
 		"maxLAI" : 6,
 		"stage 6" : 800,
 		"stage 7" : 1093,
@@ -110,12 +115,6 @@
 		"starting nitrogen" : 0.1,
 		"final nitrogen" : 0.01,
 		"day neutral" : "TRUE",
-		"flowering min temp" : 18,
-		"flowering optimal temp" : 24,
-		"floral induction units" : 7,
-		"long day" : "TRUE",
-		"minimum induction" : 1,
-		"critical night length" : 12,
 		"min growth temp" : 0,
 		"optimal growth temp" : 12.5,
 		"base" : {
@@ -141,6 +140,59 @@
 		"germination thermal units" : 6,
 		"average fruit weight" : 0.01,
 		"seed ratio" : 1,
-		"dormancy" : 120
-	}
+		"dormancy" : 120,
+		"default dormancy" : "TRUE"
+	},
+	{
+		"name" : "Fescue grass",
+		"annual" : "FALSE",
+		"isTree" : "FALSE",
+		"maxLAI" : 3,
+		"stage 6" : 800,
+		"stage 7" : 1093,
+		"stage 9" : 1686,
+		"stage 10" : 2600,
+		"base temp" : 5,
+		"water tolerence" : 4,
+		"max height" : 610,
+		"max root depth" : 300,
+		"starting nitrogen" : 0.06,
+		"final nitrogen" : 0.01,
+		"day neutral" : "TRUE",
+		"min growth temp" : 0,
+		"optimal growth temp" : 15.5,
+		"base" : {
+			"stem" : 0.6,
+			"root" : 0.4,
+			"storage" : 0,
+			"fruit" : 0
+			},
+		"flowering" : {
+			"stem" : 0.6,
+			"root" : 0.2,
+			"storage" : 0,
+			"fruit" : 0.2
+			},
+		"final" : {
+			"stem" : 0.1,
+			"root" : 0.1,
+			"storage" : 0,
+			"fruit" : 0.8
+			},
+		"germination min temp" : 10,
+		"germination optimal temp" : 15,
+		"germination thermal units" : 10,
+		"average fruit weight" : 0.01,
+		"seed ratio" : 1,
+		"dormancy" : 120,
+		"default dormancy" : "FALSE",
+		"dormant height decrease" : 0.998,
+		"dormant root decrease" : 0.998,
+		"dormant biomass" : {
+			"stem" : 0.99,
+			"root" : 0.995,
+			"storage" : 0.995,
+			"fruit" : 0.99
+				}
+		}
 ]

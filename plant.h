@@ -32,6 +32,7 @@ namespace ALMANAC
         double getRequiredWater();
 
         double getREG();
+        double getWaterREG();
 
         double getNitrogen();
 
@@ -60,8 +61,9 @@ namespace ALMANAC
         double requiredWater;
         double suppliedWater;
 
-
+        
         double currentWaterlogValue;
+        int consecutiveDormantDays;
 
         double height;
         double rootDepth;

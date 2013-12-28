@@ -14,7 +14,7 @@ using namespace ALMANAC;
 
 BasePlant::BasePlant(SoilCell* soil)
 : Biomass(0.05, 0, 0, 0), LAI(0), prevLAI(0), previousHeatUnits(0), heatUnits(0), soilPatch(soil), requiredWater(1), suppliedWater(1), height(0)
-, currentWaterlogValue(0), nitrogen(0), floralInductionUnits(0), tempstress(1), rootDepth(0), dead(false), deadBiomass(0), maxBiomass(0), removedNitrogen(0)
+, currentWaterlogValue(0), nitrogen(0), floralInductionUnits(0), tempstress(1), rootDepth(0), dead(false), deadBiomass(0), maxBiomass(0), removedNitrogen(0), consecutiveDormantDays(0)
 {
     maxBiomass = Biomass;
 
@@ -47,6 +47,8 @@ BasePlant::BasePlant(SoilCell* soil)
     prop.seedRatio = 1;
     prop.tempCurve = Parabola(prop.minimumTemperature, prop.optimalTemperature, 1);
     prop.dormancy = 80;
+    prop.dormantHeightDecrease = .998;
+    prop.dormantRootDecrease = .998;
 
     prop.startingNitrogenConcentration = 0.06;
     prop.finalNitrogenConcentration = 0.01;
@@ -58,6 +60,7 @@ BasePlant::BasePlant(SoilCell* soil)
     prop.baseRatios =     BiomassHolder(0.6, 0.4, 0.0, 0.0);
     prop.fruitingRatios = BiomassHolder(0.6, 0.2, 0.0, 0.2);
     prop.finalRatios =    BiomassHolder(0.1, 0.1, 0.0, 0.8);
+    prop.dormantBiomassDecrease = BiomassHolder(0.995, .998, .995, .995);
 
 
     prop.growthStages[6] = 800.0;
@@ -79,7 +82,7 @@ BasePlant::BasePlant(SoilCell* soil)
 
 BasePlant::BasePlant(PlantProperties plantprop, SoilCell* soil)
 : LAI(0), prevLAI(0), previousHeatUnits(0), heatUnits(0), soilPatch(soil), requiredWater(1), suppliedWater(1), height(0)
-, currentWaterlogValue(0), nitrogen(0), floralInductionUnits(0), tempstress(1), rootDepth(0), dead(false), REG(0), deadBiomass(0), removedNitrogen(0)
+, currentWaterlogValue(0), nitrogen(0), floralInductionUnits(0), tempstress(1), rootDepth(0), dead(false), REG(0), deadBiomass(0), removedNitrogen(0), consecutiveDormantDays(0)
 {
     prop = plantprop;
     Biomass = BiomassHolder(prop.averageFruitWeight * prop.seedRatio / 10, 0, 0, 0);
@@ -98,7 +101,7 @@ BasePlant::BasePlant(PlantProperties plantprop, SoilCell* soil)
 
 BasePlant::BasePlant(Seed seed, SoilCell* soil)
 : LAI(0), prevLAI(0), previousHeatUnits(0), heatUnits(0), soilPatch(soil), requiredWater(1), suppliedWater(1), height(0)
-, currentWaterlogValue(0), nitrogen(0), floralInductionUnits(0), tempstress(1), rootDepth(0), dead(false), REG(0), deadBiomass(0), removedNitrogen(0)
+, currentWaterlogValue(0), nitrogen(0), floralInductionUnits(0), tempstress(1), rootDepth(0), dead(false), REG(0), deadBiomass(0), removedNitrogen(0), consecutiveDormantDays(0)
 {
     prop = seed.pp;
     Biomass = BiomassHolder(seed.seedBiomass / 10.0, 0, 0, 0);
@@ -161,13 +164,25 @@ void BasePlant::calculate(const WeatherData& data, const double& albedo, const d
 {
     ///testc 
 
-    if (data.date.getMonth() == MARCH && data.date.getDate() == 13)
+    if (data.date.getMonth() == OCTOBER && data.date.getDate() == 4 && data.date.getYear() == 2013)
         bool stuff = albedo == albedo;
 
     double heatUnitsAdded = (data.maxTemp + data.minTemp) / 2 - prop.baseTemp;
     heatUnitsAdded = heatUnitsAdded > 0 ? heatUnitsAdded : 0;
     previousHeatUnits = heatUnits;
 
+     if (heatUnitsAdded + heatUnits > maxHU) // If adding HU will go over the limit,
+     {
+        if (prop.isAnnual)
+        {
+            dead = true;
+        }       
+        heatUnitsAdded = 0;
+        heatUnits = maxHU;
+        createSeeds(data.date);
+        if (!prop.isAnnual) // test
+            seedlist.clear();
+    }
 
     if (isDead())
     {
@@ -175,43 +190,43 @@ void BasePlant::calculate(const WeatherData& data, const double& albedo, const d
         return;
     }
 
-    if (heatUnitsAdded + heatUnits > maxHU && prop.isAnnual) // If adding HU will go over the limit,
-    {
-        heatUnitsAdded = 0;
-        heatUnits = maxHU;
-        dead = true;
-        createSeeds(data.date);
-        return;
-    }
-
     const double tolerence = 0.00005; // plants less than 1 gram are proclaimed to be dead.
 
     if (isDormant()) // for decreasing standing biomass.
     {
+        consecutiveDormantDays++;
+        floralInductionUnits = 0;
+
         if (!prop.isTree) // current dummy function.
         {
-            height *= .998;
-            rootDepth *= .998;
+            height *= prop.dormantHeightDecrease;
+            rootDepth *= prop.dormantRootDecrease;
 
             if (Biomass < tolerence)
                 dead = true;
             else if (Biomass - Biomass.storageOrgan > tolerence) // there are other parts of the plant left
             {
                 // consume said parts
-                Biomass.flowerAndfruits *= 0.995;
-                Biomass.roots           *= 0.998;
-                Biomass.stem            *= 0.995;
+                Biomass.flowerAndfruits *= prop.dormantBiomassDecrease.flowerAndfruits;
+                Biomass.roots *= prop.dormantBiomassDecrease.roots;
+                Biomass.stem *= prop.dormantBiomassDecrease.stem;
             }
-            else
+            else // otherwise consume the storage organ
             {
-
-            } // otherwise consume the storage organ
-            {
-                Biomass.storageOrgan *= 0.995;
+                Biomass.storageOrgan *= prop.dormantBiomassDecrease.storageOrgan;
             }
         }
 
+
+        if (!prop.isAnnual && consecutiveDormantDays > 30)
+        {
+            heatUnits = 0;
+            currentWaterlogValue *= 0.5;
+            previousHeatUnits = 0;
+        }            
     }
+    else
+        consecutiveDormantDays = 0;
     
 
     if (heatUnits > finalHU)
@@ -266,6 +281,11 @@ double BasePlant::getInduction()
 double BasePlant::getRequiredWater()
 {
     return requiredWater;
+}
+
+double BasePlant::getWaterREG()
+{
+    return currentWaterlogValue / prop.waterTolerence;
 }
 
 BiomassHolder BasePlant::getBiomassStruct()
@@ -408,7 +428,7 @@ double BasePlant::getWaterStressFactor()
 
 double BasePlant::getWaterlogStressFactor()
 {
-    return max(0.0, 1 - currentWaterlogValue / prop.waterTolerence);
+    return pow(max(0.0, 1 - currentWaterlogValue / prop.waterTolerence), 1/3.0);
 }
 
 double BasePlant::getNitrogenStressFactor()
@@ -543,7 +563,7 @@ bool BasePlant::isDead()
 
 bool BasePlant::isDormant()
 {
-    if (!prop.isAnnual && heatUnits > maxHU)
+    if (!prop.isAnnual && heatUnits >= maxHU)
         return true;
     if (tempstress < 0.001)
         return true;
