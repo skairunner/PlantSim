@@ -54,7 +54,7 @@ void Tests::singlePlant(const int daysToRun, const std::string& plantname, Month
 
     fstream file;
     file.open("output1.txt", fstream::out | fstream::trunc);
-    file << "Date\tHeat units\tHeight(mm)\tRoot depth(mm)\tBiomass(g)\tLAI\twater damage\tPrecipitation\tSurface water\tWater per layer\n";
+    file << "Date\tHeat units\tHeight(mm)\tRoot depth(mm)\tBiomass(g)\tLAI\tREG\tPrecipitation\tSurface water\tWater per layer\tSnow\n";
 
     fstream Nfile;
     Nfile.open("nitrogen.txt", fstream::out | fstream::trunc);
@@ -88,7 +88,7 @@ void Tests::singlePlant(const int daysToRun, const std::string& plantname, Month
         BasePlant plant = sg.ref(0, 0).plants.back();
 
         //// output plant stats    
-        file << WeatherModule.getMonth() << "\t" << plant.getHU() << "\t" << plant.calcHeight() << "\t" << plant.calcRootDepth() << "\t" << plant.getBiomass() * 1000 << "\t" << plant.getLAI() << "\t" << plant.getWaterREG();
+        file << WeatherModule.getMonth() << "\t" << plant.getHU() << "\t" << plant.calcHeight() << "\t" << plant.calcRootDepth() << "\t" << plant.getBiomass() * 1000 << "\t" << plant.getLAI() << "\t" << plant.getREG();
 
         file << "\t" << WeatherModule.getRainAmount() << "\t" << sg.get(0, 0).surfaceWater;
         for (double val : sg.get(0, 0).inspectWater())
@@ -96,7 +96,7 @@ void Tests::singlePlant(const int daysToRun, const std::string& plantname, Month
             file << "\t" << val;
         }
 
-        file << "\n";
+        file << "\t" << sg.ref(0, 0).snow << "\n";
 
         //// output nitrogen stats
         Nfile << WeatherModule.getMonth() << "\t" << plant.getBiomass()*1000 << "\t" << plant.getNitrogen() << "\t" << WeatherModule.getRainAmount();

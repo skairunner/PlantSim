@@ -193,7 +193,7 @@ void SoilLayer::adjustWater()
 
 
 SoilCell::SoilCell()
-: surfaceWater(0)
+: surfaceWater(0), snow(0)
 {
 
 }
@@ -228,6 +228,29 @@ vector<double> SoilCell::inspectNitrates()
         output.push_back(i->nitrates);
     }
     return output;
+}
+
+void SoilCell::doSnowmelt(const double temp)
+{
+    if (temp > 0)
+    {
+        double meltPercentage = log(temp + 1.0) / log(10.0);
+        meltPercentage = min(1.0, meltPercentage);
+        double meltedSnow = snow * meltPercentage;
+        snow -= meltedSnow;
+        surfaceWater += meltedSnow;
+    }
+    else
+    {
+        double meltPercentage = log(temp + 1.0) / log(10.0);
+        meltPercentage = min(1.0, meltPercentage);
+        double meltedSnow = snow * 0.01;
+        snow -= meltedSnow;
+        surfaceWater += meltedSnow;
+    }
+
+    if (snow < 0.00001)
+        snow = 0;
 }
 
 void SoilCell::solveAndPercolate()

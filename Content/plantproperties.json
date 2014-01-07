@@ -147,11 +147,11 @@
 		"name" : "Fescue grass",
 		"annual" : "FALSE",
 		"isTree" : "FALSE",
-		"maxLAI" : 3,
+		"maxLAI" : 1,
 		"stage 6" : 800,
 		"stage 7" : 1093,
 		"stage 9" : 1686,
-		"stage 10" : 2600,
+		"stage 10" : 1800,
 		"base temp" : 5,
 		"water tolerence" : 4,
 		"max height" : 610,
@@ -189,7 +189,7 @@
 		"dormant height decrease" : 0.998,
 		"dormant root decrease" : 0.998,
 		"dormant biomass" : {
-			"stem" : 0.99,
+			"stem" : 0.98,
 			"root" : 0.995,
 			"storage" : 0.995,
 			"fruit" : 0.99

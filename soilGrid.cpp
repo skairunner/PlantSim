@@ -252,7 +252,11 @@ void SoilGrid::step(const WeatherData& wd)
     
     for (auto it = grid.begin(); it < grid.end(); it++)
     {
-        it->surfaceWater += rainfall;
+        if (temp < 0)
+            it->snow += rainfall;
+        else        
+            it->surfaceWater += rainfall;
+        it->doSnowmelt(temp);
         it->solveAndPercolate();
         it->calculateNitrogen(temp);
     }

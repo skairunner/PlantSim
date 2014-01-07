@@ -102,6 +102,7 @@ namespace ALMANAC
         void addNitrogenToTop(const double& amount);
         void addWater(const int& layer, const double& amount);
 
+        void doSnowmelt(const double temp);
         void solveAndPercolate(); // Solve for percolation downwards and lateral flow for each layer, then put them in the respective outbound slots
         void calculateNitrogen(const double temp);
         double slope; // m/m
@@ -128,6 +129,7 @@ namespace ALMANAC
 
 
         double surfaceWater;
+        double snow;
 
     protected:
         void upwardsFlow();

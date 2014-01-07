@@ -257,7 +257,7 @@ void BasePlant::calculate(const WeatherData& data, const double& albedo, const d
         else
             photoactiveRadiation = radiation;
      
-        prop.biomassToVPD = 7;
+        prop.biomassToVPD = 6;
         double potentialDeltaBiomass = 100 * prop.CO2CurveFactors.getValue(data.CO2); // BE*
         potentialDeltaBiomass = potentialDeltaBiomass - prop.biomassToVPD * (findVPD((data.maxTemp - data.minTemp) / 2.0f, data.humidity) - 1); // BE'
         potentialDeltaBiomass = 0.001f * potentialDeltaBiomass * photoactiveRadiation / 10.0f; //result is in kg / m^2  
