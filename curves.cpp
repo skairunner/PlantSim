@@ -13,6 +13,7 @@ Parabola::Parabola()
     parallel = vertical = width = 0;
 }
 
+// w * (x - p)^2 + v
 double Parabola::getValue(const double& x)
 {
     return width * pow(x - parallel, 2) + vertical;

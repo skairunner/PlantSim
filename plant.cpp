@@ -162,10 +162,6 @@ void BasePlant::findREG()
 
 void BasePlant::calculate(const WeatherData& data, const double& albedo, const double radiation)
 {
-    ///testc 
-
-    if (data.date.getMonth() == OCTOBER && data.date.getDate() == 4 && data.date.getYear() == 2013)
-        bool stuff = albedo == albedo;
 
     double heatUnitsAdded = (data.maxTemp + data.minTemp) / 2 - prop.baseTemp;
     heatUnitsAdded = heatUnitsAdded > 0 ? heatUnitsAdded : 0;

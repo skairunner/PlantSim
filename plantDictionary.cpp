@@ -10,7 +10,7 @@ PlantDictionary PD;
 
 PlantDictionary::PlantDictionary()
 {
-
+    PD.init();
 }
 
 void PlantDictionary::init()
