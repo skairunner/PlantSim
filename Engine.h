@@ -1,6 +1,7 @@
 #pragma once
 
 #include "AllegroEngine.h"
+#include "Weather.h"
 
 using namespace std;
 
@@ -18,6 +19,8 @@ class Engine : public AllegroEngine
     void MouseButtonUp(const int &iButton, const int &iX, const int &iY, const int &iZ, const int &iRelX, const int &iRelY, const int &iRelZ);
     void MouseButtonDown(const int &iButton, const int &iX, const int &iY, const int &iZ, const int &iRelX, const int &iRelY, const int &iRelZ);
     void TimerTick(ALLEGRO_TIMER *timer, int count);
+
+    ALMANAC::Weather* WeatherModule;
 };
 
 

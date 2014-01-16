@@ -6,6 +6,7 @@
 #include "soilGrid.h"
 #include "enums.h"
 #include <string>
+#include <cstdlib>
 
 using namespace std;
 using namespace ALMANAC;
@@ -13,13 +14,14 @@ using namespace ALMANAC;
 Engine DisplayEngine;
 ALLEGRO_BITMAP* bitmap;
 ALLEGRO_BITMAP* watermap;
+ALLEGRO_BITMAP* snowmap;
 ALLEGRO_FONT* font;
 SoilGrid* soilGrid;
 int mouseX, mouseY;
 bool nextStep = false, moreWater = false;
 int stepsCounter = 0;
 
-int SIDE_LENGTH = 256;
+int SIDE_LENGTH = 160;
 
 
 class SoilColorDict
@@ -83,11 +85,19 @@ SoilNameDict soilnameDict;
 bool Engine::EngineInit(map<int, bool> errormap)
 {
     soilGrid = new SoilGrid(SIDE_LENGTH, SIDE_LENGTH, 0);
+    soilGrid->initGridWithPlant("Fescue grass");
 
     font = al_load_ttf_font("malgun.ttf", 16, 0);
 
+    WeatherModule = new ALMANAC::Weather(0);
+    WeatherModule->changeDate(Month(MAY, 1, 2013));
+
     ALLEGRO_COLOR buffer;
     ALLEGRO_COLOR black = al_map_rgb(50, 50, 50);
+    ALLEGRO_COLOR darkblue = al_map_rgb(0, 0, 150);
+    ALLEGRO_COLOR blue = al_map_rgb(0, 0, 255);
+    ALLEGRO_COLOR white = al_map_rgb(255, 255, 255);
+
     SoilColorDict soilcolorDict;
     bitmap = al_create_bitmap(soilGrid->getWidth(), soilGrid->getHeight());
     al_set_target_bitmap(bitmap);
@@ -95,8 +105,11 @@ bool Engine::EngineInit(map<int, bool> errormap)
     for (int y = 0; y < soilGrid->getHeight(); y++)
     for (int x = 0; x < soilGrid->getWidth(); x++)
     {
+
         buffer = soilcolorDict.getColor(soilGrid->ref(x, y).getTopsoilType());
         buffer = ColorMath::lerp(black, buffer, soilGrid->ref(x, y).getTotalHeight() / 12000);
+   //     if (soilGrid->ref(x, y).test_isUnderWater)
+   //         buffer = darkblue;
         al_put_pixel(x, y, buffer);
     }
     al_unlock_bitmap(bitmap);
@@ -105,7 +118,7 @@ bool Engine::EngineInit(map<int, bool> errormap)
     al_set_target_bitmap(watermap);
     al_lock_bitmap(watermap, al_get_bitmap_format(watermap), ALLEGRO_LOCK_READWRITE);
 
-    ALLEGRO_COLOR blue = al_map_rgb(0, 255, 0);
+    
     for (int y = 0; y < soilGrid->getHeight(); y++)
     for (int x = 0; x < soilGrid->getWidth(); x++)
     {
@@ -113,39 +126,75 @@ bool Engine::EngineInit(map<int, bool> errormap)
         buffer = ColorMath::lerp(black, blue, waterlevel / 200.0f);
         al_put_pixel(x, y, buffer);
     }
-    al_unlock_bitmap(bitmap);
+    al_unlock_bitmap(watermap);
+
+    snowmap = al_create_bitmap(soilGrid->getWidth(), soilGrid->getHeight());
+    al_set_target_bitmap(snowmap);
+    al_lock_bitmap(snowmap, al_get_bitmap_format(snowmap), ALLEGRO_LOCK_READWRITE);
+
+
+    for (int y = 0; y < soilGrid->getHeight(); y++)
+    for (int x = 0; x < soilGrid->getWidth(); x++)
+    {
+        double waterlevel = soilGrid->ref(x, y).snow;
+        if (waterlevel > 0)
+            waterlevel = 1;
+        else
+            waterlevel = 0;
+        buffer = ColorMath::lerp(black, white, waterlevel);
+        al_put_pixel(x, y, buffer);
+    }
+    al_unlock_bitmap(snowmap);
+
+    
 
     return true;
 }
 
 void Engine::Update()
 {
+    nextStep = true;
     if (nextStep)//nextStep)
     {
-        if (stepsCounter % 10 == 0)
-        {
-            soilGrid->addWaterSquare(0, 0, SIDE_LENGTH, SIDE_LENGTH, 50);
-            moreWater = false;
-        }
-        //soilGrid->step(20);
+        WeatherModule->step();
+        soilGrid->step(WeatherModule->getDataBundle());
+        soilGrid->stepPlants(WeatherModule->getDataBundle());
+        soilGrid->stepSurfaceFlow(WeatherModule->getDataBundle(), 1.0);
+        
+        cout << soilGrid->ref(0, 0).surfaceWater << "\n";
+        
         al_set_target_bitmap(watermap);
         al_lock_bitmap(watermap, al_get_bitmap_format(watermap), ALLEGRO_LOCK_READWRITE);
+        al_lock_bitmap(snowmap, al_get_bitmap_format(snowmap), ALLEGRO_LOCK_READWRITE);
         double waterlevel = 0;
         ALLEGRO_COLOR blue = al_map_rgb(0, 0, 255);
         ALLEGRO_COLOR black = al_map_rgb(0, 0, 0);
+        ALLEGRO_COLOR white = al_map_rgb(255, 255, 255);
         ALLEGRO_COLOR buffer;
 
         for (int y = 0; y < soilGrid->getHeight(); y++)
         for (int x = 0; x < soilGrid->getWidth(); x++)
         {
-            waterlevel = soilGrid->ref(x, y).getFront().percolationWater();
+            al_set_target_bitmap(watermap);
+            waterlevel = soilGrid->ref(x, y).surfaceWater;
             buffer = ColorMath::lerp(black, blue, min(waterlevel / 100.0f, 1));
             al_put_pixel(x, y, buffer);
+
+            al_set_target_bitmap(snowmap);
+            waterlevel = log(soilGrid->ref(x, y).snow + 1);
+            waterlevel = min(1, waterlevel);
+            waterlevel = max(0, waterlevel);
+            buffer = ColorMath::lerp(black, white, waterlevel);
+            buffer = ColorMath::lerp(black, buffer, soilGrid->ref(x, y).getTotalHeight() / 12000);
+            al_put_pixel(x, y, buffer);
+
         }
         al_unlock_bitmap(watermap);
+        al_unlock_bitmap(snowmap);
         nextStep = false;
         stepsCounter++;
     }
+
 }
 
 void Engine::Render(ALLEGRO_DISPLAY *root)
@@ -154,18 +203,30 @@ void Engine::Render(ALLEGRO_DISPLAY *root)
     al_clear_to_color(al_map_rgb(250, 0, 254));
     al_draw_bitmap(bitmap, 0, 0, 0);
     al_draw_bitmap(watermap, soilGrid->getWidth(), 0, 0);
+    al_draw_bitmap(snowmap, soilGrid->getWidth(), soilGrid->getHeight(), 0);
 
     if (mouseX > soilGrid->getWidth() - 1 || mouseY > soilGrid->getHeight() - 1 || mouseX < 0 || mouseY < 0)
         al_draw_text(font, al_map_rgb(255, 254, 253), 0, soilGrid->getHeight() + font->height, 0, "Nothing");
     else
     {
         al_draw_text(font, al_map_rgb(0, 0, 0), 0, al_get_display_height(root) - 2 * font->height, 0, soilnameDict.getSoilName(soilGrid->get(mouseX, mouseY).getTopsoilType()).c_str());
+
     }
-    al_draw_text(font, al_map_rgb(0, 0, 0), 0, al_get_display_height(root) - font->height, 0, to_string((long double)stepsCounter).c_str());
+
+    string str = "Plant 0 biomass: ";
+    char stemp[100] = "";
+    sprintf_s(stemp, "%d", int(soilGrid->ref(0, 0).plants.back().getBiomass() * 1000));
+    str += stemp;
+    str += "g";
+
+    al_draw_text(font, al_map_rgb(0, 0, 0), 0, al_get_display_height(root) - 4 * font->height, 0, str.c_str());
+
+    al_draw_text(font, al_map_rgb(0, 0, 0), 0, al_get_display_height(root) - font->height, 0, to_string((int)stepsCounter).c_str());
 }
 
 void Engine::EngineEnd()
 {
+    if (WeatherModule) delete WeatherModule;
 }
 
 void Engine::KeyUp(const int &key, const int &unicode, const int &mods)

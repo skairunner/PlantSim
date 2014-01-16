@@ -5,6 +5,7 @@
 #include <iostream>
 #include <cstdlib>
 #include "Weather.h"
+#include "plantDictionary.h"
 #include <iostream>
 
 using namespace ALMANAC;
@@ -56,15 +57,17 @@ SoilGrid::SoilGrid(const int& w, const int& h, unsigned int seed)
     sand.SetSeed(seed + 5); // Just random differences.
     clay.SetSeed(seed + 32);
     silt.SetSeed(seed + 129);
+    aquifer.SetSeed(seed + 359);
 
     setPerlinProperties(perlin, 0, 0, 0, 0);
     setPerlinProperties(sand, 0, 0, 0, 0);
     setPerlinProperties(clay, 0, 0, 0, 0);
     setPerlinProperties(silt, 0, 0, 0, 0);
+    setPerlinProperties(aquifer, 0, 0, 0, 0);
 
-    double zoom = 0.009f;
-    double soilZoom = 0.001f;
-    double startingZ = 0.99f;
+    double zoom = 0.009;
+    double soilZoom = 0.001;
+    double startingZ = 0.99;
     SoilCell buffer;
     double baseheight, total;
 
@@ -79,11 +82,13 @@ SoilGrid::SoilGrid(const int& w, const int& h, unsigned int seed)
         soiltuple stBuffer;
 
         baseheight = (perlin.GetValue(x * zoom, y * zoom, 0.5) + 1) * 5000; // *5000 to get a range of roughly ten meters.
+        double aquiferNumber = (perlin.GetValue(x * zoom, y * zoom, 0.5) + 1) * 1000 + 2500; // 2~4 m
         for (int counter = layers - 1; counter >= 0; counter--)
         {
             stBuffer.sand = (sand.GetValue(x * zoom, y * zoom, startingZ - counter * soilZoom) + 1) / 2.5f;
             stBuffer.clay = (clay.GetValue(x * zoom, y * zoom, startingZ - counter * soilZoom) + 1) / 3;
             stBuffer.silt = (silt.GetValue(x * zoom, y * zoom, startingZ - counter * soilZoom) + 1) / 3;
+            
 
             stBuffer.sand = max(stBuffer.sand, 0);
             stBuffer.clay = max(stBuffer.clay, 0);
@@ -98,6 +103,12 @@ SoilGrid::SoilGrid(const int& w, const int& h, unsigned int seed)
         }
 
         grid[x + y * width] = SoilFactory::createCell(baseheight, 200, soils);
+        grid[x + y * width].surfaceWater = 0;
+
+        if (baseheight < aquiferNumber)
+            grid[x + y * width].test_isUnderWater = true;
+        else
+            grid[x + y * width].test_isUnderWater = false;
     }
 
     for (int y = 0; y < height; y++)
@@ -108,6 +119,18 @@ SoilGrid::SoilGrid(const int& w, const int& h, unsigned int seed)
         grid[x + y * width].slope = vecbuffer.length;
         if (vecbuffer.length != vecbuffer.length)
             grid[x + y * width].slope = 0.0001f;
+    }
+}
+
+void SoilGrid::initGridWithPlant(std::string plantID)
+{
+    ALMANAC::PlantProperties props = PD.getPlant(plantID);
+
+    for (int xcounter = 0; xcounter < getWidth(); xcounter++)
+    for (int ycounter = 0; ycounter < getHeight(); ycounter++)
+    {
+        BasePlant BP(props, &ref(xcounter, ycounter));
+        ref(xcounter, ycounter).plants.push_back(BP);
     }
 }
 
@@ -188,6 +211,7 @@ vector3 SoilGrid::findGradientVector(const int& x, const int& y)
             numberOfGradients++;
     }
     total /= (double)numberOfGradients;
+    ref(x, y).gradientVector = total;
 
     return total;
 }
@@ -242,25 +266,74 @@ void SoilGrid::step(const WeatherData& wd)
 {
     double rainfall = wd.precipitation;
     double temp = (wd.maxTemp + wd.minTemp) / 2.0;
-
-
-    if (rainfall > 0)
-    for (auto it = grid.begin(); it < grid.end(); it++)
-        it->addNitrogenToTop(0.0219 * rainfall);
-    // it->addNitrogenToTop(0.1 * rainfall);
-
     
     for (auto it = grid.begin(); it < grid.end(); it++)
     {
+        if (rainfall > 0)
+            it->addNitrogenToTop(0.0219 * rainfall);
         if (temp < 0)
             it->snow += rainfall;
         else        
             it->surfaceWater += rainfall;
+
         it->doSnowmelt(temp);
         it->solveAndPercolate();
         it->calculateNitrogen(temp);
+
+        it->surfaceWater -= 3.675247456; // Using the max potential soil evaporation constant for now.
+        if (it->surfaceWater < 0)
+            it->surfaceWater = 0;
     }
     doLateralForEachCell();
+}
+
+void SoilGrid::stepSurfaceFlow(const WeatherData& wd, double timestep)
+{
+    // First set the flow amounts accordingly.
+    for (int x = 0; x < width; x++)
+    for (int y = 0; y < height; y++)
+    {
+        SoilCell* neighbor = findMooreNeighbor(x, y, grid[x + y * width].getMooreDirection());
+        SoilCell& current = ref(x, y);
+        if (neighbor == &null)
+            continue; // if equals null (ie, does not exist), skip.
+        double myTotalHeight = current.getTotalHeight() + current.surfaceWater;
+        double neighborTotalHeight = neighbor->getTotalHeight() + neighbor->surfaceWater;
+        double diff = myTotalHeight - neighborTotalHeight;
+        if (diff < 0)
+            continue; // if my neighbor is taller than me, skip.
+        if (diff > current.surfaceWater)
+            diff = current.surfaceWater;
+        current.flowAmount = diff * timestep;
+        current.surfaceWater -= current.flowAmount;
+        // Now, set the <Moore Direction>th element in the neighbor's flowInputs[] array to the diff. 
+        // This should prevent collisions, since there is only one cell that has each Moore Direction relative to that cell:
+        /*
+        eg
+        Cell 1 MD<7>   Cell 2 MD<6>   Cell 3 MD<5>
+
+        Cell 4 MD<4>   Neighbor       Cell 5 MD<3>
+
+        Cell 6 MD<2>   Cell 7 MD<1>   Cell 8 MD<0>   
+        */
+
+        neighbor->flowInputs[current.getMooreDirection()] = diff * timestep;
+    }
+
+    // For each cell, sum the inputs and add them to current surface water.
+    for (int x = 0; x < width; x++)
+    for (int y = 0; y < height; y++)
+    {
+        SoilCell& current = ref(x, y);
+        double deltaW = current.flowInputs[0];
+        current.flowInputs[0] = 0;
+        for (int counter = 1; counter < 8; counter++)
+        {
+            deltaW += current.flowInputs[counter];
+            current.flowInputs[counter] = 0;
+        }
+        current.surfaceWater += deltaW;
+    }
 }
 
 void SoilGrid::stepPlants(const WeatherData& wd)

@@ -5,6 +5,7 @@
 #include <ostream>
 #include "seed.h"
 #include "plant.h"
+#include "vector3.h"
 
 namespace ALMANAC
 {
@@ -130,16 +131,19 @@ namespace ALMANAC
 
         double surfaceWater;
         double snow;
+        bool test_isUnderWater; //test
 
     protected:
         void upwardsFlow();
-
+        vector3 gradientVector; // |<x, y>| 'strength' of graient, <x, y> normal == direction of
         void scale(); // make sure that the water out doesn't exceed the total available water.
         std::vector<SoilLayer> Layers;  // 0 is top, followed by 1 2 3 ...'
         
         int MooreDirection; // One vector for the whole cell. Follows the enum {Moore}.
+        double flowAmount; // surface flow
         double baseHeight; // height excluding soil layers.
         double totalHeight;
+        double flowInputs[8];
         int topsoilType;
 
     };

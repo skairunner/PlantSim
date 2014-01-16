@@ -195,7 +195,8 @@ void SoilLayer::adjustWater()
 SoilCell::SoilCell()
 : surfaceWater(0), snow(0)
 {
-
+    for (int counter = 0; counter < 8; counter++)
+        flowInputs[counter] = 0;
 }
 
 void SoilCell::upwardsFlow()

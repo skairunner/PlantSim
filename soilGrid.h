@@ -12,6 +12,7 @@ namespace ALMANAC
     {
     public:
         SoilGrid(const int& w, const int& h, unsigned int seed = 0);
+        void initGridWithPlant(std::string plantID);
         SoilCell get(const int& x, const int& y);
         SoilCell& ref(const int& x, const int& y);
         void set(const int& x, const int& y, const SoilCell& in);
@@ -20,6 +21,7 @@ namespace ALMANAC
         int getHeight();
 
         void step(const WeatherData& wd); // Advance water simulation by one day
+        void stepSurfaceFlow(const WeatherData& wd, double timestep = 1); // advance surface flow by one day
         void stepPlants(const WeatherData& wd);
 
         void addRandomWater(const int& numberOf, const int& howMuch); // for testing
@@ -32,6 +34,7 @@ namespace ALMANAC
         int width, height;
         noise::module::Perlin perlin;
         noise::module::Perlin sand, clay, silt;
+        noise::module::Perlin aquifer;
         SoilCell null;
 
         vector3 findGradientVector(const int& x, const int& y);
@@ -40,6 +43,6 @@ namespace ALMANAC
         void setPerlinProperties(noise::module::Perlin& gen, const double& freq, const double& lacturnity, const int& octave, const double&persist);
         int findMooreDirection(vector3 input);
         void doLateralForEachCell(); // Move lateral flow stuff thingies.
-
+        void doRunoff(); // Move water, and let some of it be absorbed
     };
 }
