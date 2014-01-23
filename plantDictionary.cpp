@@ -50,15 +50,15 @@ void PlantDictionary::init()
 
         if (!pp.dayNeutral)
         {
-            double min = plant["flowering min temp"].asDouble();
-            double opt = plant["flowering optimal temp"].asDouble();
+            double min = plant["photoinduction"]["min temp"].asDouble();
+            double opt = plant["photoinduction"]["optimal temp"].asDouble();
             pp.minFloweringTemp = min;
             pp.optimalFloweringTemp = opt;
             pp.flowerTempCurve = Parabola(min, opt, 1);
-            pp.floralInductionUnitsRequired = plant["floral induction units"].asDouble();
-            pp.longDayPlant = plant["long day"].asBool();
-            pp.minimumInduction = plant["minimum induction"].asDouble();
-            pp.criticalNightLength = plant["critical night length"].asDouble();
+            pp.floralInductionUnitsRequired = plant["photoinduction"]["floral induction units"].asDouble();
+            pp.longDayPlant = plant["photoinduction"]["long day"].asBool();
+            pp.minimumInduction = plant["photoinduction"]["minimum induction"].asDouble();
+            pp.criticalNightLength = plant["photoinduction"]["critical night length"].asDouble();
         }
         else
         {
@@ -93,8 +93,8 @@ void PlantDictionary::init()
 
         }
 
-        pp.minimumTemperature = plant["min growth temp"].asDouble();
-        pp.optimalTemperature = plant["optimal growth temp"].asDouble();
+        pp.minimumTemperature = plant["growth"]["min temp"].asDouble();
+        pp.optimalTemperature = plant["growth"]["optimal temp"].asDouble();
 
         pp.tempCurve = Parabola(pp.minimumTemperature, pp.optimalTemperature, 1);
 
@@ -114,11 +114,11 @@ void PlantDictionary::init()
         fruit = plant["final"]["fruit"].asDouble();
         pp.finalRatios = BiomassHolder(stem, root, storage, fruit);
 
-        pp.minGerminationTemp = plant["germination min temp"].asDouble();
-        pp.optimalGerminationTemp = plant["germination optimal temp"].asDouble();
+        pp.minGerminationTemp = plant["germination"]["min temp"].asDouble();
+        pp.optimalGerminationTemp = plant["germination"]["optimal temp"].asDouble();
         pp.averageFruitWeight = plant["average fruit weight"].asDouble();
         pp.seedRatio = plant["seed ratio"].asDouble();
-        pp.dormancy = plant["dormancy"].asInt();
+        pp.dormancy = plant["seed dormancy"].asInt();
 
         pp.HeatUnitFactorNums = SCurve(1, 17, 0.18);
         pp.CO2CurveFactors = SCurve(0.1, 0.04, 49);

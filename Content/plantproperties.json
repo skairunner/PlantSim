@@ -1,198 +1,230 @@
 [
-	{
-		"name" : "Pea",
-		"annual" : "TRUE",
-		"isTree" : "FALSE",
-		"maxLAI" : 6,
-		"stage 6" : 800,
-		"stage 7" : 1093,
-		"stage 9" : 1686,
-		"stage 10" : 1800,
-		"base temp" : 5,
-		"water tolerence" : 2,
-		"max height" : 1000,
-		"max root depth" : 304,
-		"starting nitrogen" : 0.06,
-		"final nitrogen" : 0.01,
-		"day neutral" : "FALSE",
-		"flowering min temp" : 18,
-		"flowering optimal temp" : 24,
-		"floral induction units" : 7,
-		"long day" : "TRUE",
-		"minimum induction" : 0.1,
-		"critical night length" : 12,
-		"min growth temp" : 7.775,
-		"optimal growth temp" : 23.55,
-		"base" : {
-			"stem" : 0.6,
-			"root" : 0.4,
-			"storage" : 0,
-			"fruit" : 0
-			},
-		"flowering" : {
-			"stem" : 0.6,
-			"root" : 0.2,
-			"storage" : 0,
-			"fruit" : 0.2
-			},
-		"final" : {
-			"stem" : 0.1,
-			"root" : 0.1,
-			"storage" : 0,
-			"fruit" : 0.8
-			},
-		"germination min temp" : 5,
-		"germination optimal temp" : 12,
-		"germination thermal units" : 7,
-		"average fruit weight" : 0.05,
-		"seed ratio" : 0.5,
-		"dormancy" : 80,
-		"default dormancy" : "TRUE"
-	},
-	{
-		"name" : "\"Snowbird\" Snowpea",
-		"annual" : "TRUE",
-		"isTree" : "FALSE",
-		"maxLAI" : 6,
-		"stage 6" : 800,
-		"stage 7" : 1093,
-		"stage 9" : 1686,
-		"stage 10" : 1800,
-		"base temp" : 5,
-		"water tolerence" : 2,
-		"max height" : 610,
-		"max root depth" : 304,
-		"starting nitrogen" : 0.06,
-		"final nitrogen" : 0.01,
-		"day neutral" : "FALSE",
-		"flowering min temp" : 18,
-		"flowering optimal temp" : 24,
-		"floral induction units" : 7,
-		"long day" : "TRUE",
-		"minimum induction" : 0.1,
-		"critical night length" : 12,
-		"min growth temp" : 7.775,
-		"optimal growth temp" : 23.55,
-		"base" : {
-			"stem" : 0.6,
-			"root" : 0.4,
-			"storage" : 0,
-			"fruit" : 0
-			},
-		"flowering" : {
-			"stem" : 0.6,
-			"root" : 0.2,
-			"storage" : 0,
-			"fruit" : 0.2
-			},
-		"final" : {
-			"stem" : 0.1,
-			"root" : 0.1,
-			"storage" : 0,
-			"fruit" : 0.8
-			},
-		"germination min temp" : 5,
-		"germination optimal temp" : 12,
-		"germination thermal units" : 7,
-		"average fruit weight" : 0.05,
-		"seed ratio" : 0.5,
-		"dormancy" : 80,
-		"default dormancy" : "TRUE"
-	},
-	{
-		"name" : "Cabbage",
-		"annual" : "TRUE",
-		"isTree" : "FALSE",
-		"maxLAI" : 6,
-		"stage 6" : 800,
-		"stage 7" : 1093,
-		"stage 9" : 1686,
-		"stage 10" : 1800,
-		"base temp" : 5,
-		"water tolerence" : 1,
-		"max height" : 450,
-		"max root depth" : 680,
-		"starting nitrogen" : 0.1,
-		"final nitrogen" : 0.01,
-		"day neutral" : "TRUE",
-		"min growth temp" : 0,
-		"optimal growth temp" : 12.5,
-		"base" : {
-			"stem" : 0.6,
-			"root" : 0.4,
-			"storage" : 0,
-			"fruit" : 0
-			},
-		"flowering" : {
-			"stem" : 0.6,
-			"root" : 0.2,
-			"storage" : 0,
-			"fruit" : 0.2
-			},
-		"final" : {
-			"stem" : 0.1,
-			"root" : 0.1,
-			"storage" : 0,
-			"fruit" : 0.8
-			},
-		"germination min temp" : 10,
-		"germination optimal temp" : 20,
-		"germination thermal units" : 6,
-		"average fruit weight" : 0.01,
-		"seed ratio" : 1,
-		"dormancy" : 120,
-		"default dormancy" : "TRUE"
-	},
-	{
-		"name" : "Fescue grass",
-		"annual" : "FALSE",
-		"isTree" : "FALSE",
-		"maxLAI" : 1,
-		"stage 6" : 800,
-		"stage 7" : 1093,
-		"stage 9" : 1686,
-		"stage 10" : 1800,
-		"base temp" : 5,
-		"water tolerence" : 4,
-		"max height" : 610,
-		"max root depth" : 300,
-		"starting nitrogen" : 0.06,
-		"final nitrogen" : 0.01,
-		"day neutral" : "TRUE",
-		"min growth temp" : 0,
-		"optimal growth temp" : 15.5,
-		"base" : {
-			"stem" : 0.6,
-			"root" : 0.4,
-			"storage" : 0,
-			"fruit" : 0
-			},
-		"flowering" : {
-			"stem" : 0.6,
-			"root" : 0.2,
-			"storage" : 0,
-			"fruit" : 0.2
-			},
-		"final" : {
-			"stem" : 0.1,
-			"root" : 0.1,
-			"storage" : 0,
-			"fruit" : 0.8
-			},
-		"germination min temp" : 10,
-		"germination optimal temp" : 15,
-		"germination thermal units" : 10,
-		"average fruit weight" : 0.01,
-		"seed ratio" : 1,
-		"dormancy" : 120,
-		"default dormancy" : "FALSE",
-		"dormant height decrease" : 0.998,
-		"dormant root decrease" : 0.998,
-		"dormant biomass" : {
-			"stem" : 0.98,
-			"root" : 0.995,
-			"storage" : 0.995,
-			"fruit" : 0.99
-				}
-		}
+    {
+        "annual": "TRUE",
+        "average fruit weight": 0.05,
+        "base": {
+            "fruit": 0.0,
+            "root": 0.4,
+            "stem": 0.6,
+            "storage": 0.0
+        },
+        "base temp": 5.0,
+        "day neutral": "FALSE",
+        "default dormancy": "FALSE",
+        "dormancy": {
+            "biomass": {
+                "fruit": 6.0,
+                "root": 4.0,
+                "stem": 3.0,
+                "storage": 5.0
+            },
+            "height decrease": 1.0,
+            "root decrease": 2.0
+        },
+        "final": {
+            "fruit": 0.8,
+            "root": 0.1,
+            "stem": 0.1,
+            "storage": 0.0
+        },
+        "final nitrogen": 0.01,
+        "flowering": {
+            "fruit": 0.2,
+            "root": 0.2,
+            "stem": 0.6,
+            "storage": 0.0
+        },
+        "germination": {
+            "min temp": 5.0,
+            "optimal temp": 12.0,
+            "thermal units": 7.0
+        },
+        "growth": {
+            "min temp": 7.775,
+            "optimal temp": 23.55
+        },
+        "is tree": "FALSE",
+        "max height": 1000.0,
+        "max root depth": 304.0,
+        "maxLAI": 6.0,
+        "name": "Pea",
+        "needs vernalization": "FALSE",
+        "seed dormancy": 80.0,
+        "seed ratio": 0.5,
+        "stage 10": 1800.0,
+        "stage 6": 800.0,
+        "stage 7": 1093.0,
+        "stage 9": 1686.0,
+        "starting nitrogen": 0.06,
+        "water tolerence": 2.0
+    },
+    {
+        "annual": "TRUE",
+        "average fruit weight": 0.05,
+        "base": {
+            "fruit": 0.0,
+            "root": 0.4,
+            "stem": 0.6,
+            "storage": 0.0
+        },
+        "base temp": 5.0,
+        "day neutral": "FALSE",
+        "default dormancy": "TRUE",
+        "final": {
+            "fruit": 0.8,
+            "root": 0.1,
+            "stem": 0.1,
+            "storage": 0.0
+        },
+        "final nitrogen": 0.01,
+        "flowering": {
+            "fruit": 0.2,
+            "root": 0.2,
+            "stem": 0.6,
+            "storage": 0.0
+        },
+        "germination": {
+            "min temp": 5.0,
+            "optimal temp": 12.0,
+            "thermal units": 7.0
+        },
+        "growth": {
+            "min temp": 7.775,
+            "optimal temp": 23.55
+        },
+        "is tree": "FALSE",
+        "max height": 610.0,
+        "max root depth": 304.0,
+        "maxLAI": 6.0,
+        "name": "\"Snowbird\" Snowpea",
+        "needs vernalization": "FALSE",
+        "seed dormancy": 80.0,
+        "seed ratio": 0.5,
+        "stage 10": 1800.0,
+        "stage 6": 800.0,
+        "stage 7": 1093.0,
+        "stage 9": 1686.0,
+        "starting nitrogen": 0.06,
+        "water tolerence": 2.0
+    },
+    {
+        "annual": "TRUE",
+        "average fruit weight": 0.01,
+        "base": {
+            "fruit": 0.0,
+            "root": 0.4,
+            "stem": 0.6,
+            "storage": 0.0
+        },
+        "base temp": 5.0,
+        "day neutral": "TRUE",
+        "default dormancy": "TRUE",
+        "final": {
+            "fruit": 0.8,
+            "root": 0.1,
+            "stem": 0.1,
+            "storage": 0.0
+        },
+        "final nitrogen": 0.01,
+        "flowering": {
+            "fruit": 0.2,
+            "root": 0.2,
+            "stem": 0.6,
+            "storage": 0.0
+        },
+        "germination": {
+            "min temp": 10.0,
+            "optimal temp": 20.0,
+            "thermal units": 6.0
+        },
+        "growth": {
+            "min temp": 0.0,
+            "optimal temp": 12.5
+        },
+        "is tree": "FALSE",
+        "max height": 450.0,
+        "max root depth": 680.0,
+        "maxLAI": 6.0,
+        "name": "Cabbage",
+        "needs vernalization": "TRUE",
+        "photoinduction": {
+            "critical night length": 12.0,
+            "floral induction units": 7.0,
+            "long day": "TRUE",
+            "min temp": 18.0,
+            "minimum induction": "1",
+            "optimal temp": 24.0
+        },
+        "seed dormancy": 120.0,
+        "seed ratio": 1.0,
+        "stage 10": 1800.0,
+        "stage 6": 800.0,
+        "stage 7": 1093.0,
+        "stage 9": 1686.0,
+        "starting nitrogen": 0.1,
+        "vernalization": {
+            "min temp": 0.0,
+            "obligate": "TRUE",
+            "optimal temp": 2.5,
+            "thermal units": 45.0
+        },
+        "water tolerence": 1.0
+    },
+    {
+        "annual": "FALSE",
+        "average fruit weight": 0.01,
+        "base": {
+            "fruit": 0.0,
+            "root": 0.4,
+            "stem": 0.6,
+            "storage": 0.0
+        },
+        "base temp": 5.0,
+        "day neutral": "TRUE",
+        "default dormancy": "TRUE",
+        "final": {
+            "fruit": 0.8,
+            "root": 0.1,
+            "stem": 0.1,
+            "storage": 0.0
+        },
+        "final nitrogen": 0.01,
+        "flowering": {
+            "fruit": 0.2,
+            "root": 0.2,
+            "stem": 0.6,
+            "storage": 0.0
+        },
+        "germination": {
+            "min temp": 10.0,
+            "optimal temp": 15.0,
+            "thermal units": 10.0
+        },
+        "growth": {
+            "min temp": 0.0,
+            "optimal temp": 15.5
+        },
+        "is tree": "FALSE",
+        "max height": 610.0,
+        "max root depth": 300.0,
+        "maxLAI": 3.0,
+        "name": "Fescue grass",
+        "needs vernalization": "FALSE",
+        "photoinduction": {
+            "critical night length": 12.0,
+            "floral induction units": 7.0,
+            "long day": "TRUE",
+            "min temp": 18.0,
+            "minimum induction": "1",
+            "optimal temp": 24.0
+        },
+        "seed dormancy": 120.0,
+        "seed ratio": 1.0,
+        "stage 10": 1800.0,
+        "stage 6": 800.0,
+        "stage 7": 1093.0,
+        "stage 9": 1686.0,
+        "starting nitrogen": 0.06,
+        "water tolerence": 2.0
+    }
 ]
