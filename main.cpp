@@ -16,14 +16,14 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
-   /*
+    
 
 //    Tests::singlePlant(360 * 10, "Pea");
     Tests::singlePlant(360 * 10, "Fescue grass");
     //Tests::singlePlant(360*10, "Cabbage");
     
     cin.ignore(0);
-    return 0;*/
+    return 0;
 
     /////
 

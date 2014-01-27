@@ -21,6 +21,7 @@ namespace ALMANAC
     struct PlantProperties
     {
         std::string name;
+
         double maxLAI;
         std::map<int, double> growthStages;
         double baseTemp; // ¡ÆC, for GDD calcs
@@ -31,6 +32,7 @@ namespace ALMANAC
         SCurve CO2CurveFactors;  /// This one is shared for all plants.
         Parabola flowerTempCurve;
         Parabola tempCurve; //growing temp
+        Parabola vernalizationCurve;
         SCurve nightLengthCurve;
 
         double startingNitrogenConcentration;
@@ -56,6 +58,13 @@ namespace ALMANAC
 
         double minFloweringTemp;
         double optimalFloweringTemp;
+
+        double minVernalizationTemp; // default 0 C
+        double optimalVernalizationTemp; // default 2.5 C
+        double vernalizationThermalUnits; // default 45
+        bool needsVernalization; // default FALSE
+        bool isObligateVernalization; // default FALSE
+
         
         double floralInductionUnitsRequired; // defaults to 7
         bool dayNeutral;

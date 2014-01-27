@@ -34,7 +34,7 @@ void PlantDictionary::init()
 
         pp.name = plant["name"].asString();
         pp.isAnnual = plant["annual"].asBool();
-        pp.isTree = false;
+        pp.isTree = plant["isTree"].asBool();
         pp.maxLAI = plant["maxLAI"].asDouble();
         pp.growthStages[6] = plant["stage 6"].asDouble();
         pp.growthStages[7] = plant["stage 7"].asDouble();
@@ -71,6 +71,24 @@ void PlantDictionary::init()
             pp.longDayPlant = false;
             pp.minimumInduction = 1;
             pp.criticalNightLength = 12;
+        }
+
+        pp.needsVernalization = plant["needs vernalization"].asBool();
+        if (pp.needsVernalization)
+        {
+            pp.isObligateVernalization = plant["vernalization"]["obligate"].asBool();
+            pp.minVernalizationTemp = plant["vernalization"]["min temp"].asDouble();
+            pp.optimalVernalizationTemp = plant["vernalization"]["optimal temp"].asDouble();
+            pp.vernalizationThermalUnits = plant["vernalization"]["thermal units"].asDouble();
+            pp.vernalizationCurve = Parabola(pp.minVernalizationTemp, pp.optimalVernalizationTemp, 1);
+        }
+        else
+        {
+            pp.isObligateVernalization = false;
+            pp.minVernalizationTemp = 0;
+            pp.optimalVernalizationTemp = 2.5;
+            pp.vernalizationThermalUnits = 45;
+            pp.vernalizationCurve = Parabola(pp.minVernalizationTemp, pp.optimalVernalizationTemp, 1);
         }
 
         bool useDefaultDormancyValues = false;

@@ -14,7 +14,8 @@ using namespace ALMANAC;
 
 BasePlant::BasePlant(SoilCell* soil)
 : Biomass(0.05, 0, 0, 0), LAI(0), prevLAI(0), previousHeatUnits(0), heatUnits(0), soilPatch(soil), requiredWater(1), suppliedWater(1), height(0)
-, currentWaterlogValue(0), nitrogen(0), floralInductionUnits(0), tempstress(1), rootDepth(0), dead(false), deadBiomass(0), maxBiomass(0), removedNitrogen(0), consecutiveDormantDays(0)
+, currentWaterlogValue(0), nitrogen(0), floralInductionUnits(0), tempstress(1), rootDepth(0), dead(false), deadBiomass(0), maxBiomass(0), removedNitrogen(0), consecutiveDormantDays(0),
+vernalizationUnits(0)
 {
     maxBiomass = Biomass;
 
@@ -82,7 +83,8 @@ BasePlant::BasePlant(SoilCell* soil)
 
 BasePlant::BasePlant(PlantProperties plantprop, SoilCell* soil)
 : LAI(0), prevLAI(0), previousHeatUnits(0), heatUnits(0), soilPatch(soil), requiredWater(1), suppliedWater(1), height(0)
-, currentWaterlogValue(0), nitrogen(0), floralInductionUnits(0), tempstress(1), rootDepth(0), dead(false), REG(0), deadBiomass(0), removedNitrogen(0), consecutiveDormantDays(0)
+, currentWaterlogValue(0), nitrogen(0), floralInductionUnits(0), tempstress(1), rootDepth(0), dead(false), REG(0), deadBiomass(0), removedNitrogen(0), consecutiveDormantDays(0),
+vernalizationUnits(0)
 {
     prop = plantprop;
     Biomass = BiomassHolder(prop.averageFruitWeight * prop.seedRatio / 10, 0, 0, 0);
@@ -101,7 +103,8 @@ BasePlant::BasePlant(PlantProperties plantprop, SoilCell* soil)
 
 BasePlant::BasePlant(Seed seed, SoilCell* soil)
 : LAI(0), prevLAI(0), previousHeatUnits(0), heatUnits(0), soilPatch(soil), requiredWater(1), suppliedWater(1), height(0)
-, currentWaterlogValue(0), nitrogen(0), floralInductionUnits(0), tempstress(1), rootDepth(0), dead(false), REG(0), deadBiomass(0), removedNitrogen(0), consecutiveDormantDays(0)
+, currentWaterlogValue(0), nitrogen(0), floralInductionUnits(0), tempstress(1), rootDepth(0), dead(false), REG(0), deadBiomass(0), removedNitrogen(0), consecutiveDormantDays(0),
+vernalizationUnits(0)
 {
     prop = seed.pp;
     Biomass = BiomassHolder(seed.seedBiomass / 10.0, 0, 0, 0);
@@ -233,6 +236,7 @@ void BasePlant::calculate(const WeatherData& data, const double& albedo, const d
     {
         doWater(data);
         doNitrogen();
+        doVernalization(data);
         doFloralInduction(data);
         doTempStress(data);
         findREG();
@@ -272,6 +276,15 @@ void BasePlant::calculate(const WeatherData& data, const double& albedo, const d
 double BasePlant::getInduction()
 {
     return floralInductionUnits;
+}
+
+double BasePlant::getVernalizedRatio()
+{
+    if (!prop.needsVernalization)
+        return 1;
+    if (!prop.isObligateVernalization || vernalizationUnits > prop.vernalizationThermalUnits)
+        return vernalizationUnits / prop.vernalizationThermalUnits;
+    return 0;
 }
 
 double BasePlant::getRequiredWater()
@@ -328,8 +341,12 @@ void BasePlant::doNitrogen()
 void BasePlant::doFloralInduction(const WeatherData& data)
 {
     if (heatUnits > maxHU * 0.2 /*floweringHU*/ && heatUnits < endFloweringHU)
-        floralInductionUnits += max(0.0, prop.flowerTempCurve.getValue((data.maxTemp + data.minTemp) / 2.0) /** prop.nightLengthCurve.getValue(data.nightLength)*/);
+        floralInductionUnits += max(0.0, prop.flowerTempCurve.getValue((data.maxTemp + data.minTemp) / 2.0) * prop.nightLengthCurve.getValue(data.nightLength));
+}
 
+void BasePlant::doVernalization(const WeatherData& data)
+{
+    vernalizationUnits += max(0.0, prop.vernalizationCurve.getValue((data.maxTemp + data.minTemp) / 2.0));
 }
 
 void BasePlant::doTempStress(const WeatherData& data)
@@ -379,6 +396,8 @@ void BasePlant::partitionBiomass(const double dBiomass)
             shoot += fruit / 3;
             fruit = 0;
         }
+
+        fruit *= getVernalizedRatio(); // Reduce the efficiency of the flowering depending on its vernalization status.
     }
     else
     {
@@ -395,6 +414,7 @@ void BasePlant::partitionBiomass(const double dBiomass)
             fruit = 0;
         }
 
+        fruit *= getVernalizedRatio();
     }
 
 
@@ -475,7 +495,8 @@ double BasePlant::calcRootDepth()
 bool BasePlant::canFlower()
 {
     if (floralInductionUnits > prop.floralInductionUnitsRequired)
-        return true;
+        if (!prop.needsVernalization || !prop.isObligateVernalization || vernalizationUnits > prop.vernalizationThermalUnits)
+            return true;
     return false;
 }
 

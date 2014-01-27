@@ -31,6 +31,13 @@ namespace ALMANAC
         double getLAI(); // strictly for accessing the LAI of the plant.
         double getRequiredWater();
 
+        /** Returns:
+        1 - if (1) no need for vernalization OR (2) has been fully vernalized
+        0 < x < 1 - if partially vernalized AND is not obligate
+        0 - if not vernalized OR (not vernalized sufficiently AND is obligate)
+        **/
+        double getVernalizedRatio();
+
         double getREG();
         double getWaterREG();
 
@@ -72,6 +79,7 @@ namespace ALMANAC
         double maxBiomass;
 
         double floralInductionUnits;
+        double vernalizationUnits;
 
         static SCurve getSCurve(const bool dayNeutral, const bool longDayPlant, double minInduction, const double& optimalInductionNightLength);
 
@@ -106,6 +114,7 @@ namespace ALMANAC
         void doWater(const WeatherData& data);
         void doNitrogen();
         void doFloralInduction(const WeatherData& data);
+        void doVernalization(const WeatherData& data);
         void partitionBiomass(const double dBiomass);
         void doTempStress(const WeatherData& wd);
 
