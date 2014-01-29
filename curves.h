@@ -1,6 +1,12 @@
 #pragma once
 #include <cmath>
+#include <exception>
+#include <string>
 
+/**
+A bare-bones parabola class that gets the y-value for a certain x, and sets
+the parameters appropriately for a given lower root & vertex coords.
+**/
 struct Parabola
 {
 public:
@@ -13,6 +19,43 @@ public:
     double vertical;
 
 };
+
+/**
+Similar to the Parabola class, has appropriate functions for leaf area based light competition.
+Includes functions that only calculate positive area, adjust absolute height values to relative height values,
+and "normalizes" the integral of the function. That is, makes the area under the curve approx. equal 1.
+**/
+/*
+y = p(ax^2 + bx + c)
+*/
+struct LeafDistribution
+{
+public:
+    LeafDistribution();
+    LeafDistribution(Parabola& pb);
+    
+    double p, a, b, c;
+    double leftRoot, rightRoot;
+
+private:
+    double getIntegral(double x); // for function f(x) gets F(x), assuming C = 0
+};
+
+namespace ALMANAC
+{
+    // A catch-all exception intended to handle errors in the LeafDistribution class,
+    // mainly less than 2 real roots.
+    class AdvancedMathException : public std::exception
+    {
+    private:
+        std::string err_msg;
+
+    public:
+        AdvancedMathException(const char *msg) : err_msg(msg) {};
+        AdvancedMathException() throw() {};
+        const char* what() const throw() { return this->err_msg.c_str(); };
+    };
+}
 
 /**
 This class stores the three parameters for S-curves.
