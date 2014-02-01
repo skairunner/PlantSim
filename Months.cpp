@@ -14,7 +14,7 @@ namespace ALMANAC
 
     Month::Month(const int& NEWMONTH, const int& day, const int& startYear)
     {
-        year = year;
+        year = startYear;
         if (NEWMONTH > 0 && NEWMONTH < 14)
             MONTH = NEWMONTH;
         else
@@ -117,6 +117,11 @@ namespace ALMANAC
         int dayDiff = left.date - right.date;
 
         return yearDiff * 360 + monthDiff * 30 + dayDiff;
+    }
+
+    bool operator==(const Month& left, const Month& right)
+    {
+        return ((left.year == right.year) && (left.MONTH == right.MONTH) && (left.date == right.date));
     }
 }
 

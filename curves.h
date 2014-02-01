@@ -33,9 +33,14 @@ struct LeafDistribution
 public:
     LeafDistribution();
     LeafDistribution(Parabola& pb);
+    LeafDistribution(bool isLine); // for a straight line.
     
     double p, a, b, c;
     double leftRoot, rightRoot;
+    double getPositiveArea(double x1, double x2); // 0 <= x1, x2 <= 1
+    // Automatically swaps x1 and x2 if x1 > x2. Negative area is ignored.
+    double getPositiveArea(double x1, double x2, double plantHeight); 
+    // this function simply divides x1, x2 by plantHeight and plugs into getPositiveArea(x1, x2)
 
 private:
     double getIntegral(double x); // for function f(x) gets F(x), assuming C = 0

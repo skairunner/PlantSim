@@ -15,7 +15,7 @@ using namespace ALMANAC;
 BasePlant::BasePlant(SoilCell* soil)
 : Biomass(0.05, 0, 0, 0), LAI(0), prevLAI(0), previousHeatUnits(0), heatUnits(0), soilPatch(soil), requiredWater(1), suppliedWater(1), height(0)
 , currentWaterlogValue(0), nitrogen(0), floralInductionUnits(0), tempstress(1), rootDepth(0), dead(false), deadBiomass(0), maxBiomass(0), removedNitrogen(0), consecutiveDormantDays(0),
-vernalizationUnits(0)
+vernalizationUnits(0), age(0), daysLeftForShedding(0)
 {
     maxBiomass = Biomass;
 
@@ -84,7 +84,7 @@ vernalizationUnits(0)
 BasePlant::BasePlant(PlantProperties plantprop, SoilCell* soil)
 : LAI(0), prevLAI(0), previousHeatUnits(0), heatUnits(0), soilPatch(soil), requiredWater(1), suppliedWater(1), height(0)
 , currentWaterlogValue(0), nitrogen(0), floralInductionUnits(0), tempstress(1), rootDepth(0), dead(false), REG(0), deadBiomass(0), removedNitrogen(0), consecutiveDormantDays(0),
-vernalizationUnits(0)
+vernalizationUnits(0), age(0), daysLeftForShedding(0)
 {
     prop = plantprop;
     Biomass = BiomassHolder(prop.averageFruitWeight * prop.seedRatio / 10, 0, 0, 0);
@@ -104,7 +104,7 @@ vernalizationUnits(0)
 BasePlant::BasePlant(Seed seed, SoilCell* soil)
 : LAI(0), prevLAI(0), previousHeatUnits(0), heatUnits(0), soilPatch(soil), requiredWater(1), suppliedWater(1), height(0)
 , currentWaterlogValue(0), nitrogen(0), floralInductionUnits(0), tempstress(1), rootDepth(0), dead(false), REG(0), deadBiomass(0), removedNitrogen(0), consecutiveDormantDays(0),
-vernalizationUnits(0)
+vernalizationUnits(0), age(0), daysLeftForShedding(0)
 {
     prop = seed.pp;
     Biomass = BiomassHolder(seed.seedBiomass / 10.0, 0, 0, 0);
@@ -165,12 +165,15 @@ void BasePlant::findREG()
 
 void BasePlant::calculate(const WeatherData& data, const double& albedo, const double radiation)
 {
-
+    age += 1;
     double heatUnitsAdded = (data.maxTemp + data.minTemp) / 2 - prop.baseTemp;
     heatUnitsAdded = heatUnitsAdded > 0 ? heatUnitsAdded : 0;
     previousHeatUnits = heatUnits;
 
-     if (heatUnitsAdded + heatUnits > maxHU) // If adding HU will go over the limit,
+    if (data.date == Month(AUGUST, 8, 2013))
+        cout << "hi";
+
+    if (heatUnitsAdded + heatUnits > maxHU) // If adding HU will go over the limit,
      {
         if (prop.isAnnual)
         {
@@ -179,8 +182,20 @@ void BasePlant::calculate(const WeatherData& data, const double& albedo, const d
         heatUnitsAdded = 0;
         heatUnits = maxHU;
         createSeeds(data.date);
+        if (prop.leafFallPeriod > 0)
+        {
+            daysLeftForShedding = prop.leafFallPeriod;
+            LAIShedPerDay = LAI / daysLeftForShedding;
+        }
         if (!prop.isAnnual) // test
             seedlist.clear();
+    }
+
+    if (daysLeftForShedding > 0)
+    {
+        prevLAI = LAI;
+        LAI -= LAIShedPerDay;
+        daysLeftForShedding--;
     }
 
     if (isDead())
@@ -189,41 +204,11 @@ void BasePlant::calculate(const WeatherData& data, const double& albedo, const d
         return;
     }
 
-    const double tolerence = 0.00005; // plants less than 1 gram are proclaimed to be dead.
+
+    //const double tolerence = 0.00005; // plants less than 1 gram are proclaimed to be dead.
 
     if (isDormant()) // for decreasing standing biomass.
-    {
-        consecutiveDormantDays++;
-        floralInductionUnits = 0;
-
-        if (!prop.isTree) // current dummy function.
-        {
-            height *= prop.dormantHeightDecrease;
-            rootDepth *= prop.dormantRootDecrease;
-
-            if (Biomass < tolerence)
-                dead = true;
-            else if (Biomass - Biomass.storageOrgan > tolerence) // there are other parts of the plant left
-            {
-                // consume said parts
-                Biomass.flowerAndfruits *= prop.dormantBiomassDecrease.flowerAndfruits;
-                Biomass.roots *= prop.dormantBiomassDecrease.roots;
-                Biomass.stem *= prop.dormantBiomassDecrease.stem;
-            }
-            else // otherwise consume the storage organ
-            {
-                Biomass.storageOrgan *= prop.dormantBiomassDecrease.storageOrgan;
-            }
-        }
-
-
-        if (!prop.isAnnual && consecutiveDormantDays > 30)
-        {
-            heatUnits = 0;
-            currentWaterlogValue *= 0.5;
-            previousHeatUnits = 0;
-        }            
-    }
+        doDormancy();
     else
         consecutiveDormantDays = 0;
     
@@ -246,9 +231,22 @@ void BasePlant::calculate(const WeatherData& data, const double& albedo, const d
         double deltaHUF = findHUF() - findPreviousHUF();
         prevLAI = LAI;
         LAI += deltaHUF * prop.maxLAI * (1 - exp(5.0f * (prevLAI - prop.maxLAI))) * sqrt(REG);
-
-        height += deltaHUF * prop.maxHeight * sqrt(REG);
         rootDepth += deltaHUF * prop.maxRootDepth * sqrt(REG);
+
+        if (prop.isTree)
+        {
+            height += deltaHUF * prop.maxYearlyGrowth * sqrt(REG);
+            if (height > prop.maxHeight)
+                height = prop.maxHeight;
+
+            rootDepth += deltaHUF * prop.maxRootDepth * sqrt(REG);
+            if (rootDepth > prop.maxRootDepth) rootDepth = prop.maxRootDepth;
+        }           
+        else
+            height += deltaHUF * prop.maxHeight * sqrt(REG);
+
+        
+        
 
         ///////////////////////
         double photoactiveRadiation;
@@ -257,7 +255,7 @@ void BasePlant::calculate(const WeatherData& data, const double& albedo, const d
         else
             photoactiveRadiation = radiation;
      
-        prop.biomassToVPD = 6;
+        prop.biomassToVPD = 72;
         double potentialDeltaBiomass = 100 * prop.CO2CurveFactors.getValue(data.CO2); // BE*
         potentialDeltaBiomass = potentialDeltaBiomass - prop.biomassToVPD * (findVPD((data.maxTemp - data.minTemp) / 2.0f, data.humidity) - 1); // BE'
         potentialDeltaBiomass = 0.001f * potentialDeltaBiomass * photoactiveRadiation / 10.0f; //result is in kg / m^2  
@@ -431,6 +429,41 @@ void BasePlant::partitionBiomass(const double dBiomass)
     }    */
 }
 
+void BasePlant::doDormancy()
+{
+    const double tolerence = 0.00005;
+    consecutiveDormantDays++;
+    floralInductionUnits = 0;
+
+    if (true)//!prop.isTree) // current dummy function.
+    {
+        height *= prop.dormantHeightDecrease;
+        rootDepth *= prop.dormantRootDecrease;
+
+        if (Biomass < tolerence)
+            dead = true;
+        else if (Biomass - Biomass.storageOrgan > tolerence) // there are other parts of the plant left
+        {
+            // consume said parts
+            Biomass.flowerAndfruits *= prop.dormantBiomassDecrease.flowerAndfruits;
+            Biomass.roots *= prop.dormantBiomassDecrease.roots;
+            Biomass.stem *= prop.dormantBiomassDecrease.stem;
+        }
+        else // otherwise consume the storage organ
+        {
+            Biomass.storageOrgan *= prop.dormantBiomassDecrease.storageOrgan;
+        }
+    }
+
+
+    if (!prop.isAnnual && consecutiveDormantDays > 30)
+    {
+        heatUnits = 0;
+        currentWaterlogValue *= 0.5;
+        previousHeatUnits = 0;
+    }
+}
+
 double BasePlant::getWaterStressFactor()
 {
     if (requiredWater != 0)
@@ -495,7 +528,10 @@ double BasePlant::calcRootDepth()
 bool BasePlant::canFlower()
 {
     if (floralInductionUnits > prop.floralInductionUnitsRequired)
-        if (!prop.needsVernalization || !prop.isObligateVernalization || vernalizationUnits > prop.vernalizationThermalUnits)
+        if (!prop.needsVernalization  // doesn't need vernalization
+            || !prop.isObligateVernalization  // doesn't need to be fully vernalized to flower
+            || vernalizationUnits > prop.vernalizationThermalUnits // is sufficiently vernalized
+            || (prop.isTree && getAge() >= prop.yearsUntilMaturity)) // if is a tree, is over mature age.
             return true;
     return false;
 }
@@ -568,6 +604,11 @@ double BasePlant::getNitrogen()
     return nitrogen;
 }
 
+double BasePlant::findFallenLeaves()
+{
+    return Biomass * exp(-sqrt(age / 360.0 / prop.yearsUntilMaturity)) / 1.42857; /// 1 / 1.42857 = 70% inital leaf drop. Adjust for other values.
+}
+
 std::string BasePlant::getName()
 {
     return prop.name;
@@ -597,6 +638,9 @@ void BasePlant::createSeeds(const Month& date)
         return;
 
     int numSeeds = Biomass.flowerAndfruits / prop.averageFruitWeight + 0.5;
+
+    if (numSeeds == 0)
+        return;
 
     double totalWeight = numSeeds * prop.averageFruitWeight;
 
@@ -647,4 +691,9 @@ void BasePlant::reduceStandingBiomass(const WeatherData& data)
     {
         Biomass.flowerAndfruits = Biomass.roots = Biomass.stem = Biomass.storageOrgan = 0;
     }
+}
+
+int BasePlant::getAge()
+{
+    return int(age / 360);
 }

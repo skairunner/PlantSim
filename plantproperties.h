@@ -27,12 +27,14 @@ namespace ALMANAC
         double baseTemp; // ¡ÆC, for GDD calcs
         double waterTolerence;
         double maxHeight; // mm
+        double maxYearlyGrowth; // mm, trees only
         double maxRootDepth;
         SCurve HeatUnitFactorNums; // how fast it grows, shared atm
         SCurve CO2CurveFactors;  /// This one is shared for all plants.
         Parabola flowerTempCurve;
         Parabola tempCurve; //growing temp
         Parabola vernalizationCurve;
+        LeafDistribution LAIGraph;
         SCurve nightLengthCurve;
 
         double startingNitrogenConcentration;
@@ -76,8 +78,9 @@ namespace ALMANAC
 
         bool isAnnual; // limits HU to the maturity HUs.    
         bool isTree;
-
-
+        int yearsUntilMaturity; // trees only
+        int maxAge;
+        int leafFallPeriod; // days. over how many days the plant loses its LAI.
 
     };
 }

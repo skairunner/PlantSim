@@ -33,7 +33,6 @@ LeafDistribution::LeafDistribution()
 : p(0), a(0), b(0), c(0),
 leftRoot(0), rightRoot(0)
 {
-
 }
 
 LeafDistribution::LeafDistribution(Parabola& pb)
@@ -56,12 +55,27 @@ LeafDistribution::LeafDistribution(Parabola& pb)
     }
     leftRoot = pb.parallel - sqrt(-pb.vertical / pb.width);
     rightRoot = pb.parallel + sqrt(-pb.vertical / pb.width);
+
+    
+    if (leftRoot < 0)
+        leftRoot = 0;
+    if (rightRoot > 1)
+        rightRoot = 1;
+
     p = 1;
 
     double area = getIntegral(rightRoot) - getIntegral(leftRoot);
     p = 1 / area;
+}
 
-    std::cout << getIntegral(rightRoot) - getIntegral(leftRoot);
+LeafDistribution::LeafDistribution(bool IsLine)
+{
+    a = 0;
+    b = 0;
+    c = 1;
+    leftRoot = 0;
+    rightRoot = 1;
+    p = 1;
 }
 
 double LeafDistribution::getIntegral(double x)
@@ -69,8 +83,29 @@ double LeafDistribution::getIntegral(double x)
     
     // for f(x) = p(ax^2 + bx + c)
     // F(x) = 1/3 * pax^3 + 1/2 * pbx^2 + pcx
-    return 1 / 3.0 * p * a * pow(x, 3) + 0.5 * p * b * pow(x, 2) + p * c * x;
-    
+    return 1 / 3.0 * p * a * pow(x, 3) + 0.5 * p * b * pow(x, 2) + p * c * x;    
+}
+
+double LeafDistribution::getPositiveArea(double x1, double x2)
+{
+    if (x1 > x2)
+    {
+        double temp = x2;
+        x2 = x1;
+        x1 = x2;
+    }
+
+    if (x2 > rightRoot)
+        x2 = rightRoot;
+    if (x1 < leftRoot)
+        x1 = leftRoot;
+
+    return getIntegral(x2) - getIntegral(x1);
+}
+
+double LeafDistribution::getPositiveArea(double x1, double x2, double plantHeight)
+{
+    return getPositiveArea(x1 / plantHeight, x2 / plantHeight);
 }
 
 

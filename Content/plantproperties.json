@@ -1,5 +1,10 @@
 [
     {
+        "LAI graph": {
+            "left root": 0.3,
+            "vertex X": 0.6,
+            "vertex Y": 0.04
+        },
         "annual": "TRUE",
         "average fruit weight": 0.05,
         "base": {
@@ -10,17 +15,7 @@
         },
         "base temp": 5.0,
         "day neutral": "FALSE",
-        "default dormancy": "FALSE",
-        "dormancy": {
-            "biomass": {
-                "fruit": 6.0,
-                "root": 4.0,
-                "stem": 3.0,
-                "storage": 5.0
-            },
-            "height decrease": 1.0,
-            "root decrease": 2.0
-        },
+        "default dormancy": "TRUE",
         "final": {
             "fruit": 0.8,
             "root": 0.1,
@@ -46,9 +41,17 @@
         "is tree": "FALSE",
         "max height": 1000.0,
         "max root depth": 304.0,
-        "maxLAI": 6.0,
+        "maxLAI": 4.0,
         "name": "Pea",
         "needs vernalization": "FALSE",
+        "photoinduction": {
+            "critical night length": 12.0,
+            "floral induction units": 7.0,
+            "long day": "TRUE",
+            "min temp": 18.0,
+            "minimum induction": 0.1,
+            "optimal temp": 24.0
+        },
         "seed dormancy": 80.0,
         "seed ratio": 0.5,
         "stage 10": 1800.0,
@@ -56,6 +59,7 @@
         "stage 7": 1093.0,
         "stage 9": 1686.0,
         "starting nitrogen": 0.06,
+        "uses custom LAI graph": "TRUE",
         "water tolerence": 2.0
     },
     {
@@ -95,9 +99,17 @@
         "is tree": "FALSE",
         "max height": 610.0,
         "max root depth": 304.0,
-        "maxLAI": 6.0,
+        "maxLAI": 4.0,
         "name": "\"Snowbird\" Snowpea",
         "needs vernalization": "FALSE",
+        "photoinduction": {
+            "critical night length": 12.0,
+            "floral induction units": 7.0,
+            "long day": "TRUE",
+            "min temp": 18.0,
+            "minimum induction": 0.1,
+            "optimal temp": 24.0
+        },
         "seed dormancy": 80.0,
         "seed ratio": 0.5,
         "stage 10": 1800.0,
@@ -105,6 +117,7 @@
         "stage 7": 1093.0,
         "stage 9": 1686.0,
         "starting nitrogen": 0.06,
+        "uses custom LAI graph": "FALSE",
         "water tolerence": 2.0
     },
     {
@@ -144,17 +157,9 @@
         "is tree": "FALSE",
         "max height": 450.0,
         "max root depth": 680.0,
-        "maxLAI": 6.0,
+        "maxLAI": 3.0,
         "name": "Cabbage",
         "needs vernalization": "TRUE",
-        "photoinduction": {
-            "critical night length": 12.0,
-            "floral induction units": 7.0,
-            "long day": "TRUE",
-            "min temp": 18.0,
-            "minimum induction": "1",
-            "optimal temp": 24.0
-        },
         "seed dormancy": 120.0,
         "seed ratio": 1.0,
         "stage 10": 1800.0,
@@ -162,6 +167,7 @@
         "stage 7": 1093.0,
         "stage 9": 1686.0,
         "starting nitrogen": 0.1,
+        "uses custom LAI graph": "FALSE",
         "vernalization": {
             "min temp": 0.0,
             "obligate": "TRUE",
@@ -169,6 +175,73 @@
             "thermal units": 45.0
         },
         "water tolerence": 1.0
+    },
+    {
+        "LAI graph": {
+            "left root": 0.5,
+            "vertex X": 0.75,
+            "vertex Y": 0.5
+        },
+        "annual": "FALSE",
+        "average fruit weight": 0.01,
+        "base": {
+            "fruit": 0.0,
+            "root": 0.4,
+            "stem": 0.6,
+            "storage": 0.0
+        },
+        "base temp": 5.0,
+        "day neutral": "TRUE",
+        "default dormancy": "FALSE",
+        "dormancy": {
+            "biomass": {
+                "fruit": 1.0,
+                "root": 0.998,
+                "stem": 0.999,
+                "storage": 0.995
+            },
+            "height decrease": 1.0,
+            "root decrease": 1.0
+        },
+        "final": {
+            "fruit": 0.8,
+            "root": 0.05,
+            "stem": 0.05,
+            "storage": 0.1
+        },
+        "final nitrogen": 0.002,
+        "flowering": {
+            "fruit": 0.1,
+            "root": 0.4,
+            "stem": 0.6,
+            "storage": 0.1
+        },
+        "germination": {
+            "min temp": 0.0,
+            "optimal temp": 15.0,
+            "thermal units": 6.0
+        },
+        "growth": {
+            "min temp": 0.0,
+            "optimal temp": 15.0
+        },
+        "is tree": "TRUE",
+        "maturity": 20,
+        "max height": 30480.0,
+        "max root depth": 1219.0,
+        "max yearly growth": 548.6,
+        "maxLAI": 6.0,
+        "name": "Oak",
+        "needs vernalization": "FALSE",
+        "seed dormancy": 80.0,
+        "seed ratio": 1.0,
+        "stage 10": 1800.0,
+        "stage 6": 800.0,
+        "stage 7": 1093.0,
+        "stage 9": 1686.0,
+        "starting nitrogen": 0.1,
+        "uses custom LAI graph": "TRUE",
+        "water tolerence": 5.0
     },
     {
         "annual": "FALSE",
@@ -207,17 +280,9 @@
         "is tree": "FALSE",
         "max height": 610.0,
         "max root depth": 300.0,
-        "maxLAI": 3.0,
+        "maxLAI": 1.0,
         "name": "Fescue grass",
         "needs vernalization": "FALSE",
-        "photoinduction": {
-            "critical night length": 12.0,
-            "floral induction units": 7.0,
-            "long day": "TRUE",
-            "min temp": 18.0,
-            "minimum induction": "1",
-            "optimal temp": 24.0
-        },
         "seed dormancy": 120.0,
         "seed ratio": 1.0,
         "stage 10": 1800.0,
@@ -225,6 +290,7 @@
         "stage 7": 1093.0,
         "stage 9": 1686.0,
         "starting nitrogen": 0.06,
+        "uses custom LAI graph": "FALSE",
         "water tolerence": 2.0
     }
 ]

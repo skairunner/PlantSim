@@ -35,7 +35,25 @@ void PlantDictionary::init()
         pp.name = plant["name"].asString();
         pp.isAnnual = plant["annual"].asBool();
         pp.isTree = plant["isTree"].asBool();
+        if (pp.isTree)
+        {
+            pp.yearsUntilMaturity = plant["maturity"].asInt();
+            pp.maxYearlyGrowth = plant["max yearly growth"].asDouble();
+        }
+
         pp.maxLAI = plant["maxLAI"].asDouble();
+        if (plant["uses custom LAI graph"].asBool())
+        {
+            double leftroot = plant["LAI graph"]["left root"].asDouble();
+            double vertexX = plant["LAI graph"]["vertex X"].asDouble();
+            double vertexY = plant["LAI graph"]["vertex Y"].asDouble();
+            pp.LAIGraph = LeafDistribution(Parabola(leftroot, vertexX, vertexY));
+        }
+        else
+        {
+            pp.LAIGraph = LeafDistribution(true);
+        }
+
         pp.growthStages[6] = plant["stage 6"].asDouble();
         pp.growthStages[7] = plant["stage 7"].asDouble();
         pp.growthStages[9] = plant["stage 9"].asDouble();
@@ -96,17 +114,17 @@ void PlantDictionary::init()
         if (useDefaultDormancyValues)
         {
             pp.dormantHeightDecrease = 0.995;
-            pp.dormantHeightDecrease = 0.998;
+            pp.dormantRootDecrease = 0.998;
             pp.dormantBiomassDecrease = BiomassHolder(0.995, 0.998, 0.995, 0.995);
         }
         else
         {
-            pp.dormantHeightDecrease = plant["dormant height decrease"].asDouble();
-            pp.dormantRootDecrease = plant["dormant root decrease"].asDouble();
-            double stem = plant["dormant biomass"]["stem"].asDouble();
-            double root = plant["dormant biomass"]["root"].asDouble();
-            double storage = plant["dormant biomass"]["storage"].asDouble();
-            double fruit = plant["dormant biomass"]["fruit"].asDouble();
+            pp.dormantHeightDecrease = plant["dormancy"]["dormant height decrease"].asDouble();
+            pp.dormantRootDecrease = plant["dormancy"]["dormant root decrease"].asDouble();
+            double stem = plant["dormancy"]["biomass"]["stem"].asDouble();
+            double root = plant["dormancy"]["biomass"]["root"].asDouble();
+            double storage = plant["dormancy"]["biomass"]["storage"].asDouble();
+            double fruit = plant["dormancy"]["biomass"]["fruit"].asDouble();
             pp.dormantBiomassDecrease = BiomassHolder(stem, root, storage, fruit);
 
         }

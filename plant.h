@@ -72,11 +72,16 @@ namespace ALMANAC
         double currentWaterlogValue;
         int consecutiveDormantDays;
 
+        int getAge(); // in years
+        int age; // incremented each time calculate() is called. Divide by 360 to get age in years.
+
         double height;
         double rootDepth;
 
         double LAI, prevLAI;
         double maxBiomass;
+        double LAIShedPerDay;
+        int daysLeftForShedding;
 
         double floralInductionUnits;
         double vernalizationUnits;
@@ -105,6 +110,8 @@ namespace ALMANAC
         double getWaterStressFactor();
         double getWaterlogStressFactor();
         double getNitrogenStressFactor();
+        double findFallenLeaves(); // A formula to make sure trees drop a constant weight in leaves each year. The ratio of leaves to total biomass decreases.
+        // Non-trees don't use this function.
 
         double floweringHU;
         double endFloweringHU;
@@ -117,6 +124,7 @@ namespace ALMANAC
         void doVernalization(const WeatherData& data);
         void partitionBiomass(const double dBiomass);
         void doTempStress(const WeatherData& wd);
+        void doDormancy();
 
         void reduceStandingBiomass(const WeatherData& data); // = die off, for annual plants.
         double tempstress;
