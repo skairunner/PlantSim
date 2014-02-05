@@ -48,6 +48,7 @@ double max(const double& left, const double& right)
 SoilGrid::SoilGrid(const int& w, const int& h, unsigned int seed)
 :width(w), height(h)
 {
+    test_totalrad = 0;
     if (!seed)
     {
         rand(); rand(); rand(); rand(); rand(); rand();
@@ -338,25 +339,46 @@ void SoilGrid::stepSurfaceFlow(const WeatherData& wd, double timestep)
 
 void SoilGrid::stepPlants(const WeatherData& wd)
 {
+    test_totalrad = 0;
+    radPerPlant.clear();
     for (auto it = grid.begin(); it < grid.end(); it++)
     {
-        double total = 0;        
+        double totalRad = wd.radiation; 
+        const double groundFraction = 1.0;
+        vector<double> intervals = { 0.0, 300, 600, 1000, 2000, 3000, 5000, 2000000 }; // does not simulate heights larger than 2 km
+        vector<double> rad(it->plants.size(), 0);
 
-        // Run plant updatings
-        for (auto plant = it->plants.begin(); plant < it->plants.end(); plant++)
+        for (int counter = intervals.size() - 1; counter >= 1; counter--)
         {
-            //if (!plant->isDead())
-                total += plant->getLAI();
+            double consumedRad = 0;
+            double upperLimit = intervals[counter]; // Starts from the last element in intervals
+            double lowerLimit = intervals[counter - 1]; // Ends at 0.
+            double totalLAI = groundFraction;
+            if (counter == 1)
+                totalLAI = 0.01;
+            for (auto plant = it->plants.begin(); plant < it->plants.end(); plant++)
+                totalLAI += plant->getLAI() * plant->prop.LAIGraph.getPositiveArea(lowerLimit, upperLimit, plant->calcHeight()); // Add up the total LAI in the given interval 
+            for (int counter = 0; counter < it->plants.size(); counter++)
+            {
+                auto& plant = it->plants[counter];
+                // Give each plant its fraction of the radiation.
+                double deltaRad = totalRad * plant.getLAI() * plant.prop.LAIGraph.getPositiveArea(lowerLimit, upperLimit, plant.calcHeight()) / totalLAI;
+                rad[counter] += deltaRad;
+                consumedRad += deltaRad;
+            }
+            totalRad -= consumedRad; // Subtract the total taken rad and repeat.
         }
 
+        for (double d : rad)
+        {
+            test_totalrad += d;
+        }
+
+        int plantCounter = 0;
+        radPerPlant = rad;
         for (auto plant = it->plants.begin(); plant < it->plants.end(); plant++)
         {
-            double radPortion;
-
-            if (total < 1)
-                radPortion = wd.radiation * plant->getLAI();
-            else
-                radPortion = plant->getLAI() / total * wd.radiation;
+            double radPortion = rad[plantCounter];
             plant->calculate(wd, 0.25, radPortion);
 
 
@@ -401,7 +423,7 @@ void SoilGrid::stepPlants(const WeatherData& wd)
             }
         }
         
-
+        plantCounter++;
     }
 
 }

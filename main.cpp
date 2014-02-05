@@ -10,16 +10,25 @@
 
 #include "plantDictionary.h"
 
+#include "curves.h"
+
 using namespace ALMANAC;
 using namespace std;
 
 
 int main(int argc, char **argv)
 {
-    
+    Parabola test(0.0, 0.5, 0.01);
+    LeafDistribution ld(test);
+    LeafDistribution ld2(true);
 
-//    Tests::singlePlant(360 * 10, "Pea");
-    Tests::singlePlant(360 * 10, "Fescue grass");
+    cout << ld2.getPositiveArea(0.2, 1.0);
+    
+    fstream f; f.open("logs/seedlist", fstream::out | fstream::trunc);
+    //Tests::singlePlant(360 * 10, "Fescue grass");
+
+    vector<string> list = { "Fescue grass", "Oak"};
+    Tests::multiplePlants(360 * 30, list);
     //Tests::singlePlant(360*10, "Cabbage");
     
     cin.ignore(0);

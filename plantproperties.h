@@ -79,6 +79,7 @@ namespace ALMANAC
         bool isAnnual; // limits HU to the maturity HUs.    
         bool isTree;
         int yearsUntilMaturity; // trees only
+        int vegetativeMaturity; // same
         int maxAge;
         int leafFallPeriod; // days. over how many days the plant loses its LAI.
 

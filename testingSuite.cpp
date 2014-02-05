@@ -51,17 +51,22 @@ void Tests::singlePlant(const int daysToRun, const std::string& plantname, Month
     Weather WeatherModule(true);
     SoilGrid sg(1, 1);
 
-
+    std::string filename = "logs/output_";
+    filename += plantname + ".txt";
     fstream file;
-    file.open("output1.txt", fstream::out | fstream::trunc);
+    file.open(filename.c_str(), fstream::out | fstream::trunc);
     file << "Date\tHeat units\tHeight(mm)\tRoot depth(mm)\tBiomass(g)\tLAI\tREG\tPrecipitation\tSurface water\tWater per layer\tSnow\n";
 
     fstream Nfile;
-    Nfile.open("nitrogen.txt", fstream::out | fstream::trunc);
+    filename = "logs/nitrogen_";
+    filename += plantname + ".txt";
+    Nfile.open(filename.c_str(), fstream::out | fstream::trunc);
     Nfile << "Date\tBiomass\tPlant nitrogen\tPrecipitation\tNitrogen\n";
 
     fstream PlantPartFile;
-    PlantPartFile.open("plantparts.txt", fstream::out | fstream::trunc);
+    filename = "logs/plantparts_";
+    filename += plantname + ".txt";
+    PlantPartFile.open(filename.c_str(), fstream::out | fstream::trunc);
     PlantPartFile << "Date\tTemp\tRoot\tStem\tStorage\tFruit\tTotal\tNight length\tFloral induction\n";
 
     
@@ -113,6 +118,95 @@ void Tests::singlePlant(const int daysToRun, const std::string& plantname, Month
         PlantPartFile << WeatherModule.getMonth() << "\t" << (WeatherModule.getMaxTemp() + WeatherModule.getMinTemp()) / 2.0 << "\t" << biomass.roots
             << "\t" << biomass.stem << "\t" << biomass.storageOrgan << "\t" << biomass.flowerAndfruits << "\t" << biomass << "\t" << WeatherModule.getDataBundle().nightLength
             << "\t" << plant.getInduction() << "\t" << plant.getHU() << "\n";
+    }
+
+    sg.ref(0, 0).plants.back().createSeeds(WeatherModule.getMonth());
+
+    auto seeds = sg.ref(0, 0).plants.back().seedlist;
+
+    int seedcounter = 0;
+    for (auto seed : seeds)
+    {
+        seedcounter++;
+        cout << "Seed " << seedcounter << " biomass: " << seed.seedBiomass * 1000 << "g\n";
+    }
+
+
+
+    /////
+
+    cout << sg.ref(0, 0).plants.back().getBiomass();
+    if (sg.ref(0, 0).plants.back().isDead())
+        cout << "Dead.\n";
+    cout << "\nDone.";
+
+    cin.ignore(1);
+    return;
+}
+
+void Tests::multiplePlants(const int daysToRun, const std::vector<std::string>& plantnames, Month startDate)
+{
+    Weather WeatherModule(true);
+    SoilGrid sg(1, 1);
+
+    string filename = "";
+    for (string s : plantnames)
+        filename += s + "_";
+    filename += ".txt";
+
+   /* for (string s : plantnames)
+        sg.ref(0, 0).plants.push_back(BasePlant(PD.getPlant(s), &sg.ref(0, 0)));*/
+    sg.ref(0, 0).plants.push_back(BasePlant(PD.getPlant(plantnames[0]), &sg.ref(0, 0)));
+
+
+    fstream rad; rad.open("logs/rad", fstream::trunc | fstream::out);
+
+    fstream logs; logs.open(("logs/log-" + filename).c_str(), fstream::trunc | fstream::out);
+    logs << "Date\t";
+    for (int counter = 0; counter < plantnames.size(); counter++)
+    {
+        logs << "Height" << counter << "\t"
+            << "Biomass" << counter << "\t"
+            << "LAI" << counter << "\t";
+        rad << "Plant" << counter << " rad\t";
+    }
+    rad << "Used rad\tTotal rad\n";
+    logs << "\n";
+
+    WeatherModule.changeDate(startDate);
+    sg.step(WeatherModule.getDataBundle());
+
+    for (int counter = 0; counter < daysToRun; counter++)
+    {
+        if (counter == 360 * 10)
+        {
+            if (plantnames.size() > 1)
+                sg.ref(0, 0).plants.push_back(BasePlant(PD.getPlant(plantnames[1]), &sg.ref(0, 0)));
+            if (plantnames.size() > 2)
+                sg.ref(0, 0).plants.push_back(BasePlant(PD.getPlant(plantnames[2]), &sg.ref(0, 0)));
+        }
+            
+        WeatherModule.step();
+        sg.step(WeatherModule.getDataBundle());
+        sg.stepPlants(WeatherModule.getDataBundle());
+
+        for (int c = 0; c < sg.radPerPlant.size(); c++)
+        {
+            rad << sg.radPerPlant[c] << "\t";
+        }
+
+        if (sg.radPerPlant.size() < plantnames.size())
+        for (int c = plantnames.size() - sg.radPerPlant.size(); c > 0; c--)
+            rad << "\t";
+        rad << sg.test_totalrad << "\t" << WeatherModule.getDayRadiation() << "\n";
+
+        logs << WeatherModule.getMonth() << "\t";
+        //// output plant stats    
+        for (auto p : sg.ref(0, 0).plants)
+        {
+            logs << p.calcHeight() << "\t" << p.getBiomass() * 1000 << "\t" << p.getLAI() << "\t";
+        }
+        logs << "\n";
     }
 
     sg.ref(0, 0).plants.back().createSeeds(WeatherModule.getMonth());

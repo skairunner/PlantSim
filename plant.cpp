@@ -5,6 +5,7 @@
 #include <cmath>
 #include <algorithm>
 
+#include <fstream>
 using namespace ALMANAC;
 
 
@@ -15,7 +16,7 @@ using namespace ALMANAC;
 BasePlant::BasePlant(SoilCell* soil)
 : Biomass(0.05, 0, 0, 0), LAI(0), prevLAI(0), previousHeatUnits(0), heatUnits(0), soilPatch(soil), requiredWater(1), suppliedWater(1), height(0)
 , currentWaterlogValue(0), nitrogen(0), floralInductionUnits(0), tempstress(1), rootDepth(0), dead(false), deadBiomass(0), maxBiomass(0), removedNitrogen(0), consecutiveDormantDays(0),
-vernalizationUnits(0), age(0), daysLeftForShedding(0)
+vernalizationUnits(0), age(0), daysLeftForShedding(0), readyForLeafShed(false)
 {
     maxBiomass = Biomass;
 
@@ -84,7 +85,7 @@ vernalizationUnits(0), age(0), daysLeftForShedding(0)
 BasePlant::BasePlant(PlantProperties plantprop, SoilCell* soil)
 : LAI(0), prevLAI(0), previousHeatUnits(0), heatUnits(0), soilPatch(soil), requiredWater(1), suppliedWater(1), height(0)
 , currentWaterlogValue(0), nitrogen(0), floralInductionUnits(0), tempstress(1), rootDepth(0), dead(false), REG(0), deadBiomass(0), removedNitrogen(0), consecutiveDormantDays(0),
-vernalizationUnits(0), age(0), daysLeftForShedding(0)
+vernalizationUnits(0), age(0), daysLeftForShedding(0), readyForLeafShed(false)
 {
     prop = plantprop;
     Biomass = BiomassHolder(prop.averageFruitWeight * prop.seedRatio / 10, 0, 0, 0);
@@ -104,7 +105,7 @@ vernalizationUnits(0), age(0), daysLeftForShedding(0)
 BasePlant::BasePlant(Seed seed, SoilCell* soil)
 : LAI(0), prevLAI(0), previousHeatUnits(0), heatUnits(0), soilPatch(soil), requiredWater(1), suppliedWater(1), height(0)
 , currentWaterlogValue(0), nitrogen(0), floralInductionUnits(0), tempstress(1), rootDepth(0), dead(false), REG(0), deadBiomass(0), removedNitrogen(0), consecutiveDormantDays(0),
-vernalizationUnits(0), age(0), daysLeftForShedding(0)
+vernalizationUnits(0), age(0), daysLeftForShedding(0), readyForLeafShed(false)
 {
     prop = seed.pp;
     Biomass = BiomassHolder(seed.seedBiomass / 10.0, 0, 0, 0);
@@ -170,8 +171,6 @@ void BasePlant::calculate(const WeatherData& data, const double& albedo, const d
     heatUnitsAdded = heatUnitsAdded > 0 ? heatUnitsAdded : 0;
     previousHeatUnits = heatUnits;
 
-    if (data.date == Month(AUGUST, 8, 2013))
-        cout << "hi";
 
     if (heatUnitsAdded + heatUnits > maxHU) // If adding HU will go over the limit,
      {
@@ -182,13 +181,18 @@ void BasePlant::calculate(const WeatherData& data, const double& albedo, const d
         heatUnitsAdded = 0;
         heatUnits = maxHU;
         createSeeds(data.date);
-        if (prop.leafFallPeriod > 0)
-        {
-            daysLeftForShedding = prop.leafFallPeriod;
-            LAIShedPerDay = LAI / daysLeftForShedding;
-        }
+        readyForLeafShed = true;
         if (!prop.isAnnual) // test
             seedlist.clear();
+            
+    }
+
+
+    if (readyForLeafShed && prop.leafFallPeriod > 0 && prop.tempCurve.getValue(data.maxTemp) < 0.05)
+    {
+        daysLeftForShedding = prop.leafFallPeriod;
+        LAIShedPerDay = LAI / daysLeftForShedding;
+        readyForLeafShed = false;
     }
 
     if (daysLeftForShedding > 0)
@@ -196,11 +200,17 @@ void BasePlant::calculate(const WeatherData& data, const double& albedo, const d
         prevLAI = LAI;
         LAI -= LAIShedPerDay;
         daysLeftForShedding--;
+
+        if (daysLeftForShedding == 0)
+        {
+            LAI = 0;
+        }
     }
 
     if (isDead())
     {
         reduceStandingBiomass(data);
+        prevLAI = LAI = 0;
         return;
     }
 
@@ -217,7 +227,7 @@ void BasePlant::calculate(const WeatherData& data, const double& albedo, const d
     {
         heatUnits += heatUnitsAdded;
     }
-    else
+    else if (heatUnits < finalHU)
     {
         doWater(data);
         doNitrogen();
@@ -243,10 +253,7 @@ void BasePlant::calculate(const WeatherData& data, const double& albedo, const d
             if (rootDepth > prop.maxRootDepth) rootDepth = prop.maxRootDepth;
         }           
         else
-            height += deltaHUF * prop.maxHeight * sqrt(REG);
-
-        
-        
+            height += deltaHUF * prop.maxHeight * sqrt(REG);    
 
         ///////////////////////
         double photoactiveRadiation;
@@ -527,11 +534,12 @@ double BasePlant::calcRootDepth()
 
 bool BasePlant::canFlower()
 {
+    if (prop.isTree && getAge() < prop.yearsUntilMaturity) // if is a tree, is under mature age.
+        return false;
     if (floralInductionUnits > prop.floralInductionUnitsRequired)
         if (!prop.needsVernalization  // doesn't need vernalization
             || !prop.isObligateVernalization  // doesn't need to be fully vernalized to flower
-            || vernalizationUnits > prop.vernalizationThermalUnits // is sufficiently vernalized
-            || (prop.isTree && getAge() >= prop.yearsUntilMaturity)) // if is a tree, is over mature age.
+            || vernalizationUnits > prop.vernalizationThermalUnits) // is sufficiently vernalized
             return true;
     return false;
 }
@@ -583,10 +591,10 @@ double BasePlant::getBiomass()
 
 double BasePlant::getLAI()
 {
-    double mod = Biomass / maxBiomass;
-    if (mod != mod)
-        mod = 0;
-    return LAI * mod;
+    double ageMod = 1;
+    if (prop.isTree)
+        ageMod = min(1.0, getAge() / (double)prop.yearsUntilMaturity);
+    return LAI * ageMod;
 }
 
 double BasePlant::getHU()

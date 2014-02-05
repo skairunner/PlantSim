@@ -27,7 +27,8 @@ namespace ALMANAC
         void addRandomWater(const int& numberOf, const int& howMuch); // for testing
         void addWaterSquare(const int& x, const int& y, const int& w, const int& h, const double& howMuch);
 
-
+        double test_totalrad;
+        std::vector<double> radPerPlant;
 
     private:
         std::vector<SoilCell> grid;

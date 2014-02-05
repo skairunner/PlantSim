@@ -34,10 +34,16 @@ void PlantDictionary::init()
 
         pp.name = plant["name"].asString();
         pp.isAnnual = plant["annual"].asBool();
-        pp.isTree = plant["isTree"].asBool();
+        if (!pp.isAnnual)
+        {
+            pp.leafFallPeriod = plant["leaf fall period"].asInt();
+            pp.maxAge = plant["max age"].asInt();
+        }
+        pp.isTree = plant["is tree"].asBool();
         if (pp.isTree)
         {
             pp.yearsUntilMaturity = plant["maturity"].asInt();
+            pp.vegetativeMaturity = plant["vegetative maturity"].asInt();
             pp.maxYearlyGrowth = plant["max yearly growth"].asDouble();
         }
 
@@ -119,8 +125,8 @@ void PlantDictionary::init()
         }
         else
         {
-            pp.dormantHeightDecrease = plant["dormancy"]["dormant height decrease"].asDouble();
-            pp.dormantRootDecrease = plant["dormancy"]["dormant root decrease"].asDouble();
+            pp.dormantHeightDecrease = plant["dormancy"]["height decrease"].asDouble();
+            pp.dormantRootDecrease = plant["dormancy"]["root decrease"].asDouble();
             double stem = plant["dormancy"]["biomass"]["stem"].asDouble();
             double root = plant["dormancy"]["biomass"]["root"].asDouble();
             double storage = plant["dormancy"]["biomass"]["storage"].asDouble();

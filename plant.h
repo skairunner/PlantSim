@@ -11,9 +11,11 @@
 namespace ALMANAC
 {
     class SoilCell;
+    class SoilGrid;
 
     class BasePlant
     {
+        friend class SoilGrid;
     public:
         BasePlant(SoilCell* soil = 0);
         BasePlant(Seed seed, SoilCell* soil = 0);
@@ -31,6 +33,7 @@ namespace ALMANAC
         double getLAI(); // strictly for accessing the LAI of the plant.
         double getRequiredWater();
 
+        bool readyForLeafShed;
         /** Returns:
         1 - if (1) no need for vernalization OR (2) has been fully vernalized
         0 < x < 1 - if partially vernalized AND is not obligate
@@ -75,8 +78,8 @@ namespace ALMANAC
         int getAge(); // in years
         int age; // incremented each time calculate() is called. Divide by 360 to get age in years.
 
-        double height;
-        double rootDepth;
+        double height; // mm
+        double rootDepth; // mm
 
         double LAI, prevLAI;
         double maxBiomass;
