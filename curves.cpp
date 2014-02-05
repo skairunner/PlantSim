@@ -95,16 +95,25 @@ double LeafDistribution::getPositiveArea(double x1, double x2)
         x1 = x2;
     }
 
-    if (x2 > rightRoot)
-        x2 = rightRoot;
+    if (x1 > rightRoot || x2 < leftRoot)
+        return 0;
+
     if (x1 < leftRoot)
         x1 = leftRoot;
+    if (x2 > rightRoot)
+        x2 = rightRoot;
 
     return getIntegral(x2) - getIntegral(x1);
 }
 
 double LeafDistribution::getPositiveArea(double x1, double x2, double plantHeight)
 {
+    if (plantHeight == 0)
+    {
+        x1 = x2 = 0;
+        plantHeight = 1;
+    }
+        
     return getPositiveArea(x1 / plantHeight, x2 / plantHeight);
 }
 
