@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import json
 import re
 
@@ -13,8 +15,31 @@ for line in file:
     counter = 0
     buffer["name"] = properties[counter]; counter += 1
     buffer["annual"] = properties[counter]; counter += 1
+    if buffer["annual"] == "FALSE":
+        buffer["max age"] = int(properties[counter]); counter += 1
+        buffer["leaf fall period"] = int(properties[counter]); counter += 1
+    else:
+        counter += 2
+
     buffer["is tree"] = properties[counter]; counter += 1
+    if buffer["is tree"] == "TRUE":
+        buffer["max yearly growth"] = float(properties[counter]); counter += 1
+        buffer["maturity"] = int(properties[counter]); counter += 1
+    else:
+        counter += 2
+    
     buffer["maxLAI"] = float(properties[counter]); counter += 1
+
+    buffer["uses custom LAI graph"] = properties[counter]; counter += 1
+    if buffer["uses custom LAI graph"] == "TRUE":
+        graph = dict()
+        graph["left root"] = float(properties[counter]); counter += 1
+        graph["vertex X"] = float(properties[counter]); counter += 1
+        graph["vertex Y"] = float(properties[counter]); counter += 1
+        buffer ["LAI graph"] = graph
+    else:
+        counter += 3
+
     buffer["stage 6"] = float(properties[counter]); counter += 1
     buffer["stage 7"] = float(properties[counter]); counter += 1
     buffer["stage 9"] = float(properties[counter]); counter += 1
@@ -27,13 +52,13 @@ for line in file:
     buffer["final nitrogen"] = float(properties[counter]); counter += 1
     buffer["day neutral"] = properties[counter]; counter += 1
 
-    if (buffer["day neutral"] == "TRUE"):
+    if (buffer["day neutral"] == "FALSE"):
         photoinduction = dict()
         photoinduction["min temp"] = float(properties[counter]); counter += 1
         photoinduction["optimal temp"] = float(properties[counter]); counter += 1
         photoinduction["floral induction units"] = float(properties[counter]); counter += 1
         photoinduction["long day"] = properties[counter]; counter += 1
-        photoinduction["minimum induction"] = properties[counter]; counter += 1
+        photoinduction["minimum induction"] = float(properties[counter]); counter += 1
         photoinduction["critical night length"] = float(properties[counter]); counter += 1
         buffer["photoinduction"] = photoinduction
     else:

@@ -6,3 +6,8 @@ Release/*
 *.sdf
 *.opensdf
 *.suo
+logs/*
+Design_docs/copies/*
+profile.bat
+allegro.log
+ProfileResultViewer*
