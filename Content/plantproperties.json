@@ -42,7 +42,7 @@
         "max height": 1000.0,
         "max root depth": 304.0,
         "maxLAI": 4.0,
-        "name": "Pea",
+        "name": "pea",
         "needs vernalization": "FALSE",
         "photoinduction": {
             "critical night length": 12.0,
@@ -100,7 +100,7 @@
         "max height": 610.0,
         "max root depth": 304.0,
         "maxLAI": 4.0,
-        "name": "\"Snowbird\" Snowpea",
+        "name": "\"Snowbird\" snowpea",
         "needs vernalization": "FALSE",
         "photoinduction": {
             "critical night length": 12.0,
@@ -160,7 +160,7 @@
         "max height": 450.0,
         "max root depth": 680.0,
         "maxLAI": 3.0,
-        "name": "Cabbage",
+        "name": "cabbage",
         "needs vernalization": "TRUE",
         "seed dormancy": 120.0,
         "seed ratio": 1.0,
@@ -230,13 +230,12 @@
         "is tree": "TRUE",
         "leaf fall period": 30,
         "maturity": 20,
-		"vegetative maturity": 5,
         "max age": 500,
         "max height": 30480.0,
         "max root depth": 1219.0,
         "max yearly growth": 548.6,
         "maxLAI": 6.0,
-        "name": "Oak",
+        "name": "oak",
         "needs vernalization": "FALSE",
         "seed dormancy": 80.0,
         "seed ratio": 1.0,
@@ -246,6 +245,7 @@
         "stage 9": 1300.0,
         "starting nitrogen": 0.1,
         "uses custom LAI graph": "TRUE",
+        "vegetative maturity": 5,
         "water tolerence": 5.0
     },
     {
@@ -259,7 +259,17 @@
         },
         "base temp": 5.0,
         "day neutral": "TRUE",
-        "default dormancy": "TRUE",
+        "default dormancy": "FALSE",
+        "dormancy": {
+            "biomass": {
+                "fruit": 0.995,
+                "root": 0.998,
+                "stem": 0.985,
+                "storage": 0.995
+            },
+            "height decrease": 0.995,
+            "root decrease": 0.998
+        },
         "final": {
             "fruit": 0.8,
             "root": 0.1,
@@ -282,18 +292,13 @@
             "min temp": 0.0,
             "optimal temp": 15.5
         },
-		"LAI graph": {
-            "left root": 0.5,
-            "vertex X": 0.75,
-            "vertex Y": 0.5
-        },
         "is tree": "FALSE",
         "leaf fall period": 10,
         "max age": -1,
         "max height": 610.0,
         "max root depth": 300.0,
         "maxLAI": 3.0,
-        "name": "Fescue grass",
+        "name": "fescue grass",
         "needs vernalization": "FALSE",
         "seed dormancy": 120.0,
         "seed ratio": 1.0,

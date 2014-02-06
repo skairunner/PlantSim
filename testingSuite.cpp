@@ -156,7 +156,8 @@ void Tests::multiplePlants(const int daysToRun, const std::vector<std::string>& 
 
    /* for (string s : plantnames)
         sg.ref(0, 0).plants.push_back(BasePlant(PD.getPlant(s), &sg.ref(0, 0)));*/
-    sg.ref(0, 0).plants.push_back(BasePlant(PD.getPlant(plantnames[0]), &sg.ref(0, 0)));
+    for (int counter = 0; counter < plantnames.size()-1; counter++)
+        sg.ref(0, 0).plants.push_back(BasePlant(PD.getPlant(plantnames[0]), &sg.ref(0, 0)));
 
 
     fstream rad; rad.open("logs/rad", fstream::trunc | fstream::out);
@@ -180,10 +181,8 @@ void Tests::multiplePlants(const int daysToRun, const std::vector<std::string>& 
     {
         if (counter == 360 * 10)
         {
-            if (plantnames.size() > 1)
-                sg.ref(0, 0).plants.push_back(BasePlant(PD.getPlant(plantnames[1]), &sg.ref(0, 0)));
             if (plantnames.size() > 2)
-                sg.ref(0, 0).plants.push_back(BasePlant(PD.getPlant(plantnames[2]), &sg.ref(0, 0)));
+                sg.ref(0, 0).plants.push_back(BasePlant(PD.getPlant(plantnames.back()), &sg.ref(0, 0)));
         }
             
         WeatherModule.step();

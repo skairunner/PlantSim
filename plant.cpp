@@ -271,6 +271,8 @@ void BasePlant::calculate(const WeatherData& data, const double& albedo, const d
 
 
         potentialDeltaBiomass *= REG;
+        //test
+        potentialDeltaBiomass -= 0.002;
         partitionBiomass(potentialDeltaBiomass);
 
         if (maxBiomass < Biomass)
