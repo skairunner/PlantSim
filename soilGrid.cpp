@@ -357,7 +357,12 @@ void SoilGrid::stepPlants(const WeatherData& wd)
             if (counter == 1)
                 totalLAI = 0.01;
             for (auto plant = it->plants.begin(); plant < it->plants.end(); plant++)
+            {
+                if (plant->isDead())
+                    continue;
                 totalLAI += plant->getLAI() * plant->prop.LAIGraph.getPositiveArea(lowerLimit, upperLimit, plant->calcHeight()); // Add up the total LAI in the given interval 
+            }
+                
             for (int counter = 0; counter < it->plants.size(); counter++)
             {
                 auto& plant = it->plants[counter];

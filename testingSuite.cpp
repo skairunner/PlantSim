@@ -154,13 +154,13 @@ void Tests::multiplePlants(const int daysToRun, const std::vector<std::string>& 
         filename += s + "_";
     filename += ".txt";
 
-   /* for (string s : plantnames)
-        sg.ref(0, 0).plants.push_back(BasePlant(PD.getPlant(s), &sg.ref(0, 0)));*/
     for (int counter = 0; counter < plantnames.size()-1; counter++)
         sg.ref(0, 0).plants.push_back(BasePlant(PD.getPlant(plantnames[0]), &sg.ref(0, 0)));
 
 
     fstream rad; rad.open("logs/rad", fstream::trunc | fstream::out);
+    fstream LAIlog; LAIlog.open("logs/LAIlog-" + filename, fstream::trunc | fstream::out);
+    fstream Nlog; Nlog.open("logs/nitrogen-" + filename, fstream::trunc | fstream::out);
 
     fstream logs; logs.open(("logs/log-" + filename).c_str(), fstream::trunc | fstream::out);
     logs << "Date\t";
@@ -174,12 +174,21 @@ void Tests::multiplePlants(const int daysToRun, const std::vector<std::string>& 
     rad << "Used rad\tTotal rad\n";
     logs << "\n";
 
+    LAIlog << "LAI\tREG\n";
+
+    Nlog << "Date";
+    auto soilLayers = sg.ref(0, 0).getLayers();
+    int counter = 0;
+    for (auto it : soilLayers)
+        Nlog << "\tNitrogen" << counter++;
+    Nlog << "\n";
+
     WeatherModule.changeDate(startDate);
     sg.step(WeatherModule.getDataBundle());
 
     for (int counter = 0; counter < daysToRun; counter++)
     {
-        if (counter == 360 * 10)
+        if (counter == 360 * 0)
         {
             if (plantnames.size() > 2)
                 sg.ref(0, 0).plants.push_back(BasePlant(PD.getPlant(plantnames.back()), &sg.ref(0, 0)));
@@ -206,6 +215,18 @@ void Tests::multiplePlants(const int daysToRun, const std::vector<std::string>& 
             logs << p.calcHeight() << "\t" << p.getBiomass() * 1000 << "\t" << p.getLAI() << "\t";
         }
         logs << "\n";
+
+        if (sg.ref(0, 0).plants.size() == plantnames.size())
+            LAIlog << sg.ref(0, 0).plants.back().getLAI() << "\t" << sg.ref(0, 0).plants.back().getREG() << "\n";
+        else
+            LAIlog << "\t\n";
+
+        // nitrogen stats
+        soilLayers = sg.ref(0, 0).getLayers();
+        Nlog << WeatherModule.getDataBundle().date;
+        for (auto it : soilLayers)
+            Nlog << "\t" << it.nitrates;
+        Nlog << "\n";
     }
 
     sg.ref(0, 0).plants.back().createSeeds(WeatherModule.getMonth());

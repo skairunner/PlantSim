@@ -171,6 +171,8 @@ void BasePlant::calculate(const WeatherData& data, const double& albedo, const d
     heatUnitsAdded = heatUnitsAdded > 0 ? heatUnitsAdded : 0;
     previousHeatUnits = heatUnits;
 
+    if (data.date == Month(JUNE, 17, 2030))
+        cout << data.date;
 
     if (heatUnitsAdded + heatUnits > maxHU) // If adding HU will go over the limit,
      {
@@ -274,6 +276,10 @@ void BasePlant::calculate(const WeatherData& data, const double& albedo, const d
         //test
         potentialDeltaBiomass -= 0.002;
         partitionBiomass(potentialDeltaBiomass);
+
+        currentWaterlogValue -= 0.005;
+        if (currentWaterlogValue < 0)
+            currentWaterlogValue = 0;
 
         if (maxBiomass < Biomass)
             maxBiomass = Biomass;
@@ -594,9 +600,12 @@ double BasePlant::getBiomass()
 double BasePlant::getLAI()
 {
     double ageMod = 1;
+    double deadMod = 1;
     if (prop.isTree)
         ageMod = min(1.0, getAge() / (double)prop.yearsUntilMaturity);
-    return LAI * ageMod;
+    if (isDead())
+        deadMod = 0;
+    return LAI * ageMod * deadMod;
 }
 
 double BasePlant::getHU()
