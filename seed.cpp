@@ -7,11 +7,11 @@ using namespace ALMANAC;
 Seed::Seed()
 : germinated(false), germinationCounter(0)
 {
-
+    age = 0;
 }
 
 Seed::Seed(const PlantProperties& PP, const Month& Date, const int& dormancy, const double& seed, const double fruit)
-: germinated(false), germinationCounter(0)
+: germinated(false), germinationCounter(0), age(0)
 {
     pp = PP;
     seedBiomass = seed;
@@ -24,6 +24,8 @@ Seed::Seed(const PlantProperties& PP, const Month& Date, const int& dormancy, co
 
 bool Seed::attemptGerminate(const WeatherData& wd)
 {
+    age++;
+
     if (germinated)
         return true;
 

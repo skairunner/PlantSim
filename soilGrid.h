@@ -2,6 +2,7 @@
 #include "soil.h"
 #include <vector>
 #include "vector3.h"
+#include <random>
 #include "noise.h"
 
 namespace ALMANAC
@@ -28,10 +29,14 @@ namespace ALMANAC
         void addWaterSquare(const int& x, const int& y, const int& w, const int& h, const double& howMuch);
 
         double test_totalrad;
+        int test_numseeds;
         std::vector<double> radPerPlant;
 
     private:
+        double random(double min = 0.0, double max = 1.0);
+        int random(int min, int max);
         std::vector<SoilCell> grid;
+        std::mt19937 gen;
         int width, height;
         noise::module::Perlin perlin;
         noise::module::Perlin sand, clay, silt;

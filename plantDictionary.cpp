@@ -161,6 +161,7 @@ void PlantDictionary::init()
         pp.averageFruitWeight = plant["average fruit weight"].asDouble();
         pp.seedRatio = plant["seed ratio"].asDouble();
         pp.dormancy = plant["seed dormancy"].asInt();
+        pp.seedViability = plant["seed viability"].asDouble();
 
         pp.HeatUnitFactorNums = SCurve(1, 17, 0.18);
         pp.CO2CurveFactors = SCurve(0.1, 0.04, 49);

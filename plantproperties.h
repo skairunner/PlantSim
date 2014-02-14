@@ -56,6 +56,7 @@ namespace ALMANAC
         double germinationThermalUnits;
         double averageFruitWeight; // kg
         double seedRatio;
+        double seedViability; // 0 <= x <= 1
         int dormancy;
 
         double minFloweringTemp;

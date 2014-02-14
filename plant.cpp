@@ -19,9 +19,6 @@ BasePlant::BasePlant(SoilCell* soil)
 vernalizationUnits(0), age(0), daysLeftForShedding(0), readyForLeafShed(false)
 {
     maxBiomass = Biomass;
-
- 
-
     prop.baseTemp = 5.0;
     prop.maxLAI = 3.3;
     prop.maxRootDepth = 500;
@@ -171,8 +168,6 @@ void BasePlant::calculate(const WeatherData& data, const double& albedo, const d
     heatUnitsAdded = heatUnitsAdded > 0 ? heatUnitsAdded : 0;
     previousHeatUnits = heatUnits;
 
-    if (data.date == Month(JUNE, 17, 2030))
-        cout << data.date;
 
     if (heatUnitsAdded + heatUnits > maxHU) // If adding HU will go over the limit,
      {
@@ -184,9 +179,8 @@ void BasePlant::calculate(const WeatherData& data, const double& albedo, const d
         heatUnits = maxHU;
         createSeeds(data.date);
         readyForLeafShed = true;
-        if (!prop.isAnnual) // test
-            seedlist.clear();
-            
+       /* if (!prop.isAnnual) // test
+            seedlist.clear();*/            
     }
 
 
@@ -229,7 +223,7 @@ void BasePlant::calculate(const WeatherData& data, const double& albedo, const d
     {
         heatUnits += heatUnitsAdded;
     }
-    else if (heatUnits < finalHU)
+    else if (heatUnits < finalHU && !isDead())
     {
         doWater(data);
         doNitrogen();
@@ -274,7 +268,7 @@ void BasePlant::calculate(const WeatherData& data, const double& albedo, const d
 
         potentialDeltaBiomass *= REG;
         //test
-        potentialDeltaBiomass -= 0.002;
+        potentialDeltaBiomass -= min(0.005, Biomass * 0.002);
         partitionBiomass(potentialDeltaBiomass);
 
         currentWaterlogValue -= 0.005;
@@ -430,12 +424,19 @@ void BasePlant::partitionBiomass(const double dBiomass)
         fruit *= getVernalizedRatio();
     }
 
-
     Biomass.roots += dBiomass * root;
     Biomass.stem += dBiomass * shoot;
     Biomass.storageOrgan += dBiomass * storage;
     Biomass.flowerAndfruits += dBiomass * fruit;
 
+    if (Biomass.roots < 0)
+        Biomass.roots = 0;
+    if (Biomass.stem < 0)
+        Biomass.stem = 0;
+    if (Biomass.storageOrgan < 0)
+        Biomass.storageOrgan = 0;
+    if (Biomass.flowerAndfruits < 0)
+        Biomass.flowerAndfruits = 0;
 
     /*if (prop.isAnnual)
     {
@@ -663,12 +664,12 @@ void BasePlant::createSeeds(const Month& date)
 
     double totalWeight = numSeeds * prop.averageFruitWeight;
 
-    vector<double> seedWeights;
+    vector<double> seedWeights(numSeeds, 0);
     double sum = 0;
     for (int counter = 0; counter < numSeeds; counter++)
     {
         double added = random(0.01, 1);
-        seedWeights.push_back(added);
+        seedWeights[counter] = added;
         sum += added;
     }
     for (int counter = 0; counter < numSeeds; counter++)
@@ -678,7 +679,7 @@ void BasePlant::createSeeds(const Month& date)
 
     double extraWeight = (Biomass.flowerAndfruits - totalWeight) / (double)numSeeds;
 
-
+    seedlist.reserve(numSeeds);
     for (int counter = 0; counter < numSeeds; counter++)
     {
         double fruitWeight = prop.averageFruitWeight + extraWeight * seedWeights[counter];

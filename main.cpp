@@ -24,11 +24,13 @@ int main(int argc, char **argv)
 
     cout << ld2.getPositiveArea(0.2, 1.0);
     
-   /* fstream f; f.open("logs/seedlist", fstream::out | fstream::trunc);
-    Tests::singlePlant(360 * 10, "Oak");*/
+    /*fstream f; f.open("logs/seedlist", fstream::out | fstream::trunc);
+    Tests::singlePlant(360 * 10, "oak");*/
 
-    vector<string> list = { "fescue grass", "fescue grass", "fescue grass", "fescue grass", "oak" };
-    Tests::multiplePlants(360 * 30, list);
+    // vector<string> list = { "fescue grass", "fescue grass", "fescue grass", "fescue grass", "oak" };
+    vector<string> list = { "oak", "oak" };
+    Tests::multiplePlants(360 * 50, list);
+
     //Tests::singlePlant(360*10, "Cabbage");
     
     cin.ignore(0);

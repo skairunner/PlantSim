@@ -6,7 +6,7 @@
 #include <cstdlib>
 #include "Weather.h"
 #include "plantDictionary.h"
-#include <iostream>
+#include <fstream>
 
 using namespace ALMANAC;
 
@@ -45,9 +45,34 @@ double max(const double& left, const double& right)
     return left > right ? left : right;
 }
 
-SoilGrid::SoilGrid(const int& w, const int& h, unsigned int seed)
-:width(w), height(h)
+double SoilGrid::random(double min, double max)
 {
+    if (min > max)
+    {
+        double temp = min;
+        min = max;
+        max = temp;
+    }
+    uniform_real_distribution<> dist(min, max);
+    return dist(gen);
+}
+
+int SoilGrid::random(int min, int max)
+{
+    if (min > max)
+    {
+        int temp = min;
+        min = max;
+        max = temp;
+    }
+    uniform_int_distribution<> dist(min, max);
+    return dist(gen);
+}
+
+SoilGrid::SoilGrid(const int& w, const int& h, unsigned int seed)
+:width(w), height(h), test_numseeds(0)
+{
+    gen.seed(seed);
     test_totalrad = 0;
     if (!seed)
     {
@@ -381,6 +406,14 @@ void SoilGrid::stepPlants(const WeatherData& wd)
 
         int plantCounter = 0;
         radPerPlant = rad;
+
+        if (ref(0, 0).plants.size() >= 1)
+            test_numseeds = ref(0, 0).plants[0].seedlist.size();
+
+
+        double tolerence = 0.00001; // 0.01 g
+
+        test_numseeds = it->seeds.size();
         for (auto plant = it->plants.begin(); plant < it->plants.end(); plant++)
         {
             double radPortion = rad[plantCounter];
@@ -391,13 +424,12 @@ void SoilGrid::stepPlants(const WeatherData& wd)
             if (plant->seedlist.size() > 0)
             {
                 
-                /*for (Seed s : plant->seedlist)
+                for (Seed s : plant->seedlist)
                 {
-                    it->seeds.push_back(s);
-                }*/
-                // For testing purposes, only push back one seed.
-                it->seeds.push_back(plant->seedlist.front());
-
+                    double chance = random();
+                    if (s.pp.seedViability > chance) // Unlucky seeds are simply removed for now. TODO: Tie into item spawning system and spawn as items.
+                        it->seeds.push_back(s);
+                }
                 plant->seedlist.clear();
             }
 
@@ -410,6 +442,18 @@ void SoilGrid::stepPlants(const WeatherData& wd)
                 plant->deadBiomass = plant->removedNitrogen = 0;
             }
         }
+
+        vector<BasePlant>& plantlist = it->plants;
+        for (int counter = 0; counter < plantlist.size(); counter++)
+        {
+            BasePlant& plant = plantlist[counter];
+            if (plant.isDead() && plant.getBiomass() < tolerence)
+            {
+                plantlist[counter] = plantlist.back();
+                plantlist.pop_back(); // Overwrite this plant with the plant at the back of vector, and remove the final element, effectively removing a plant from the list.
+            }
+        }
+
 
         // Run seeds.
         for (Seed& seed : it->seeds)
@@ -433,17 +477,11 @@ void SoilGrid::stepPlants(const WeatherData& wd)
 
 }
 
-int randInt(const int& lower, const int& higher)
-{
-    // since I'm lazy I'm going to go ahead and use RAND().
-    return rand() / RAND_MAX * (higher - lower) + lower + 1;
-}
-
 void SoilGrid::addRandomWater(const int& numberOf, const int& howMuch)
 {
     for (int counter = numberOf; counter > 0; counter--)
     {
-        ref(randInt(0, width - 1), randInt(0, height - 1)).getFront().addWater(howMuch);
+        ref(random(0, width - 1), random(0, height - 1)).getFront().addWater(howMuch);
     }
 }
 

@@ -161,8 +161,9 @@ void Tests::multiplePlants(const int daysToRun, const std::vector<std::string>& 
     fstream rad; rad.open("logs/rad", fstream::trunc | fstream::out);
     fstream LAIlog; LAIlog.open("logs/LAIlog-" + filename, fstream::trunc | fstream::out);
     fstream Nlog; Nlog.open("logs/nitrogen-" + filename, fstream::trunc | fstream::out);
-
+    fstream numseeds; numseeds.open("logs/seeds", fstream::trunc | fstream::out);
     fstream logs; logs.open(("logs/log-" + filename).c_str(), fstream::trunc | fstream::out);
+
     logs << "Date\t";
     for (int counter = 0; counter < plantnames.size(); counter++)
     {
@@ -188,7 +189,13 @@ void Tests::multiplePlants(const int daysToRun, const std::vector<std::string>& 
 
     for (int counter = 0; counter < daysToRun; counter++)
     {
-        if (counter == 360 * 0)
+        auto date = WeatherModule.getDataBundle().date;
+        if (date.getMonth() == JANUARY && date.getDate() == 1)
+        {
+            cout << date.getYear() << endl;
+        }
+
+        if (counter == 360 * 10)
         {
             if (plantnames.size() > 2)
                 sg.ref(0, 0).plants.push_back(BasePlant(PD.getPlant(plantnames.back()), &sg.ref(0, 0)));
@@ -216,6 +223,8 @@ void Tests::multiplePlants(const int daysToRun, const std::vector<std::string>& 
         }
         logs << "\n";
 
+        numseeds << sg.test_numseeds << "\n";
+
         if (sg.ref(0, 0).plants.size() == plantnames.size())
             LAIlog << sg.ref(0, 0).plants.back().getLAI() << "\t" << sg.ref(0, 0).plants.back().getREG() << "\n";
         else
@@ -226,7 +235,7 @@ void Tests::multiplePlants(const int daysToRun, const std::vector<std::string>& 
         Nlog << WeatherModule.getDataBundle().date;
         for (auto it : soilLayers)
             Nlog << "\t" << it.nitrates;
-        Nlog << "\n";
+        Nlog << "\n";            
     }
 
     sg.ref(0, 0).plants.back().createSeeds(WeatherModule.getMonth());

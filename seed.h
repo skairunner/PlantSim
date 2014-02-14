@@ -25,7 +25,7 @@ namespace ALMANAC
         Month date;
 
     protected:
-
+        int age;
         Parabola germinationCurve;
         double germinationCounter;
 
