@@ -151,13 +151,13 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\libnoise\include\;C:\allegro\include; D:\include\;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\libnoise\include\;D:\include\;C:\libtcod-1.5.1\include;C:\sdl\include;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\libnoise\bin\;C:\allegro\lib;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>allegro-5.0.7-monolith-md-debug.lib;libnoise.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\libnoise\bin\;C:\libtcod-1.5.1\lib;C:\sdl\lib\x86;</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libnoise.lib;SDL.lib;SDLmain.lib;libtcod-VS.lib;libtcod-gui-VS.lib;libnoise.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -286,9 +286,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AllegroEngine.cpp" />
-    <ClCompile Include="color.cpp" />
-    <ClCompile Include="Engine.cpp" />
+    <ClCompile Include="AllegroEngine.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="color.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Engine_allegro.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Engine_tcod.cpp" />
     <ClCompile Include="item.cpp" />
     <ClCompile Include="jsoncpp.cpp" />
     <ClCompile Include="main.cpp" />
@@ -300,6 +307,8 @@
     <ClCompile Include="plantproperties.cpp" />
     <ClCompile Include="seed.cpp" />
     <ClCompile Include="soilGrid.cpp" />
+    <ClCompile Include="TCODEngine.cpp" />
+    <ClCompile Include="TCODTools.cpp" />
     <ClCompile Include="testingSuite.cpp" />
     <ClCompile Include="utility.cpp" />
     <ClCompile Include="vector3.cpp" />
@@ -308,11 +317,20 @@
     <ClCompile Include="Weather.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AllegroEngine.h" />
-    <ClInclude Include="colors.h" />
+    <ClInclude Include="AllegroEngine.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="colors.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="config.h" />
-    <ClInclude Include="Engine.h" />
+    <ClInclude Include="dirent.h" />
+    <ClInclude Include="Engine_allegro.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Engine_tcod.h" />
     <ClInclude Include="enums.h" />
+    <ClInclude Include="GameState.h" />
     <ClInclude Include="item.h" />
     <ClInclude Include="plantDictionary.h" />
     <ClInclude Include="json\json-forwards.h" />
@@ -325,6 +343,8 @@
     <ClInclude Include="plantproperties.h" />
     <ClInclude Include="seed.h" />
     <ClInclude Include="soilGrid.h" />
+    <ClInclude Include="TCODEngine.h" />
+    <ClInclude Include="TCODTools.h" />
     <ClInclude Include="testingSuite.h" />
     <ClInclude Include="utility.h" />
     <ClInclude Include="vector3.h" />

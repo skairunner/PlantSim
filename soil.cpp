@@ -377,6 +377,11 @@ int SoilCell::getTopsoilType()
     return topsoilType;
 }
 
+int SoilCell::getTopsoilGroup()
+{
+    return topsoilGroup;
+}
+
 void SoilCell::setMooreDirection(const int& moore)
 {
     MooreDirection = moore;
@@ -479,6 +484,7 @@ SoilCell SoilFactory::createCell(const double& baseheight, const double& depth, 
     }
     output.baseHeight = baseheight;
     output.topsoilType = findTopsoilType(*(st.begin()));
+    output.topsoilGroup = findTopsoilGroup(output.topsoilType);
     output.calcTotalHeight();
     return output;
 }
@@ -515,6 +521,19 @@ int SoilFactory::findTopsoilType(const soiltuple& st)
         return  stLOAMYSAND;
     else
         return  stSANDYLOAM; //sandy loam
+}
+
+int SoilFactory::findTopsoilGroup(const int& type)
+{
+    if (type == stSILT)
+        return stgSILTGROUP;
+    if (type == stCLAY | type == stSANDYCLAY | type == stSILTYCLAY)
+        return stgCLAYGROUP;
+    if (type == stSAND | type == stLOAMYSAND)
+        return stgSANDGROUP;
+    if (type == stCLAYLOAM | type == stSILTYCLAYLOAM | type == stSANDYCLAYLOAM | type == stLOAM | type == stSILTLOAM | type == stSANDYLOAM)
+        return stgLOAMGROUP;
+    return 0;
 }
 
 SoilLayer& SoilCell::getFront(const int& offset)

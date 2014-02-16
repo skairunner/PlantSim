@@ -22,18 +22,15 @@
     <Filter Include="Source Files\plantsim">
       <UniqueIdentifier>{a3af5192-e1f8-4659-8d52-0c3b39b9e674}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Allegro">
+      <UniqueIdentifier>{f8d6d27f-5bcc-41f0-828d-8cdb92448c65}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Allegro">
+      <UniqueIdentifier>{ac285583-38f8-4706-a4e6-cc7f0f3f4e73}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AllegroEngine.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="vector3.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="color.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="testingSuite.cpp">
@@ -46,9 +43,6 @@
       <Filter>Source Files\plantsim</Filter>
     </ClCompile>
     <ClCompile Include="jsoncpp.cpp">
-      <Filter>Source Files\plantsim</Filter>
-    </ClCompile>
-    <ClCompile Include="main.cpp">
       <Filter>Source Files\plantsim</Filter>
     </ClCompile>
     <ClCompile Include="Months.cpp">
@@ -84,18 +78,33 @@
     <ClCompile Include="utility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Engine_tcod.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TCODEngine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TCODTools.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine_allegro.cpp">
+      <Filter>Source Files\Allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="color.cpp">
+      <Filter>Source Files\Allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="AllegroEngine.cpp">
+      <Filter>Source Files\Allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="enums.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AllegroEngine.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="vector3.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="colors.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="json\json.h">
@@ -105,9 +114,6 @@
       <Filter>Header Files\json</Filter>
     </ClInclude>
     <ClInclude Include="curves.h">
-      <Filter>Header Files\plantsim</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine.h">
       <Filter>Header Files\plantsim</Filter>
     </ClInclude>
     <ClInclude Include="Months.h">
@@ -157,6 +163,30 @@
     </ClInclude>
     <ClInclude Include="utility.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine_tcod.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameState.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TCODEngine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TCODTools.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dirent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="colors.h">
+      <Filter>Header Files\Allegro</Filter>
+    </ClInclude>
+    <ClInclude Include="AllegroEngine.h">
+      <Filter>Header Files\Allegro</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine_allegro.h">
+      <Filter>Header Files\Allegro</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

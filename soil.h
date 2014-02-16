@@ -120,6 +120,7 @@ namespace ALMANAC
         void calcTotalHeight();
         soiltuple getTopLayer();
         int getTopsoilType();
+        int getTopsoilGroup();
         void setMooreDirection(const int& moore);
         int getMooreDirection();
         void transferLateralWater(std::vector<SoilLayer>& OutLayers); // out of this cell into the other cell. Layer sizes MUST match, otherwise cerr.
@@ -153,7 +154,7 @@ namespace ALMANAC
         double totalHeight;
         double flowInputs[8];
         int topsoilType;
-
+        int topsoilGroup;
     };
 
     class SoilFactory
@@ -162,6 +163,7 @@ namespace ALMANAC
         static SoilCell* createTestCell();
         static SoilCell createCell(const double& baseheight, const double& depth, std::vector<soiltuple>& st);
         static int findTopsoilType(const soiltuple& st);
+        static int findTopsoilGroup(const int& type);
     private:
         noise::module::Perlin gen;
     };
