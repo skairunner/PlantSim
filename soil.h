@@ -6,6 +6,10 @@
 #include "seed.h"
 #include "plant.h"
 #include "vector3.h"
+#include "config.h"
+#ifndef STANDALONE
+#include "item.h"
+#endif
 
 namespace ALMANAC
 {
@@ -132,6 +136,10 @@ namespace ALMANAC
         double surfaceWater;
         double snow;
         bool test_isUnderWater; //test
+
+#ifndef STANDALONE
+        std::vector<HerbSim::Seed> items;
+#endif
 
     protected:
         void upwardsFlow();

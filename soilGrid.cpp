@@ -429,6 +429,17 @@ void SoilGrid::stepPlants(const WeatherData& wd)
                     double chance = random();
                     if (s.pp.seedViability > chance) // Unlucky seeds are simply removed for now. TODO: Tie into item spawning system and spawn as items.
                         it->seeds.push_back(s);
+                    else
+                    {
+#ifndef STANDALONE
+                        chance = random();
+                        if (chance < 0.5) // half the seeds are put into the item list.
+                        {
+                            it->items.push_back(HerbSim::Seed(s.pp));
+                        }
+                        
+#endif
+                    }
                 }
                 plant->seedlist.clear();
             }

@@ -83,6 +83,5 @@ namespace ALMANAC
         int vegetativeMaturity; // same
         int maxAge;
         int leafFallPeriod; // days. over how many days the plant loses its LAI.
-
     };
 }

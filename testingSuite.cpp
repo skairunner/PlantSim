@@ -223,7 +223,7 @@ void Tests::multiplePlants(const int daysToRun, const std::vector<std::string>& 
         }
         logs << "\n";
 
-        numseeds << sg.test_numseeds << "\n";
+        numseeds << sg.ref(0,0).items.size() << "\n";
 
         if (sg.ref(0, 0).plants.size() == plantnames.size())
             LAIlog << sg.ref(0, 0).plants.back().getLAI() << "\t" << sg.ref(0, 0).plants.back().getREG() << "\n";

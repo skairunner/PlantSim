@@ -4,6 +4,11 @@
 #include "vector3.h"
 #include <random>
 #include "noise.h"
+#include "config.h"
+#ifndef STANDALONE
+#include "item.h"
+#endif
+
 
 namespace ALMANAC
 {

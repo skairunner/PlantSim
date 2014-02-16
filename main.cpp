@@ -11,6 +11,7 @@
 #include "plantDictionary.h"
 
 #include "curves.h"
+#include "item.h"
 
 using namespace ALMANAC;
 using namespace std;
@@ -18,12 +19,6 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
-    Parabola test(0.0, 0.5, 0.01);
-    LeafDistribution ld(test);
-    LeafDistribution ld2(true);
-
-    cout << ld2.getPositiveArea(0.2, 1.0);
-    
     /*fstream f; f.open("logs/seedlist", fstream::out | fstream::trunc);
     Tests::singlePlant(360 * 10, "oak");*/
 
