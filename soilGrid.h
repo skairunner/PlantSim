@@ -36,6 +36,7 @@ namespace ALMANAC
         double test_totalrad;
         int test_numseeds;
         std::vector<double> radPerPlant;
+        SoilCell null;
 
     private:
         double random(double min = 0.0, double max = 1.0);
@@ -46,7 +47,7 @@ namespace ALMANAC
         noise::module::Perlin perlin;
         noise::module::Perlin sand, clay, silt;
         noise::module::Perlin aquifer;
-        SoilCell null;
+        
 
         vector3 findGradientVector(const int& x, const int& y);
         vector3 findMooreNeighborVector(const int& x, const int& y, const int& neighbor); // @ Returns 0 if not applicable.

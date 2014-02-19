@@ -299,6 +299,7 @@
     <ClCompile Include="item.cpp" />
     <ClCompile Include="jsoncpp.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MapScreen.cpp" />
     <ClCompile Include="Months.cpp" />
     <ClCompile Include="curves.cpp" />
     <ClCompile Include="parser_rain.cpp" />
@@ -306,6 +307,7 @@
     <ClCompile Include="plantDictionary.cpp" />
     <ClCompile Include="plantproperties.cpp" />
     <ClCompile Include="seed.cpp" />
+    <ClCompile Include="SideBar.cpp" />
     <ClCompile Include="soilGrid.cpp" />
     <ClCompile Include="TCODEngine.cpp" />
     <ClCompile Include="TCODTools.cpp" />
@@ -314,6 +316,7 @@
     <ClCompile Include="vector3.cpp" />
     <ClCompile Include="soil.cpp" />
     <ClCompile Include="soilModel.cpp" />
+    <ClCompile Include="VisualProperties.cpp" />
     <ClCompile Include="Weather.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -332,6 +335,7 @@
     <ClInclude Include="enums.h" />
     <ClInclude Include="GameState.h" />
     <ClInclude Include="item.h" />
+    <ClInclude Include="MapScreen.h" />
     <ClInclude Include="plantDictionary.h" />
     <ClInclude Include="json\json-forwards.h" />
     <ClInclude Include="json\json.h" />
@@ -342,6 +346,7 @@
     <ClInclude Include="plantCell.h" />
     <ClInclude Include="plantproperties.h" />
     <ClInclude Include="seed.h" />
+    <ClInclude Include="SideBar.h" />
     <ClInclude Include="soilGrid.h" />
     <ClInclude Include="TCODEngine.h" />
     <ClInclude Include="TCODTools.h" />
@@ -351,6 +356,7 @@
     <ClInclude Include="rain_stats_holder.h" />
     <ClInclude Include="soil.h" />
     <ClInclude Include="soilModel.h" />
+    <ClInclude Include="VisualProperties.h" />
     <ClInclude Include="Weather.h" />
   </ItemGroup>
   <ItemGroup>
