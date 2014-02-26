@@ -1,0 +1,112 @@
+[
+    {
+        "ID": "pea",
+        "isCover": "FALSE",
+        "mature icon": 244,
+        "name": "pea plant",
+        "plural": "pea plants",
+        "rgb1": {
+            "b": 35,
+            "g": 153,
+            "r": 49
+        },
+        "rgb2": {
+            "b": 4,
+            "g": 226,
+            "r": 254
+        },
+        "seed name": "pea",
+        "seed plural": "peas",
+        "sprout icon": 46,
+        "vegetative icon": 244,
+        "white background": "FALSE"
+    },
+    {
+        "ID": "\"Snowbird\" snowpea",
+        "isCover": "FALSE",
+        "mature icon": 244,
+        "name": "snowpea plant",
+        "plural": "snowpea plants",
+        "rgb1": {
+            "b": 73,
+            "g": 195,
+            "r": 179
+        },
+        "rgb2": {
+            "b": 175,
+            "g": 234,
+            "r": 220
+        },
+        "seed name": "snowpea",
+        "seed plural": "snowpeas",
+        "sprout icon": 46,
+        "vegetative icon": 244,
+        "white background": "FALSE"
+    },
+    {
+        "ID": "cabbage",
+        "isCover": "FALSE",
+        "mature icon": 9,
+        "name": "cabbage",
+        "plural": "cabbages",
+        "rgb1": {
+            "b": 51,
+            "g": 103,
+            "r": 53
+        },
+        "rgb2": {
+            "b": 59,
+            "g": 165,
+            "r": 135
+        },
+        "seed name": "cabbage seed",
+        "seed plural": "cabbage seeds",
+        "sprout icon": 46,
+        "vegetative icon": 7,
+        "white background": "FALSE"
+    },
+    {
+        "ID": "oak",
+        "isCover": "FALSE",
+        "mature icon": 6,
+        "name": "oak tree",
+        "plural": "oak trees",
+        "rgb1": {
+            "b": 23,
+            "g": 103,
+            "r": 87
+        },
+        "rgb2": {
+            "b": 9,
+            "g": 45,
+            "r": 21
+        },
+        "seed name": "acorn",
+        "seed plural": "acorns",
+        "sprout icon": 44,
+        "vegetative icon": 105,
+        "white background": "TRUE"
+    },
+    {
+        "ID": "fescue grass",
+        "isCover": "TRUE",
+        "mature icon": 39,
+        "name": "fescue grass",
+        "plural": "fescue grasses",
+        "rgb1": {
+            "b": 51,
+            "g": 103,
+            "r": 53
+        },
+        "rgb2": {
+            "b": 59,
+            "g": 165,
+            "r": 135
+        },
+        "seed name": "fescue seed",
+        "seed plural": "fescue seeds",
+        "sprout icon": 46,
+        "vegetative icon": 39,
+        "white background": "FALSE"
+    }
+]

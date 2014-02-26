@@ -102,10 +102,13 @@
     <ClCompile Include="MapScreen.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="VisualProperties.cpp">
+    <ClCompile Include="SideBar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SideBar.cpp">
+    <ClCompile Include="mendel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="utility_visual.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -200,10 +203,13 @@
     <ClInclude Include="MapScreen.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="VisualProperties.h">
+    <ClInclude Include="SideBar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SideBar.h">
+    <ClInclude Include="mendel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utility_visual.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

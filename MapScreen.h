@@ -2,7 +2,7 @@
 #include <libtcod.hpp>
 #include "soilGrid.h"
 #include "utility.h"
-#include "VisualProperties.h"
+#include "utility_visual.h"
 #include <vector>
 
 namespace HerbSim
@@ -20,6 +20,8 @@ namespace HerbSim
         int getMapWidth();
         int getMapHeight();
         TCODConsole* console;
+        TCODConsole* ground;
+        TCODConsole* plants;
 
         void Render(TCODConsole *root);
         void KeyUp(const int &key, const int &unicode);

@@ -1,5 +1,5 @@
 #include "SideBar.h"
-#include "VisualProperties.h"
+#include "utility_visual.h"
 #include "TCODTools.h"
 
 using namespace HerbSim;

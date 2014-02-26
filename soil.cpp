@@ -527,11 +527,11 @@ int SoilFactory::findTopsoilGroup(const int& type)
 {
     if (type == stSILT)
         return stgSILTGROUP;
-    if (type == stCLAY | type == stSANDYCLAY | type == stSILTYCLAY)
+    if (type == stCLAY || type == stSANDYCLAY || type == stSILTYCLAY)
         return stgCLAYGROUP;
-    if (type == stSAND | type == stLOAMYSAND)
+    if (type == stSAND || type == stLOAMYSAND)
         return stgSANDGROUP;
-    if (type == stCLAYLOAM | type == stSILTYCLAYLOAM | type == stSANDYCLAYLOAM | type == stLOAM | type == stSILTLOAM | type == stSANDYLOAM)
+    if (type == stCLAYLOAM || type == stSILTYCLAYLOAM || type == stSANDYCLAYLOAM || type == stLOAM || type == stSILTLOAM || type == stSANDYLOAM)
         return stgLOAMGROUP;
     return 0;
 }

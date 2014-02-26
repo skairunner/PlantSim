@@ -15,8 +15,91 @@ PlantDictionary::PlantDictionary()
 
 void PlantDictionary::init()
 {
+    loadProperties();
+    loadVisualProperties();
+    cout << "input done\n";
+}
 
 
+void PlantDictionary::loadVisualProperties()
+{
+    Json::Reader reader;
+    Json::Value root;
+    bool success = reader.parse(slurp("Content/visualproperties.json"), root);
+    if (!success)
+    {
+        cout << "Did not succeed: " << reader.getFormattedErrorMessages() << "\n";
+        return;
+    }
+
+    int counter = 0;
+    while (!root[counter].isNull())
+    {
+        Json::Value plant = root[counter];
+        PlantVisualProperties vp;
+
+        vp.ID = plant["ID"].asString();
+        vp.name = plant["name"].asString();
+        vp.name_plural = plant["plural"].asString();
+        vp.seedname = plant["seed name"].asString();
+        vp.seedname_plural = plant["seed plural"].asString();
+        vp.isCover = plant["isCover"].asBool();
+        vp.whiteBackground = plant["white background"].asBool();
+        vp.icon_sprout = plant["sprout icon"].asInt();
+        vp.icon_vegetative = plant["vegetative icon"].asInt();
+        vp.icon_mature = plant["mature icon"].asInt();
+        int r, g, b;
+        r = plant["rgb1"]["r"].asInt();
+        g = plant["rgb1"]["g"].asInt();
+        b = plant["rgb1"]["b"].asInt();
+        vp.color1 = RGB(r, g, b);
+        r = plant["rgb2"]["r"].asInt();
+        g = plant["rgb2"]["g"].asInt();
+        b = plant["rgb2"]["b"].asInt();
+        vp.color2 = RGB(r, g, b);
+        
+
+        visuallist[vp.ID] = vp;
+        counter++;
+    }
+}
+
+// Assigns a range of data from element to var.
+void assignPairs(pair<int, int>& var, Json::Value element)
+{
+    if (element.size() == 1)
+    {
+        var.first = var.second = element[0].asInt();
+    }
+    else if (element.size() > 1)
+    {
+        var.first = element[0].asInt();
+        var.second = element[1].asInt();
+    }
+    else // if element size is 0
+    {
+        cout << "Missing data\n";
+    }
+}
+void assignPairs(pair<double, double>& var, Json::Value element)
+{
+    if (element.size() == 1)
+    {
+        var.first = var.second = element[0].asDouble();
+    }
+    else if (element.size() > 1)
+    {
+        var.first = element[0].asDouble();
+        var.second = element[1].asDouble();
+    }
+    else // if element size is 0
+    {
+        cout << "Missing data\n";
+    }
+}
+
+void PlantDictionary::loadProperties()
+{
     Json::Reader reader;
     Json::Value root;
     bool success = reader.parse(slurp("Content/plantproperties.json"), root);
@@ -30,24 +113,24 @@ void PlantDictionary::init()
     while (!root[counter].isNull())
     {
         Json::Value plant = root[counter];
-        PlantProperties pp;
+        MasterPlantProperties pp;
 
         pp.name = plant["name"].asString();
         pp.isAnnual = plant["annual"].asBool();
         if (!pp.isAnnual)
         {
-            pp.leafFallPeriod = plant["leaf fall period"].asInt();
-            pp.maxAge = plant["max age"].asInt();
+            assignPairs(pp.leafFallPeriod,  plant["leaf fall period"]);
+            assignPairs(pp.maxAge, plant["max age"]);
         }
         pp.isTree = plant["is tree"].asBool();
         if (pp.isTree)
         {
-            pp.yearsUntilMaturity = plant["maturity"].asInt();
-            pp.vegetativeMaturity = plant["vegetative maturity"].asInt();
-            pp.maxYearlyGrowth = plant["max yearly growth"].asDouble();
+            assignPairs(pp.yearsUntilMaturity, plant["maturity"]);
+            assignPairs(pp.vegetativeMaturity, plant["vegetative maturity"]);
+            assignPairs(pp.maxYearlyGrowth, plant["max yearly growth"]);
         }
 
-        pp.maxLAI = plant["maxLAI"].asDouble();
+        assignPairs(pp.maxLAI, plant["maxLAI"]);
         if (plant["uses custom LAI graph"].asBool())
         {
             double leftroot = plant["LAI graph"]["left root"].asDouble();
@@ -65,9 +148,9 @@ void PlantDictionary::init()
         pp.growthStages[9] = plant["stage 9"].asDouble();
         pp.growthStages[10] = plant["stage 10"].asDouble();
         pp.baseTemp = plant["base temp"].asDouble();
-        pp.waterTolerence = plant["water tolerence"].asDouble();
-        pp.maxHeight = plant["max height"].asDouble();
-        pp.maxRootDepth = plant["max root depth"].asDouble();
+        assignPairs(pp.waterTolerence, plant["water tolerence"]);
+        assignPairs(pp.maxHeight, plant["max height"]);
+        assignPairs(pp.maxRootDepth, plant["max root depth"]);
         pp.startingNitrogenConcentration = plant["starting nitrogen"].asDouble();
         pp.finalNitrogenConcentration = plant["final nitrogen"].asDouble();
         pp.dayNeutral = plant["day neutral"].asBool();
@@ -158,8 +241,8 @@ void PlantDictionary::init()
 
         pp.minGerminationTemp = plant["germination"]["min temp"].asDouble();
         pp.optimalGerminationTemp = plant["germination"]["optimal temp"].asDouble();
-        pp.averageFruitWeight = plant["average fruit weight"].asDouble();
-        pp.seedRatio = plant["seed ratio"].asDouble();
+        assignPairs(pp.averageFruitWeight, plant["average fruit weight"]);
+        assignPairs(pp.seedRatio, plant["seed ratio"]);
         pp.dormancy = plant["seed dormancy"].asInt();
         pp.seedViability = plant["seed viability"].asDouble();
 
@@ -168,11 +251,9 @@ void PlantDictionary::init()
 
         pp.biomassToVPD = 7;
 
-        list[pp.name] = pp;
+        propertieslist[pp.name] = pp;
         counter++;
     }
-
-    cout << "input done\n";
 }
 
 string PlantDictionary::slurp(const string& filename)
@@ -190,8 +271,16 @@ string PlantDictionary::slurp(const string& filename)
 
 PlantProperties PlantDictionary::getPlant(const string& plantname)
 {
-    auto it = list.find(plantname);
-    if (it != list.end())
-        return it->second;
+    auto it = propertieslist.find(plantname);
+    if (it != propertieslist.end())
+        return it->second.convert(MendelModule);
     return PlantProperties();
+}
+
+PlantVisualProperties PlantDictionary::getVisual(const string& plantname)
+{
+    auto it = visuallist.find(plantname);
+    if (it != visuallist.end())
+        return it->second;
+    return PlantVisualProperties();
 }

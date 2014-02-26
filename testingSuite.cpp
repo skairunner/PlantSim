@@ -75,7 +75,7 @@ void Tests::singlePlant(const int daysToRun, const std::string& plantname, Month
     //sg.addWaterSquare(0, 0, 1, 1, 50);
 
 
-    sg.ref(0, 0).plants.push_back(BasePlant(PD.getPlant(plantname), &sg.ref(0, 0)));
+    sg.ref(0, 0).plants.push_back(BasePlant(PD.getPlant(plantname), PD.getVisual(plantname), &sg.ref(0, 0)));
     //sg.ref(0, 0).plants.push_back(BasePlant(&sg.ref(0, 0)));
 
     
@@ -155,7 +155,7 @@ void Tests::multiplePlants(const int daysToRun, const std::vector<std::string>& 
     filename += ".txt";
 
     for (int counter = 0; counter < plantnames.size()-1; counter++)
-        sg.ref(0, 0).plants.push_back(BasePlant(PD.getPlant(plantnames[0]), &sg.ref(0, 0)));
+        sg.ref(0, 0).plants.push_back(BasePlant(PD.getPlant(plantnames[0]), PD.getVisual(plantnames[0]), &sg.ref(0, 0)));
 
 
     fstream rad; rad.open("logs/rad", fstream::trunc | fstream::out);
@@ -198,7 +198,7 @@ void Tests::multiplePlants(const int daysToRun, const std::vector<std::string>& 
         if (counter == 360 * 10)
         {
             if (plantnames.size() > 2)
-                sg.ref(0, 0).plants.push_back(BasePlant(PD.getPlant(plantnames.back()), &sg.ref(0, 0)));
+                sg.ref(0, 0).plants.push_back(BasePlant(PD.getPlant(plantnames.back()), PD.getVisual(plantnames.back()), &sg.ref(0, 0)));
         }
             
         WeatherModule.step();

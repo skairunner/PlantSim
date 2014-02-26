@@ -6,6 +6,7 @@
 #include <algorithm>
 
 #include <fstream>
+#include "plantDictionary.h"
 using namespace ALMANAC;
 
 
@@ -19,73 +20,18 @@ BasePlant::BasePlant(SoilCell* soil)
 vernalizationUnits(0), age(0), daysLeftForShedding(0), readyForLeafShed(false)
 {
     maxBiomass = Biomass;
-    prop.baseTemp = 5.0;
-    prop.maxLAI = 3.3;
-    prop.maxRootDepth = 500;
-    prop.maxHeight = 1000;
-    prop.HeatUnitFactorNums = SCurve(1, 17, 0.18);
-    prop.CO2CurveFactors = SCurve(0.1, 0.04, 49);
-    prop.biomassToVPD = 7;
-    prop.isAnnual = true;
-    prop.isTree = false;
-    prop.waterTolerence = 2;
-    prop.minFloweringTemp = 18;
-    prop.optimalFloweringTemp = 24;
-    prop.flowerTempCurve = Parabola(prop.minFloweringTemp, prop.optimalFloweringTemp, 1);
-    prop.floralInductionUnitsRequired = 7.0;
-    prop.dayNeutral = false;
-    prop.minimumInduction = 0.1;
-    prop.criticalNightLength = 10;
-    prop.longDayPlant = true;
-    prop.averageFruitWeight = 0.05; //
-    prop.minGerminationTemp = 5.0;
-    prop.optimalGerminationTemp = 12;
-    prop.germinationThermalUnits = 7;
-    prop.minimumTemperature = 7.55;
-    prop.optimalTemperature = 23.55;
-    prop.seedRatio = 1;
-    prop.tempCurve = Parabola(prop.minimumTemperature, prop.optimalTemperature, 1);
-    prop.dormancy = 80;
-    prop.dormantHeightDecrease = .998;
-    prop.dormantRootDecrease = .998;
-
-    prop.startingNitrogenConcentration = 0.06;
-    prop.finalNitrogenConcentration = 0.01;
-    /*
-    prop.baseRatios = BiomassHolder(0.6, 0.4, 0, 0);
-    prop.fruitingRatios = BiomassHolder(0.6, 0.2, 0.1, 0.1);
-    prop.finalRatios = BiomassHolder(0.1, 0.1, 0.3, 0.5);*/ // defaults
-
-    prop.baseRatios =     BiomassHolder(0.6, 0.4, 0.0, 0.0);
-    prop.fruitingRatios = BiomassHolder(0.6, 0.2, 0.0, 0.2);
-    prop.finalRatios =    BiomassHolder(0.1, 0.1, 0.0, 0.8);
-    prop.dormantBiomassDecrease = BiomassHolder(0.995, .998, .995, .995);
-
-
-    prop.growthStages[6] = 800.0;
-    prop.growthStages[7] = 1093.0;
-    prop.growthStages[9] = 1686.0;
-    prop.growthStages[10] = 1800.0;
-
-    nitrogen = findRequiredNitrogen();
-
-    prop.nightLengthCurve = getSCurve(prop.dayNeutral, prop.longDayPlant, prop.minimumInduction, prop.criticalNightLength);
-
-    floweringHU = prop.growthStages[6];
-    endFloweringHU = prop.growthStages[7];
-    finalHU = prop.growthStages[9];
-    maxHU = prop.growthStages[10];
-
+    *this = BasePlant(PD.getPlant("fescue grass"), PD.getVisual("fescue grass"), soil);
     rng.seed(rand());
 }
 
-BasePlant::BasePlant(PlantProperties plantprop, SoilCell* soil)
+BasePlant::BasePlant(PlantProperties plantprop, PlantVisualProperties visualprop, SoilCell* soil)
 : LAI(0), prevLAI(0), previousHeatUnits(0), heatUnits(0), soilPatch(soil), requiredWater(1), suppliedWater(1), height(0)
 , currentWaterlogValue(0), nitrogen(0), floralInductionUnits(0), tempstress(1), rootDepth(0), dead(false), REG(0), deadBiomass(0), removedNitrogen(0), consecutiveDormantDays(0),
 vernalizationUnits(0), age(0), daysLeftForShedding(0), readyForLeafShed(false)
 {
     prop = plantprop;
-    Biomass = BiomassHolder(prop.averageFruitWeight * prop.seedRatio / 10, 0, 0, 0);
+    vp = visualprop;
+    Biomass = BiomassHolder(prop.averageFruitWeight() * prop.seedRatio() / 10, 0, 0, 0);
     maxBiomass = Biomass;
 
     nitrogen = findRequiredNitrogen();
@@ -184,9 +130,9 @@ void BasePlant::calculate(const WeatherData& data, const double& albedo, const d
     }
 
 
-    if (readyForLeafShed && prop.leafFallPeriod > 0 && prop.tempCurve.getValue(data.maxTemp) < 0.05)
+    if (readyForLeafShed && prop.leafFallPeriod() > 0 && prop.tempCurve.getValue(data.maxTemp) < 0.05)
     {
-        daysLeftForShedding = prop.leafFallPeriod;
+        daysLeftForShedding = prop.leafFallPeriod();
         LAIShedPerDay = LAI / daysLeftForShedding;
         readyForLeafShed = false;
     }
@@ -236,20 +182,20 @@ void BasePlant::calculate(const WeatherData& data, const double& albedo, const d
         heatUnits += heatUnitsAdded;
         double deltaHUF = findHUF() - findPreviousHUF();
         prevLAI = LAI;
-        LAI += deltaHUF * prop.maxLAI * (1 - exp(5.0f * (prevLAI - prop.maxLAI))) * sqrt(REG);
-        rootDepth += deltaHUF * prop.maxRootDepth * sqrt(REG);
+        LAI += deltaHUF * prop.maxLAI() * (1 - exp(5.0f * (prevLAI - prop.maxLAI()))) * sqrt(REG);
+        rootDepth += deltaHUF * prop.maxRootDepth() * sqrt(REG);
 
         if (prop.isTree)
         {
-            height += deltaHUF * prop.maxYearlyGrowth * sqrt(REG);
-            if (height > prop.maxHeight)
-                height = prop.maxHeight;
+            height += deltaHUF * prop.maxYearlyGrowth() * sqrt(REG);
+            if (height > prop.maxHeight())
+                height = prop.maxHeight();
 
-            rootDepth += deltaHUF * prop.maxRootDepth * sqrt(REG);
-            if (rootDepth > prop.maxRootDepth) rootDepth = prop.maxRootDepth;
+            rootDepth += deltaHUF * prop.maxRootDepth() * sqrt(REG);
+            if (rootDepth > prop.maxRootDepth()) rootDepth = prop.maxRootDepth();
         }           
         else
-            height += deltaHUF * prop.maxHeight * sqrt(REG);    
+            height += deltaHUF * prop.maxHeight() * sqrt(REG);    
 
         ///////////////////////
         double photoactiveRadiation;
@@ -301,7 +247,7 @@ double BasePlant::getRequiredWater()
 
 double BasePlant::getWaterREG()
 {
-    return currentWaterlogValue / prop.waterTolerence;
+    return currentWaterlogValue / prop.waterTolerence();
 }
 
 BiomassHolder BasePlant::getBiomassStruct()
@@ -493,7 +439,7 @@ double BasePlant::getWaterStressFactor()
 
 double BasePlant::getWaterlogStressFactor()
 {
-    return pow(max(0.0, 1 - currentWaterlogValue / prop.waterTolerence), 1/3.0);
+    return pow(max(0.0, 1 - currentWaterlogValue / prop.waterTolerence()), 1/3.0);
 }
 
 double BasePlant::getNitrogenStressFactor()
@@ -543,7 +489,7 @@ double BasePlant::calcRootDepth()
 
 bool BasePlant::canFlower()
 {
-    if (prop.isTree && getAge() < prop.yearsUntilMaturity) // if is a tree, is under mature age.
+    if (prop.isTree && getAge() < prop.yearsUntilMaturity()) // if is a tree, is under mature age.
         return false;
     if (floralInductionUnits > prop.floralInductionUnitsRequired)
         if (!prop.needsVernalization  // doesn't need vernalization
@@ -603,7 +549,7 @@ double BasePlant::getLAI()
     double ageMod = 1;
     double deadMod = 1;
     if (prop.isTree)
-        ageMod = min(1.0, getAge() / (double)prop.yearsUntilMaturity);
+        ageMod = min(1.0, getAge() / (double)prop.yearsUntilMaturity());
     if (isDead())
         deadMod = 0;
     return LAI * ageMod * deadMod;
@@ -626,7 +572,7 @@ double BasePlant::getNitrogen()
 
 double BasePlant::findFallenLeaves()
 {
-    return Biomass * exp(-sqrt(age / 360.0 / prop.yearsUntilMaturity)) / 1.42857; /// 1 / 1.42857 = 70% inital leaf drop. Adjust for other values.
+    return Biomass * exp(-sqrt(age / 360.0 / prop.yearsUntilMaturity())) / 1.42857; /// 1 / 1.42857 = 70% inital leaf drop. Adjust for other values.
 }
 
 std::string BasePlant::getName()
@@ -651,18 +597,18 @@ bool BasePlant::isDormant()
 
 void BasePlant::createSeeds(const Month& date)
 {
-    if (Biomass.flowerAndfruits < prop.averageFruitWeight)
+    if (Biomass.flowerAndfruits < prop.averageFruitWeight())
         return;
 
     if (!canFlower())
         return;
 
-    int numSeeds = Biomass.flowerAndfruits / prop.averageFruitWeight + 0.5;
+    int numSeeds = Biomass.flowerAndfruits / prop.averageFruitWeight() + 0.5;
 
     if (numSeeds == 0)
         return;
 
-    double totalWeight = numSeeds * prop.averageFruitWeight;
+    double totalWeight = numSeeds * prop.averageFruitWeight();
 
     vector<double> seedWeights(numSeeds, 0);
     double sum = 0;
@@ -682,11 +628,11 @@ void BasePlant::createSeeds(const Month& date)
     seedlist.reserve(numSeeds);
     for (int counter = 0; counter < numSeeds; counter++)
     {
-        double fruitWeight = prop.averageFruitWeight + extraWeight * seedWeights[counter];
-        double seedWeight = fruitWeight * prop.seedRatio;
+        double fruitWeight = prop.averageFruitWeight() + extraWeight * seedWeights[counter];
+        double seedWeight = fruitWeight * prop.seedRatio();
         fruitWeight -= seedWeight;
 
-        seedlist.push_back(Seed(prop, date, prop.dormancy, seedWeight, fruitWeight));
+        seedlist.push_back(Seed(prop, vp, date, prop.dormancy, seedWeight, fruitWeight));
     }
 
     Biomass.flowerAndfruits = 0;

@@ -1,4 +1,4 @@
-#include "VisualProperties.h"
+#include "utility_visual.h"
 
 SoilDictionary soilDict;
 TCODColor MabinogiBrown = TCODColor(95, 71, 61);

@@ -4,10 +4,11 @@
 #include <map>
 #include "SoilGrid.h"
 #include "Weather.h"
-#include "VisualProperties.h"
+#include "utility_visual.h"
 #include "MapScreen.h"
 #include "SideBar.h"
 #include "utility.h"
+#include "plantDictionary.h"
 
 Engine CursesEngine;
 
@@ -28,9 +29,13 @@ ALMANAC::Weather* WeatherModule;
 HerbSim::MapScreen* ms;
 HerbSim::SideBar* sidebar;
 
+
 bool Engine::EngineInit()
 {
+
     sg = new ALMANAC::SoilGrid(width, height);
+    sg->initGridWithPlant("oak");
+
     WeatherModule = new ALMANAC::Weather(true);
     ms = new HerbSim::MapScreen(sg, 81, 41, 0, screenheight - 40 - 1);
     sidebar = new HerbSim::SideBar(19, 41, MabinogiBrown);

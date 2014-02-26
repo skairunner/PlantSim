@@ -12,8 +12,9 @@ namespace ALMANAC
     {
     public:
         Seed();
-        Seed(const PlantProperties& PP, const Month& Date, const int& dormancy, const double& seed, const double fruit = 0);
+        Seed(const PlantProperties& PP, const PlantVisualProperties& VP, const Month& Date, const int& dormancy, const double& seed, const double fruit = 0);
         PlantProperties pp;
+        PlantVisualProperties vp;
 
         bool attemptGerminate(const WeatherData& wd);
 

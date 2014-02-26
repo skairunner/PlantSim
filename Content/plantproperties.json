@@ -6,7 +6,9 @@
             "vertex Y": 0.04
         },
         "annual": "TRUE",
-        "average fruit weight": 0.05,
+        "average fruit weight": [
+            0.05
+        ],
         "base": {
             "fruit": 0.0,
             "root": 0.4,
@@ -39,9 +41,15 @@
             "optimal temp": 23.55
         },
         "is tree": "FALSE",
-        "max height": 1000.0,
-        "max root depth": 304.0,
-        "maxLAI": 4.0,
+        "max height": [
+            1000.0
+        ],
+        "max root depth": [
+            304.0
+        ],
+        "maxLAI": [
+            4.0
+        ],
         "name": "pea",
         "needs vernalization": "FALSE",
         "photoinduction": {
@@ -52,8 +60,10 @@
             "minimum induction": 0.1,
             "optimal temp": 24.0
         },
-        "seed dormancy": 80.0,
-        "seed ratio": 0.5,
+        "seed dormancy": 80,
+        "seed ratio": [
+            0.5
+        ],
         "seed viability": 0.1,
         "stage 10": 1800.0,
         "stage 6": 800.0,
@@ -61,11 +71,15 @@
         "stage 9": 1686.0,
         "starting nitrogen": 0.06,
         "uses custom LAI graph": "TRUE",
-        "water tolerence": 2.0
+        "water tolerence": [
+            2.0
+        ]
     },
     {
         "annual": "TRUE",
-        "average fruit weight": 0.05,
+        "average fruit weight": [
+            0.05
+        ],
         "base": {
             "fruit": 0.0,
             "root": 0.4,
@@ -98,9 +112,15 @@
             "optimal temp": 23.55
         },
         "is tree": "FALSE",
-        "max height": 610.0,
-        "max root depth": 304.0,
-        "maxLAI": 4.0,
+        "max height": [
+            610.0
+        ],
+        "max root depth": [
+            304.0
+        ],
+        "maxLAI": [
+            4.0
+        ],
         "name": "\"Snowbird\" snowpea",
         "needs vernalization": "FALSE",
         "photoinduction": {
@@ -111,8 +131,10 @@
             "minimum induction": 0.1,
             "optimal temp": 24.0
         },
-        "seed dormancy": 80.0,
-        "seed ratio": 0.5,
+        "seed dormancy": 80,
+        "seed ratio": [
+            0.5
+        ],
         "seed viability": 0.1,
         "stage 10": 1800.0,
         "stage 6": 800.0,
@@ -120,11 +142,15 @@
         "stage 9": 1686.0,
         "starting nitrogen": 0.06,
         "uses custom LAI graph": "FALSE",
-        "water tolerence": 2.0
+        "water tolerence": [
+            2.0
+        ]
     },
     {
         "annual": "FALSE",
-        "average fruit weight": 0.01,
+        "average fruit weight": [
+            0.01
+        ],
         "base": {
             "fruit": 0.0,
             "root": 0.4,
@@ -157,15 +183,27 @@
             "optimal temp": 12.5
         },
         "is tree": "FALSE",
-        "leaf fall period": -1,
-        "max age": 2,
-        "max height": 450.0,
-        "max root depth": 680.0,
-        "maxLAI": 3.0,
+        "leaf fall period": [
+            -1
+        ],
+        "max age": [
+            2
+        ],
+        "max height": [
+            450.0
+        ],
+        "max root depth": [
+            680.0
+        ],
+        "maxLAI": [
+            3.0
+        ],
         "name": "cabbage",
         "needs vernalization": "TRUE",
-        "seed dormancy": 120.0,
-        "seed ratio": 1.0,
+        "seed dormancy": 120,
+        "seed ratio": [
+            1.0
+        ],
         "seed viability": 0.1,
         "stage 10": 1800.0,
         "stage 6": 800.0,
@@ -179,7 +217,9 @@
             "optimal temp": 2.5,
             "thermal units": 45.0
         },
-        "water tolerence": 1.0
+        "water tolerence": [
+            1.0
+        ]
     },
     {
         "LAI graph": {
@@ -188,7 +228,9 @@
             "vertex Y": 0.5
         },
         "annual": "FALSE",
-        "average fruit weight": 0.05,
+        "average fruit weight": [
+            0.05
+        ],
         "base": {
             "fruit": 0.0,
             "root": 0.4,
@@ -231,17 +273,33 @@
             "optimal temp": 15.0
         },
         "is tree": "TRUE",
-        "leaf fall period": 30,
-        "maturity": 20,
-        "max age": 500,
-        "max height": 30480.0,
-        "max root depth": 1219.0,
-        "max yearly growth": 548.6,
-        "maxLAI": 6.0,
+        "leaf fall period": [
+            30
+        ],
+        "maturity": [
+            20
+        ],
+        "max age": [
+            500
+        ],
+        "max height": [
+            30480.0
+        ],
+        "max root depth": [
+            1219.0
+        ],
+        "max yearly growth": [
+            548.6
+        ],
+        "maxLAI": [
+            6.0
+        ],
         "name": "oak",
         "needs vernalization": "FALSE",
-        "seed dormancy": 80.0,
-        "seed ratio": 0.5,
+        "seed dormancy": 80,
+        "seed ratio": [
+            0.5
+        ],
         "seed viability": 0.1,
         "stage 10": 1800.0,
         "stage 6": 800.0,
@@ -249,12 +307,18 @@
         "stage 9": 1300.0,
         "starting nitrogen": 0.1,
         "uses custom LAI graph": "TRUE",
-        "vegetative maturity": 5,
-        "water tolerence": 5.0
+        "vegetative maturity": [
+            5
+        ],
+        "water tolerence": [
+            5.0
+        ]
     },
     {
         "annual": "FALSE",
-        "average fruit weight": 0.01,
+        "average fruit weight": [
+            0.01
+        ],
         "base": {
             "fruit": 0.0,
             "root": 0.4,
@@ -297,15 +361,27 @@
             "optimal temp": 15.5
         },
         "is tree": "FALSE",
-        "leaf fall period": 10,
-        "max age": -1,
-        "max height": 610.0,
-        "max root depth": 300.0,
-        "maxLAI": 3.0,
+        "leaf fall period": [
+            10
+        ],
+        "max age": [
+            -1
+        ],
+        "max height": [
+            610.0
+        ],
+        "max root depth": [
+            300.0
+        ],
+        "maxLAI": [
+            3.0
+        ],
         "name": "fescue grass",
         "needs vernalization": "FALSE",
-        "seed dormancy": 120.0,
-        "seed ratio": 1.0,
+        "seed dormancy": 120,
+        "seed ratio": [
+            1.0
+        ],
         "seed viability": 0.1,
         "stage 10": 1800.0,
         "stage 6": 800.0,
@@ -313,6 +389,8 @@
         "stage 9": 1686.0,
         "starting nitrogen": 0.06,
         "uses custom LAI graph": "FALSE",
-        "water tolerence": 2.0
+        "water tolerence": [
+            2.0
+        ]
     }
 ]

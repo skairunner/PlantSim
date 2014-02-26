@@ -155,8 +155,23 @@ void SoilGrid::initGridWithPlant(std::string plantID)
     for (int xcounter = 0; xcounter < getWidth(); xcounter++)
     for (int ycounter = 0; ycounter < getHeight(); ycounter++)
     {
-        BasePlant BP(props, &ref(xcounter, ycounter));
-        ref(xcounter, ycounter).plants.push_back(BP);
+        if (ref(xcounter, ycounter).getTopsoilGroup() != stgSANDGROUP)
+        {
+            if (rand() % 100 == 0)
+            {
+                BasePlant BP(props, PD.getVisual(plantID), &ref(xcounter, ycounter));
+                BP.vp.randomizeLerp();
+                BP.height = 10;
+                ref(xcounter, ycounter).plants.push_back(BP);
+            }
+
+
+            BasePlant BP = BasePlant(props, PD.getVisual("fescue grass"), &ref(xcounter, ycounter));
+            BP.vp.randomizeLerp();
+            BP.height = 1;
+            ref(xcounter, ycounter).plants.push_back(BP);
+        }
+
     }
 }
 

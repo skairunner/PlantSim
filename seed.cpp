@@ -10,10 +10,11 @@ Seed::Seed()
     age = 0;
 }
 
-Seed::Seed(const PlantProperties& PP, const Month& Date, const int& dormancy, const double& seed, const double fruit)
+Seed::Seed(const PlantProperties& PP, const PlantVisualProperties& VP, const Month& Date, const int& dormancy, const double& seed, const double fruit)
 : germinated(false), germinationCounter(0), age(0)
 {
     pp = PP;
+    vp = VP;
     seedBiomass = seed;
     fruitBiomass = fruit;
     dormantDays = dormancy;

@@ -3,7 +3,7 @@
 #include <vector>
 #include <string>
 #include "utility.h"
-#include "VisualProperties.h"
+#include "utility_visual.h"
 
 namespace HerbSim
 {

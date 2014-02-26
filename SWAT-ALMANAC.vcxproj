@@ -217,15 +217,15 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\libnoise\include\;C:\allegro\include; D:\include\;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\libnoise\include\;D:\include\;C:\libtcod-1.5.1\include;C:\sdl\include;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>allegro-5.0.7-monolith-md.lib;libnoise.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\libnoise\bin\;C:\allegro\lib;</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libnoise.lib;SDL.lib;SDLmain.lib;libtcod-VS.lib;libtcod-gui-VS.lib;libnoise.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\libnoise\bin\;C:\libtcod-1.5.1\lib;C:\sdl\lib\x86;</AdditionalLibraryDirectories>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
@@ -288,18 +288,22 @@
   <ItemGroup>
     <ClCompile Include="AllegroEngine.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="color.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Engine_allegro.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Engine_tcod.cpp" />
     <ClCompile Include="item.cpp" />
     <ClCompile Include="jsoncpp.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MapScreen.cpp" />
+    <ClCompile Include="mendel.cpp" />
     <ClCompile Include="Months.cpp" />
     <ClCompile Include="curves.cpp" />
     <ClCompile Include="parser_rain.cpp" />
@@ -316,26 +320,30 @@
     <ClCompile Include="vector3.cpp" />
     <ClCompile Include="soil.cpp" />
     <ClCompile Include="soilModel.cpp" />
-    <ClCompile Include="VisualProperties.cpp" />
+    <ClCompile Include="utility_visual.cpp" />
     <ClCompile Include="Weather.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AllegroEngine.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="colors.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="config.h" />
     <ClInclude Include="dirent.h" />
     <ClInclude Include="Engine_allegro.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Engine_tcod.h" />
     <ClInclude Include="enums.h" />
     <ClInclude Include="GameState.h" />
     <ClInclude Include="item.h" />
     <ClInclude Include="MapScreen.h" />
+    <ClInclude Include="mendel.h" />
     <ClInclude Include="plantDictionary.h" />
     <ClInclude Include="json\json-forwards.h" />
     <ClInclude Include="json\json.h" />
@@ -356,7 +364,7 @@
     <ClInclude Include="rain_stats_holder.h" />
     <ClInclude Include="soil.h" />
     <ClInclude Include="soilModel.h" />
-    <ClInclude Include="VisualProperties.h" />
+    <ClInclude Include="utility_visual.h" />
     <ClInclude Include="Weather.h" />
   </ItemGroup>
   <ItemGroup>
