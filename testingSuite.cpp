@@ -1,5 +1,6 @@
 #include "testingSuite.h"
 #include "plantDictionary.h"
+#include "utility_visual.h"
 
 using namespace ALMANAC;
 
@@ -146,6 +147,8 @@ void Tests::singlePlant(const int daysToRun, const std::string& plantname, Month
 
 void Tests::multiplePlants(const int daysToRun, const std::vector<std::string>& plantnames, Month startDate)
 {
+    bool discardSeeds = true;
+
     Weather WeatherModule(true);
     SoilGrid sg(1, 1);
 
@@ -154,10 +157,14 @@ void Tests::multiplePlants(const int daysToRun, const std::vector<std::string>& 
         filename += s + "_";
     filename += ".txt";
 
-    for (int counter = 0; counter < plantnames.size()-1; counter++)
+    for (int counter = 0; counter < plantnames.size() - 1; counter++)
+    {
         sg.ref(0, 0).plants.push_back(BasePlant(PD.getPlant(plantnames[0]), PD.getVisual(plantnames[0]), &sg.ref(0, 0)));
+        //sg.ref(0, 0).seeds.push_back(Seed(PD.getPlant(plantnames[0]), PD.getVisual(plantnames[0]), startDate, 120, 0.5))
+    }
+        
 
-
+    cout << soilDict.getSoilName(sg.ref(0, 0).getTopsoilType()) << endl;
     fstream rad; rad.open("logs/rad", fstream::trunc | fstream::out);
     fstream LAIlog; LAIlog.open("logs/LAIlog-" + filename, fstream::trunc | fstream::out);
     fstream Nlog; Nlog.open("logs/nitrogen-" + filename, fstream::trunc | fstream::out);
@@ -210,6 +217,10 @@ void Tests::multiplePlants(const int daysToRun, const std::vector<std::string>& 
             rad << sg.radPerPlant[c] << "\t";
         }
 
+        if (discardSeeds)
+            sg.ref(0, 0).seeds.clear();
+
+
         if (sg.radPerPlant.size() < plantnames.size())
         for (int c = plantnames.size() - sg.radPerPlant.size(); c > 0; c--)
             rad << "\t";
@@ -238,25 +249,41 @@ void Tests::multiplePlants(const int daysToRun, const std::vector<std::string>& 
         Nlog << "\n";            
     }
 
-    sg.ref(0, 0).plants.back().createSeeds(WeatherModule.getMonth());
+    auto date = WeatherModule.getDataBundle().date;
+    if (date.getYear() == 2063)
+        cout << ".";
 
-    auto seeds = sg.ref(0, 0).plants.back().seedlist;
-
-    int seedcounter = 0;
-    for (auto seed : seeds)
+    if (sg.ref(0, 0).plants.size() != 0)
     {
-        seedcounter++;
-        cout << "Seed " << seedcounter << " biomass: " << seed.seedBiomass * 1000 << "g\n";
+        sg.ref(0, 0).plants.back().createSeeds(WeatherModule.getMonth());
+
+        auto seeds = sg.ref(0, 0).plants.back().seedlist;
+
+        int seedcounter = 0;
+        for (auto seed : seeds)
+        {
+            seedcounter++;
+            cout << "Seed " << seedcounter << " biomass: " << seed.seedBiomass * 1000 << "g\n";
+        }
+    }   
+    else
+    {
+        cout << "no plants detected";
     }
 
 
 
     /////
 
-    cout << sg.ref(0, 0).plants.back().getBiomass();
-    if (sg.ref(0, 0).plants.back().isDead())
-        cout << "Dead.\n";
-    cout << "\nDone.";
+    if (sg.ref(0, 0).plants.size() > 0)
+    {
+        cout << sg.ref(0, 0).plants.back().getBiomass();
+        if (sg.ref(0, 0).plants.back().isDead())
+            cout << "Dead.";
+    }
+    cout << "\nDone";
+        
+
 
     cin.ignore(1);
     return;

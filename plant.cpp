@@ -214,7 +214,7 @@ void BasePlant::calculate(const WeatherData& data, const double& albedo, const d
 
         potentialDeltaBiomass *= REG;
         //test
-        potentialDeltaBiomass -= min(0.005, Biomass * 0.002);
+        //potentialDeltaBiomass -= min(0.005, Biomass * 0.002);
         partitionBiomass(potentialDeltaBiomass);
 
         currentWaterlogValue -= 0.005;

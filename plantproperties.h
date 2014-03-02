@@ -43,80 +43,6 @@ namespace ALMANAC
         PolyGene lerp;
     };
 
-    struct PlantProperties;
-
-    // Stores the range of variables when applicable, and can be converted to a PlantProperties with genes.
-    struct MasterPlantProperties
-    {
-        PlantProperties convert(MendelianInheritance& mendel);
-
-
-        std::string name;
-
-        pair<double, double> maxLAI;
-        std::map<int, double> growthStages;
-        double baseTemp; // ¡ÆC, for GDD calcs
-        pair<double, double>  waterTolerence;
-        pair<double, double>  maxHeight; // mm
-        pair<double, double>  maxYearlyGrowth; // mm, trees only
-        pair<double, double>  maxRootDepth;
-        SCurve HeatUnitFactorNums; // how fast it grows, shared atm
-        SCurve CO2CurveFactors;  /// This one is shared for all plants.
-        Parabola flowerTempCurve;
-        Parabola tempCurve; //growing temp
-        Parabola vernalizationCurve;
-        LeafDistribution LAIGraph;
-        SCurve nightLengthCurve;
-
-        double startingNitrogenConcentration;
-        double finalNitrogenConcentration;
-
-        BiomassHolder baseRatios;
-        BiomassHolder fruitingRatios;
-        BiomassHolder finalRatios;
-
-        double dormantHeightDecrease;
-        double dormantRootDecrease;
-        BiomassHolder dormantBiomassDecrease;
-
-        double minimumTemperature;
-        double optimalTemperature;
-
-        double minGerminationTemp;
-        double optimalGerminationTemp;
-        double germinationThermalUnits;
-        pair<double, double> averageFruitWeight; // kg
-        pair<double, double> seedRatio;
-        double seedViability; // 0 <= x <= 1
-        int dormancy;
-
-        double minFloweringTemp;
-        double optimalFloweringTemp;
-
-        double minVernalizationTemp; // default 0 C
-        double optimalVernalizationTemp; // default 2.5 C
-        double vernalizationThermalUnits; // default 45
-        bool needsVernalization; // default FALSE
-        bool isObligateVernalization; // default FALSE
-
-
-        double floralInductionUnitsRequired; // defaults to 7
-        bool dayNeutral;
-        bool longDayPlant;
-        double minimumInduction;
-        double criticalNightLength;
-
-        double biomassToVPD; // bc(3), =7
-
-        bool isAnnual; // limits HU to the maturity HUs.    
-        bool isTree;
-        pair<int, int> yearsUntilMaturity; // trees only
-        pair<int, int> vegetativeMaturity; // same
-        pair<int,int> maxAge;
-        pair<int, int> leafFallPeriod; // days. over how many days the plant loses its LAI.
-    };
-
-
     /// This class has intristic properties that do not change over the lifetime of a plant, eg its max LAI, growth stages, and various constants.
     struct PlantProperties
     {
@@ -195,6 +121,31 @@ namespace ALMANAC
         PolyGene gene_maxAge;
         PolyGene gene_leafFallPeriod;
         PolyGene gene_seedRatio;
+    };
+
+    // Stores the range of variables when applicable, and can be converted to a PlantProperties with genes.
+    struct MasterPlantProperties : public PlantProperties
+    {
+        PlantProperties convert(MendelianInheritance& mendel);
+
+
+
+
+        pair<double, double> maxLAI_r;
+
+        pair<double, double>  waterTolerence_r;
+        pair<double, double>  maxHeight_r; // mm
+        pair<double, double>  maxYearlyGrowth_r; // mm, trees only
+        pair<double, double>  maxRootDepth_r;
+
+
+        pair<double, double> averageFruitWeight_r; // kg
+        pair<double, double> seedRatio_r;
+
+        pair<int, int> yearsUntilMaturity_r; // trees only
+        pair<int, int> vegetativeMaturity_r; // same
+        pair<int, int> maxAge_r;
+        pair<int, int> leafFallPeriod_r; // days. over how many days the plant loses its LAI.
     };
 }
 

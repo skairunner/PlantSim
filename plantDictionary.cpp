@@ -119,18 +119,18 @@ void PlantDictionary::loadProperties()
         pp.isAnnual = plant["annual"].asBool();
         if (!pp.isAnnual)
         {
-            assignPairs(pp.leafFallPeriod,  plant["leaf fall period"]);
-            assignPairs(pp.maxAge, plant["max age"]);
+            assignPairs(pp.leafFallPeriod_r,  plant["leaf fall period"]);
+            assignPairs(pp.maxAge_r, plant["max age"]);
         }
         pp.isTree = plant["is tree"].asBool();
         if (pp.isTree)
         {
-            assignPairs(pp.yearsUntilMaturity, plant["maturity"]);
-            assignPairs(pp.vegetativeMaturity, plant["vegetative maturity"]);
-            assignPairs(pp.maxYearlyGrowth, plant["max yearly growth"]);
+            assignPairs(pp.yearsUntilMaturity_r, plant["maturity"]);
+            assignPairs(pp.vegetativeMaturity_r, plant["vegetative maturity"]);
+            assignPairs(pp.maxYearlyGrowth_r, plant["max yearly growth"]);
         }
 
-        assignPairs(pp.maxLAI, plant["maxLAI"]);
+        assignPairs(pp.maxLAI_r, plant["maxLAI"]);
         if (plant["uses custom LAI graph"].asBool())
         {
             double leftroot = plant["LAI graph"]["left root"].asDouble();
@@ -148,9 +148,9 @@ void PlantDictionary::loadProperties()
         pp.growthStages[9] = plant["stage 9"].asDouble();
         pp.growthStages[10] = plant["stage 10"].asDouble();
         pp.baseTemp = plant["base temp"].asDouble();
-        assignPairs(pp.waterTolerence, plant["water tolerence"]);
-        assignPairs(pp.maxHeight, plant["max height"]);
-        assignPairs(pp.maxRootDepth, plant["max root depth"]);
+        assignPairs(pp.waterTolerence_r, plant["water tolerence"]);
+        assignPairs(pp.maxHeight_r, plant["max height"]);
+        assignPairs(pp.maxRootDepth_r, plant["max root depth"]);
         pp.startingNitrogenConcentration = plant["starting nitrogen"].asDouble();
         pp.finalNitrogenConcentration = plant["final nitrogen"].asDouble();
         pp.dayNeutral = plant["day neutral"].asBool();
@@ -241,8 +241,8 @@ void PlantDictionary::loadProperties()
 
         pp.minGerminationTemp = plant["germination"]["min temp"].asDouble();
         pp.optimalGerminationTemp = plant["germination"]["optimal temp"].asDouble();
-        assignPairs(pp.averageFruitWeight, plant["average fruit weight"]);
-        assignPairs(pp.seedRatio, plant["seed ratio"]);
+        assignPairs(pp.averageFruitWeight_r, plant["average fruit weight"]);
+        assignPairs(pp.seedRatio_r, plant["seed ratio"]);
         pp.dormancy = plant["seed dormancy"].asInt();
         pp.seedViability = plant["seed viability"].asDouble();
 
