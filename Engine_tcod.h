@@ -17,6 +17,12 @@ class Engine: public TCODEngine
 	void MouseButtonUp(const int &iButton,const int &iX,const int &iY,const int &iRelX,const int &iRelY);
 	void MouseButtonDown(const int &iButton,const int &iX,const int &iY,const int &iRelX,const int &iRelY);
 
-  int focusX, focusY;
+    int focusX, focusY;
+    int promptState;
+    bool waitingForStepsimPrompt;
+    bool updateMap;
+
+    std::string promptResult;
+    GameState* newState;
 };
 extern Engine CursesEngine;

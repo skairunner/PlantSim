@@ -9,11 +9,13 @@
 #include "SideBar.h"
 #include "utility.h"
 #include "plantDictionary.h"
+#include "state_stepSim.h"
+#include "state_getText.h"
 
 Engine CursesEngine;
 
-const int width = 160;
-const int height = 160;
+const int width = 80; // 160x160 original
+const int height = 40;
 
 const int screenwidth = 100;
 const int screenheight = 48;
@@ -32,11 +34,17 @@ HerbSim::SideBar* sidebar;
 
 bool Engine::EngineInit()
 {
+    promptState = promptNONE;
+    waitingForStepsimPrompt = false;
+    updateMap = false;
+
 
     sg = new ALMANAC::SoilGrid(width, height);
-    sg->initGridWithPlant("oak");
+    sg->initGridWithPlant("fescue grass");
 
     WeatherModule = new ALMANAC::Weather(true);
+    WeatherModule->changeDate(ALMANAC::Month(MARCH, 2, 2013));
+
     ms = new HerbSim::MapScreen(sg, 81, 41, 0, screenheight - 40 - 1);
     sidebar = new HerbSim::SideBar(19, 41, MabinogiBrown);
     sidebar->rootX = 81;
@@ -47,6 +55,27 @@ bool Engine::EngineInit()
 
 void Engine::Update()
 {
+    if (waitingForStepsimPrompt)
+    {
+        if (promptState == promptRECIEVED)
+        {
+            int result = stringToDecimal(promptResult);
+            if (result != -555555)
+            {
+                newState = new State_StepSim(WeatherModule, sg, updateMap, result);
+                PushState(newState);
+            }
+                
+        }
+        waitingForStepsimPrompt = false;
+        promptState = promptNONE;
+    }
+
+    if (updateMap)
+    {
+        updateMap = false;
+        ms->redraw();
+    }
 
 }
 
@@ -80,6 +109,18 @@ void Engine::KeyUp(const int &key, const int &unicode)
 void Engine::KeyDown(const int &key, const int &unicode)
 {
     ms->KeyDown(key, unicode);
+    if (unicode == '.')
+    {
+        newState = new State_StepSim(WeatherModule, sg,updateMap);
+        PushState(newState);
+    }
+    else if (unicode == '>')
+    {
+        promptState = promptWAITING;
+        newState = new State_getText(15, 4, "Days to pass?", promptResult, promptState);
+        waitingForStepsimPrompt = true;
+        PushState(newState);
+    }
 }
 
 void Engine::MouseMoved(const int &iButton, const int &iX, const int &iY, const int &iRelX, const int &iRelY)

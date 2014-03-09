@@ -111,6 +111,12 @@
     <ClCompile Include="utility_visual.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="state_stepSim.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="state_getText.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="enums.h">
@@ -210,6 +216,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="utility_visual.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="state_stepSim.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="state_getText.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

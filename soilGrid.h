@@ -26,6 +26,7 @@ namespace ALMANAC
         int getWidth();
         int getHeight();
 
+        void stepAll(const WeatherData& wd); // Advances soil water sim AND plant sim, but NOT surface flow sim.
         void step(const WeatherData& wd); // Advance water simulation by one day
         void stepSurfaceFlow(const WeatherData& wd, double timestep = 1); // advance surface flow by one day
         void stepPlants(const WeatherData& wd);
@@ -33,8 +34,13 @@ namespace ALMANAC
         void addRandomWater(const int& numberOf, const int& howMuch); // for testing
         void addWaterSquare(const int& x, const int& y, const int& w, const int& h, const double& howMuch);
 
+        int progress;
+        int maxprogress;
+
         double test_totalrad;
         int test_numseeds;
+        int test_iterations;
+
         std::vector<double> radPerPlant;
         SoilCell null;
 

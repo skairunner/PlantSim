@@ -7,6 +7,7 @@
 #include "plant.h"
 #include "vector3.h"
 #include "config.h"
+#include <map>
 #ifndef STANDALONE
 #include "item.h"
 #endif
@@ -139,7 +140,7 @@ namespace ALMANAC
         bool test_isUnderWater; //test
 
 #ifndef STANDALONE
-        std::vector<HerbSim::Seed> items;
+        std::map<std::string, HerbSim::MultiSeed> items;
 #endif
 
     protected:

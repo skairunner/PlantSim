@@ -10,6 +10,8 @@
 
 using namespace ALMANAC;
 
+bool onlySand = false;
+
 void transferWater::transfer(SoilCell& waterOut, SoilCell& destination)
 {
     if (waterOut.Layers.size() != destination.Layers.size())
@@ -70,8 +72,10 @@ int SoilGrid::random(int min, int max)
 }
 
 SoilGrid::SoilGrid(const int& w, const int& h, unsigned int seed)
-:width(w), height(h), test_numseeds(0)
+:width(w), height(h), test_numseeds(0), progress(0), test_iterations(0)
 {
+
+    maxprogress = w*h*2;
     gen.seed(seed);
     test_totalrad = 0;
     if (!seed)
@@ -120,10 +124,19 @@ SoilGrid::SoilGrid(const int& w, const int& h, unsigned int seed)
             stBuffer.clay = max(stBuffer.clay, 0);
             stBuffer.silt = max(stBuffer.silt, 0);
 
+            if (onlySand)
+            {
+                stBuffer.sand = 90;
+                stBuffer.clay = 5;
+                stBuffer.silt = 5;
+            }
+
             total = stBuffer.sand + stBuffer.clay + stBuffer.silt; // Divide to get the percentage ratios.
             stBuffer.sand /= total;
             stBuffer.silt /= total;
             stBuffer.clay /= total;
+
+
 
             soils[counter] = stBuffer;
         }
@@ -161,15 +174,24 @@ void SoilGrid::initGridWithPlant(std::string plantID)
             {
                 BasePlant BP(props, PD.getVisual(plantID), &ref(xcounter, ycounter));
                 BP.vp.randomizeLerp();
-                BP.height = 10;
                 ref(xcounter, ycounter).plants.push_back(BP);
             }
 
 
-            BasePlant BP = BasePlant(props, PD.getVisual("fescue grass"), &ref(xcounter, ycounter));
+            BasePlant BP = BasePlant(props, PD.getVisual(plantID), &ref(xcounter, ycounter));
+            /*BP.height = 0.5;
+            BP.heatUnits = BP.prop.growthStages[10] / 10.0;*/
             BP.vp.randomizeLerp();
-            BP.height = 1;
             ref(xcounter, ycounter).plants.push_back(BP);
+        }
+
+        if (random() < 0.1)
+        {
+            HerbSim::Seed seed = HerbSim::Seed(PD.getPlant(plantID), PD.getVisual(plantID));
+            if (ref(xcounter, ycounter).items.find(seed.prop.ID) == ref(xcounter, ycounter).items.end())
+                ref(xcounter, ycounter).items[seed.prop.ID] = HerbSim::MultiSeed(seed);
+            else
+                ref(xcounter, ycounter).items[seed.prop.ID].seeds.push_back(seed);
         }
 
     }
@@ -303,13 +325,22 @@ void SoilGrid::doLateralForEachCell()
     }
 }
 
+void SoilGrid::stepAll(const WeatherData& wd)
+{
+    step(wd);
+    stepPlants(wd);
+    test_iterations++;
+}
+
 void SoilGrid::step(const WeatherData& wd)
 {
     double rainfall = wd.precipitation;
     double temp = (wd.maxTemp + wd.minTemp) / 2.0;
     
+    progress = 0;
     for (auto it = grid.begin(); it < grid.end(); it++)
     {
+        progress++;
         if (rainfall > 0)
             it->addNitrogenToTop(0.0219 * rainfall);
         if (temp < 0)
@@ -450,7 +481,11 @@ void SoilGrid::stepPlants(const WeatherData& wd)
                         chance = random();
                         if (chance < 0.5) // half the seeds are put into the item list.
                         {
-                            it->items.push_back(HerbSim::Seed(s.pp));
+                            HerbSim::Seed seed = HerbSim::Seed(s.pp, s.vp);
+                            if (it->items.find(seed.prop.ID) == it->items.end())
+                                it->items[seed.prop.ID] = HerbSim::MultiSeed(seed);
+                            else
+                                it->items[seed.prop.ID].seeds.push_back(seed);                        
                         }
                         
 #endif
@@ -499,6 +534,7 @@ void SoilGrid::stepPlants(const WeatherData& wd)
         }
         
         plantCounter++;
+        progress++;
     }
 
 }

@@ -160,7 +160,7 @@ void Tests::multiplePlants(const int daysToRun, const std::vector<std::string>& 
     for (int counter = 0; counter < plantnames.size() - 1; counter++)
     {
         sg.ref(0, 0).plants.push_back(BasePlant(PD.getPlant(plantnames[0]), PD.getVisual(plantnames[0]), &sg.ref(0, 0)));
-        //sg.ref(0, 0).seeds.push_back(Seed(PD.getPlant(plantnames[0]), PD.getVisual(plantnames[0]), startDate, 120, 0.5))
+        //sg.ref(0, 0).seeds.push_back(Seed(PD.getPlant(plantnames[0]), PD.getVisual(plantnames[0]), startDate, 120, 0.5));
     }
         
 
@@ -204,7 +204,7 @@ void Tests::multiplePlants(const int daysToRun, const std::vector<std::string>& 
 
         if (counter == 360 * 10)
         {
-            if (plantnames.size() > 2)
+            if (plantnames.size() >= 2)
                 sg.ref(0, 0).plants.push_back(BasePlant(PD.getPlant(plantnames.back()), PD.getVisual(plantnames.back()), &sg.ref(0, 0)));
         }
             

@@ -51,6 +51,7 @@ BasePlant::BasePlant(Seed seed, SoilCell* soil)
 vernalizationUnits(0), age(0), daysLeftForShedding(0), readyForLeafShed(false)
 {
     prop = seed.pp;
+    vp = seed.vp;
     Biomass = BiomassHolder(seed.seedBiomass / 10.0, 0, 0, 0);
     maxBiomass = Biomass;
 
@@ -214,7 +215,7 @@ void BasePlant::calculate(const WeatherData& data, const double& albedo, const d
 
         potentialDeltaBiomass *= REG;
         //test
-        //potentialDeltaBiomass -= min(0.005, Biomass * 0.002);
+        potentialDeltaBiomass -= min(0.005, Biomass * 0.002);
         partitionBiomass(potentialDeltaBiomass);
 
         currentWaterlogValue -= 0.005;
@@ -662,4 +663,16 @@ void BasePlant::reduceStandingBiomass(const WeatherData& data)
 int BasePlant::getAge()
 {
     return int(age / 360);
+}
+
+int BasePlant::geticon()
+{
+    if (isDead() || getHU() < prop.growthStages[10] * .1)
+        return 0;
+    else if (getHU() < prop.growthStages[6])
+        return vp.icon_sprout;
+    else if (getHU() < prop.growthStages[7])
+        return vp.icon_vegetative;
+    else
+        return vp.icon_mature;
 }

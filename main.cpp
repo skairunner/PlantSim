@@ -10,10 +10,11 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
-    // vector<string> list = { "fescue grass", "fescue grass", "fescue grass", "fescue grass", "oak" };
-    vector<string> list = { "oak", "oak" };
+    /*// vector<string> list = { "fescue grass", "fescue grass", "fescue grass", "fescue grass", "oak" };
+    //vector<string> list = { "oak", "oak" };
+    vector<string> list = { "fescue grass", "fescue grass" };
     ALMANAC::Tests::multiplePlants(360 * 50, list);
-    return 0;
+    return 0;*/
 
     CursesEngine.Init("Prealpha version 0.0.1", "Content/asciisquare.bmp", 100, 48);
     CursesEngine.Start();

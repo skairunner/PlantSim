@@ -23,6 +23,7 @@ namespace HerbSim
         TCODConsole* ground;
         TCODConsole* plants;
 
+        void redraw();
         void Render(TCODConsole *root);
         void KeyUp(const int &key, const int &unicode);
         void KeyDown(const int &key, const int &unicode);

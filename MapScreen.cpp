@@ -18,6 +18,22 @@ MapScreen::MapScreen(ALMANAC::SoilGrid* sgp, int screen_width, int screen_height
     plants = new TCODConsole(sg->getWidth(), sg->getWidth());
     plants->setKeyColor(TCODColor::black);
 
+    redraw();
+}
+
+MapScreen::~MapScreen()
+{
+    if (console)
+        delete console;
+    if (ground)
+        delete ground;
+    if (plants)
+        delete plants;
+}
+
+void MapScreen::redraw()
+{
+    
     for (int xcounter = 0; xcounter < sg->getWidth(); xcounter++)
     for (int ycounter = 0; ycounter < sg->getHeight(); ycounter++)
     {
@@ -58,7 +74,8 @@ MapScreen::MapScreen(ALMANAC::SoilGrid* sgp, int screen_width, int screen_height
         if (tallestIndex != -1) // -1 : no plants exist
         {
             auto& plant = sg->ref(xcounter, ycounter).plants[tallestIndex];
-            icon = plant.vp.icon_mature;
+            //icon = plant.vp.icon_mature;
+            icon = plant.geticon();
             auto rgb = plant.vp.getColor();
             fore = TCODColor(rgb.r, rgb.g, rgb.b);
         }
@@ -69,13 +86,16 @@ MapScreen::MapScreen(ALMANAC::SoilGrid* sgp, int screen_width, int screen_height
             auto rgb = plant.vp.getColor();
             back = TCODColor(rgb.r, rgb.g, rgb.b);
             back = TCODColor::lerp(back, TCODColor::black, 0.1f);
+
+            if (plant.geticon() == 0)
+                back = TCODColor::black;
         }
         else
         {
             back = ground->getCharBackground(xcounter, ycounter);
         }
 
-        
+
         if (coverIndex == -1 && tallestIndex == -1) // no plants exist
             back = TCODColor::black;
 
@@ -86,17 +106,6 @@ MapScreen::MapScreen(ALMANAC::SoilGrid* sgp, int screen_width, int screen_height
     TCODConsole::blit(ground, 0, 0, 0, 0, console, 0, 0);
     TCODConsole::blit(plants, 0, 0, 0, 0, console, 0, 0);
 }
-
-MapScreen::~MapScreen()
-{
-    if (console)
-        delete console;
-    if (ground)
-        delete ground;
-    if (plants)
-        delete plants;
-}
-
 
 void MapScreen::Render(TCODConsole *root)
 {
@@ -155,6 +164,17 @@ std::vector<ColoredMessage> MapScreen::getListing(coord screenCoords)
             std::string name = plant.vp.name;
             TCODColor back(255, 0, 255);
             if (plant.vp.whiteBackground)
+                back = TCODColor::white;
+            messages.push_back(ColoredMessage(name, myColor, back));
+        }
+
+        for (auto seed : sg->ref(abscoord.first, abscoord.second).items)
+        {
+            auto RGB = seed.second.getColor();
+            TCODColor myColor(RGB.r, RGB.g, RGB.b);
+            std::string name = seed.second.getName();
+            TCODColor back(255, 0, 255);
+            if (seed.second[0].prop.vp.whiteBackground)
                 back = TCODColor::white;
             messages.push_back(ColoredMessage(name, myColor, back));
         }

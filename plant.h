@@ -23,6 +23,7 @@ namespace ALMANAC
         
 
         std::string getName();
+        int geticon();
         void calculate(const WeatherData& data, const double& albedo, const double radiation = -1); // plug in today's weather :v. CO2 is in ppm
         void findREG(); // probably has params
         double getHU(); // heat units

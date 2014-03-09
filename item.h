@@ -17,9 +17,10 @@ namespace HerbSim
         SeedProperties(){}
         SeedProperties(ALMANAC::PlantProperties& properties);
         ALMANAC::PlantProperties pp;
+        ALMANAC::PlantVisualProperties vp;
     };
 
-    class Item
+   /* class Item
     {
     public:
         Item();
@@ -32,15 +33,30 @@ namespace HerbSim
 
     protected:
         int number;        
-    };
-
+    };*/
     class Seed
     {
     public:
         Seed(){}
-        Seed(ALMANAC::PlantProperties& sp);
-        std::string tag;
+        Seed(ALMANAC::PlantProperties& sp, ALMANAC::PlantVisualProperties& vp);
+       // std::string tag;
         std::string getName();
-        SeedProperties prop;
+        SeedProperties prop;    
+
+
+    };
+
+    class MultiSeed
+    {
+    public:
+        MultiSeed(){}
+        MultiSeed(ALMANAC::PlantProperties& sp, ALMANAC::PlantVisualProperties& vp);
+        MultiSeed(const Seed& s);
+        Seed& operator[](const int& index);
+        //std::string tag;
+        std::string getName();
+        ALMANAC::RGB getColor();
+        int getNumber();
+        std::vector<Seed> seeds;
     };
 }
